@@ -41,4 +41,15 @@ well see this is the whole break down of the site
 
 
 
+## License & Usage
+
+This project is publicly visible for demonstration purposes only.
+
+📁 You may view or clone this project for learning.
+
+🚫 Do not re-upload, modify, or use it in production without permission.
+
+
+
+
                                                             THANKS FOR CHECKING IF YOU FEEL LIKE ASKING ANYTHING CREATE AN ISSUE AND I WILL GET BACK TO YOU 
