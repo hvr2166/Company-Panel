@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="/style.css" />
+  <title>Stock Printing</title>
+  <style>
+    .container {
+      margin: 20px;
+    }
+
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .size-options {
+      display: flex;
+    }
+
+    .barcode-input {
+      display: flex;
+    }
+
+    .barcode-input input {
+      margin-right: 10px;
+    }
+
+    .result {
+      margin-top: 20px;
+      padding: 15px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    .box {
+      margin-bottom: 10px;
+      padding: 10px;
+      border: 1px solid #999;
+      border-radius: 4px;
+      background-color: #f9f9f9;
+      font-size: 16px;
+    }
+
+    .error {
+      color: red;
+    }
+
+    .barcode-img {
+      max-width: 250px;
+      margin-bottom: 15px;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h2>Manage Lots</h2>
+
+  <div class="controls">
+    <h3>Scan Barcode For Lot Printing</h3>
+    <div class="size-options">
+      <label>
+        <input type="radio" name="size" value="small" checked> Small Size
+      </label>
+      <label>
+        <input type="radio" name="size" value="big"> Big Size
+      </label>
+    </div>
+    <div class="barcode-input">
+      <input type="text" id="barcodeInput" placeholder="scan barcode" />
+      <button class="print-button" onclick="searchBarcode()">Search</button>
+    </div>
+  </div>
+
+  <div id="result" class="result"></div>
+</div>
+
+<script>
+  async function searchBarcode() {
+    const barcode = document.getElementById('barcodeInput').value.trim();
+    const resultDiv = document.getElementById('result');
+
+    if (!barcode) {
+      resultDiv.innerHTML = "<p class='error'>Please enter a barcode.</p>";
+      return;
+    }
+
+    try {
+      const response = await fetch(`/getStockByBarcode/${barcode}`);
+      const data = await response.json();
+
+      if (data.success) {
+        resultDiv.innerHTML = `
+          <img src="${data.barcode_image}" alt="Barcode" width="200">
+          <div class="box"><strong>Lot:</strong> ${data.lot}</div>
+          <div class="box"><strong>Weight:</strong> ${data.weight}</div>
+          <div class="box"><strong>PCS:</strong> ${data.pcs}</div>
+        `;
+      } else {
+        resultDiv.innerHTML = `<p class='error'>${data.message}</p>`;
+      }
+    } catch (err) {
+      console.error(err);
+      resultDiv.innerHTML = `<p class='error'>Something went wrong while fetching data.</p>`;
+    }
+  }
+</script>
+
+</body>
+</html>

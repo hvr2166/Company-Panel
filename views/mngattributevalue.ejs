@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Users</title>
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- <style>
+
+        /* Sidebar */
+        /* .sidebar {
+            width: 260px;
+            background: #333;
+            color: white;
+            min-height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            padding-top: 20px;
+        } */ */
+
+        /* Main Content */
+        .content {
+            margin-left: 260px; /* Adjust according to sidebar width */
+            flex: 1;
+            padding: 30px;
+            background: #f8f9fa;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 100%;
+            background: white;
+            padding: 20px;
+            margin-top: 2rem;
+            border-radius: 8px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        /* Table container for responsiveness */
+        .table-container {
+            overflow-x: auto;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        /* User Table */
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .table th, .table td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        .table th {
+            background-color: #007bff;
+            color: white;
+            text-align: center;
+        }
+
+        .table td {
+            text-align: center;
+        }
+        #addAttributevalueview {
+    background: white;
+    padding: 15px; /* Adjust padding */
+    border-radius: 8px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    width: 100%; /* Keep full width */
+    max-width: 500px; /* Keep it medium-sized */
+    margin-top: 5px;
+    margin-left: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+#editattributevalueView {
+    background: white;
+    padding: 15px; /* Adjust padding */
+    border-radius: 8px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    width: 100%; /* Keep full width */
+    max-width: 500px; /* Keep it medium-sized */
+    margin-top: 5px;
+    margin-left: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+/* Reduce spacing between form fields */
+.form-group {
+    margin-bottom: 5px; /* Decrease gap between fields */
+    width: 100%;
+}
+
+/* Make input fields smaller */
+.form-group input {
+    padding: 8px; /* Reduce input padding */
+    font-size: 14px; /* Adjust font size */
+    height: 32px; /* Set a fixed height */
+}
+
+/* Reduce button size */
+.btn {
+    padding: 6px 12px; /* Adjust button size */
+    font-size: 14px;
+}
+
+/* Reduce margin between buttons */
+.button-group {
+    margin-top: 10px; /* Reduce spacing below form */
+}
+
+
+
+/* Form Heading */
+#addAttributevalueview h3 {
+    text-align: center;
+    color: #007bff;
+    margin-bottom: 15px;
+    font-size: 22px;
+}
+
+/* Input Fields */
+.form-group {
+    margin-bottom: 12px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 5px;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+.form-group input:focus {
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0px 0px 5px rgba(0, 123, 255, 0.5);
+}
+
+
+        /* Buttons */
+        .btn {
+            padding: 8px 12px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #007bff;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #0056b3;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #545b62;
+        }
+
+        .button-group {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 15px;
+}
+
+.btn {
+    padding: 10px 15px;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.actions {
+    display: flex
+;
+    align-items: center;
+    gap: 10px;
+}
+
+#status{
+    display: flex; 
+    gap: 10px;
+}
+
+
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 78px;
+            }
+
+            .content {
+                margin-left: 78px;
+                padding: 15px;
+            }
+
+            .table-container {
+                overflow-x: auto;
+            }
+        }
+    </style> -->
+</head>
+<body>
+    <div id="dynamic-content">
+ <div  id="manageattribute-page"  class="container-wrapper">
+
+
+   
+        <!-- Main Content -->
+        <main class="content">
+            <div class="container">
+                <h2>Manage Attributes Values</h2>
+               
+
+                <!-- value Table -->
+                <div id="attributevalueTableView" class="table-container">
+                    <button id="addattributevalueBtn" class="btn btn-primary">Add Attribute Value</button>
+                    <br><br>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Attribute Name</th>
+                                <th>Attribute Value</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% users.forEach(user => { %>
+                                <tr>  
+                                    <td class="id"><%= user.nid %></td>
+                                    <td class="attribute_name"><%= user.attribute_name %></td>
+                                    <td class="attribute_value"><%= user.attribute_value %></td>
+                                    <td>
+                                        <div class="actions">
+                                            <!-- Edit Button -->
+                                            
+                                            <button type="button" class="btn btn-warning edit-value">
+                                                <i class="fa-regular fa-pen-to-square"></i>
+                                            </button>
+                                    
+                                            <!-- Delete Button inside inline form -->
+                                            <form action="/deleteattribute/<%= user.nid %>" method="POST">
+                                                <button type="submit" class="btn btn-danger delete-value" data-id="<%= user.nid %>">
+                                                    <i class="fa-regular fa-trash-can"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                    
+                                    
+                                    
+                                </tr>
+                            <% }); %>
+                        </tbody>
+                    </table>
+                    <div id="pagination" class="pagination">
+                        <button id="prevPage" class="btn btn-secondary">Previous</button>
+                        <span id="pageInfo"></span>
+                        <button id="nextPage" class="btn btn-secondary">Next</button>
+                    </div>
+                </div>
+
+               <!-- Add User Form -->
+               <div id="addAttributevalueview" style="display: none;">
+                <h3>Add Attribute value</h3>
+                <form action="/addattributevalue" method="POST">
+                    <div class="form-group">
+                        <label>Attribute Name</label>
+                        <select name="attribute_name" class="form-control" required>
+                            <option value="">Select Attribute</option>
+                            <% attributes.forEach(function(attribute) { %>
+                                <option value="<%= attribute.attribute_name %>"><%= attribute.attribute_name %></option>
+                            <% }); %>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Attribute Value</label>
+                        <input type="text" name="attribute_value" id="edit_attribute_value" class="form-control" required>
+                    </div>
+                    <div class="button-group">
+                        <button type="submit" class="btn btn-success" id="submitBtn">Add </button>
+                        <button type="button" id="cancelBtn" class="btn btn-secondary">Cancel</button>
+                    </div>
+                </form>
+                </div>
+                
+            </div>
+            <div id="editattributevalueView" style="display: none;">
+                <h3>Edit Attribute value</h3>
+                <form id="editattributevalueForm" action="/editattributevalue" method="POST">
+                    <input type="hidden" name="nid" id="edit_nid"> <!-- Hidden field for user ID -->
+                    <div class="form-group">
+                        <label>Attribute name</label>
+                        <input type="text" name="attribute_name" id="edit_attribute_name" class="form-control" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>Attribute Value</label>
+                        <input type="text" name="attribute_value" id="edit_attribute_value" class="form-control" required>
+                    </div>
+                    <div class="button-group">
+                        <button type="submit" class="btn btn-success" id="saveEditBtn">Save Details</button>
+                        <button type="button" id="cancelEditBtn" class="btn btn-secondary">Cancel</button>
+                    </div>
+                </form>
+            </div>
+    </main>
+</div>
+</div>
+<script >
+console.log("🛠️ Manage Attributes Values script loaded!");
+
+// Delay execution slightly to ensure elements are available
+setTimeout(() => {
+    console.log("⏳ Checking for elements...");
+
+    function bindManageAttributesValuesEvents() {
+        const addAttributeValueBtn = document.getElementById("addattributevalueBtn"); // Changed from addAttributeBtn to addattributevalueBtn
+        const cancelBtn = document.getElementById("cancelBtn");
+        const submitBtn = document.getElementById("submitBtn");
+        const addAttributeValueView = document.getElementById("addAttributevalueview"); // Changed from addAttributeView to addAttributevalueview
+        const attributeValueTableView = document.getElementById("attributevalueTableView"); // Changed from attributeTableView to attributevalueTableView
+        const addAttributeValueForm = document.querySelector("#addAttributevalueview form"); // Changed from addAttributeForm to addAttributevalueForm
+        const attributeValueTableBody = document.querySelector("#attributevalueTableView tbody"); // Changed from attributeTableBody to attributeValueTableBody
+
+        // Edit Attribute Value Elements
+        const editAttributeValueView = document.getElementById("editattributevalueView"); // Changed from editAttributeView to editattributevalueView
+        const editAttributeValueForm = document.querySelector("#editattributevalueView form"); // Changed from editAttributeForm to editattributevalueForm
+        const cancelEditBtn = document.getElementById("cancelEditBtn");
+
+        if (!editAttributeValueView) {
+            console.error("🚨 #editattributevalueView not found in the DOM!");
+        } else {
+            console.log("✅ #editattributevalueView found:", editAttributeValueView);
+        }
+
+        if (!addAttributeValueBtn || !cancelBtn || !submitBtn || !addAttributeValueView || !attributeValueTableView || !addAttributeValueForm || !attributeValueTableBody || !editAttributeValueView || !editAttributeValueForm || !cancelEditBtn) {
+            console.error("❌ Some Manage Attribute Value elements are missing! DOM might not be fully loaded.");
+            return;
+        }
+
+        console.log("✅ Manage Attribute Value elements found, adding event listeners...");
+
+        
+        const rows = Array.from(attributeValueTableBody.querySelectorAll("tr"));
+            const itemsPerPage = 5; // Number of rows per page
+            let currentPage = 1;
+
+            function showPage(page) {
+                const start = (page - 1) * itemsPerPage;
+                const end = start + itemsPerPage;
+
+                rows.forEach((row, index) => {
+                    row.style.display = (index >= start && index < end) ? "" : "none";
+                });
+
+                document.getElementById("pageInfo").textContent = `Page ${page} of ${Math.ceil(rows.length / itemsPerPage)}`;
+            }
+
+            document.getElementById("prevPage").addEventListener("click", function() {
+                if (currentPage > 1) {
+                    currentPage--;
+                    showPage(currentPage);
+                }
+            });
+
+            document.getElementById("nextPage").addEventListener("click", function() {
+                if (currentPage < Math.ceil(rows.length / itemsPerPage)) {
+                    currentPage++;
+                    showPage(currentPage);
+                }
+            });
+
+            // Initial page load
+            showPage(currentPage);
+
+
+        // Show Add Attribute Value Form and Hide Attribute Value Table
+        addAttributeValueBtn.addEventListener("click", function () {
+            console.log("➕ Add Attribute Value button clicked");
+            attributeValueTableView.style.display = "none";
+            addAttributeValueView.style.display = "block";
+            editAttributeValueView.style.display = "none"; // Hide edit form
+        });
+
+        // Hide Add Attribute Value Form and Show Attribute Value Table
+        cancelBtn.addEventListener("click", function () {
+            console.log("❌ Cancel button clicked");
+            addAttributeValueView.style.display = "none";
+            attributeValueTableView.style.display = "block";
+        });
+
+        // Submit Form via AJAX and Dynamically Update Table
+        addAttributeValueForm.addEventListener("submit", async (event) => {
+            event.preventDefault(); // Prevent default form submission
+            console.log("🚀 Submit button clicked!");
+
+            const formData = new FormData(event.target);
+            const urlEncodedData = new URLSearchParams(formData);
+
+            try {
+                const response = await fetch("/addattributevalue", { // Changed from /addattribute to /addattributevalue
+                    method: "POST",
+                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                    body: urlEncodedData.toString()
+                });
+
+                console.log("✅ Response Status:", response.status);
+
+                if (!response.ok) {
+                    throw new Error(`Server error! Status: ${response.status}`);
+                }
+                
+                alert("Attribute Value added successfully!");
+                await reloadManageAttributesValues(); // ✅ Reload content dynamically
+            } catch (error) {
+                console.error("🚨 Fetch Error:", error);
+                alert("Something went wrong.");
+            }
+        });
+
+        // ✅ Edit Attribute Value Functionality
+        document.querySelectorAll(".edit-value").forEach((editBtn) => {
+            editBtn.addEventListener("click", function () {
+                console.log("✏️ Edit button clicked!");
+
+                const attributeValueRow = this.closest("tr");
+                if (!attributeValueRow) {
+                    console.error("🚨 Error: Cannot find attribute value row.");
+                    return;
+                }
+
+                // Extract attribute value data from table row
+                const attributeValueId = attributeValueRow.querySelector(".id").textContent;
+                const attributeName = attributeValueRow.querySelector(".attribute_name").textContent;
+                const attributeValue = attributeValueRow.querySelector(".attribute_value").textContent;
+
+                // Populate the edit form fields
+                document.querySelector("#editattributevalueView input[name='nid']").value = attributeValueId;
+                document.querySelector("#editattributevalueView input[name='attribute_name']").value = attributeName;
+                document.querySelector("#editattributevalueView input[name='attribute_value']").value = attributeValue;
+
+                // Show Edit Attribute Value View & Hide Others
+                attributeValueTableView.style.display = "none";
+                addAttributeValueView.style.display = "none";
+                editAttributeValueView.style.display = "block"; // Ensure this is set to "block"
+            });
+        });
+
+        // ✅ Handle Edit Attribute Value Form Submission
+        editAttributeValueForm.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            console.log("💾 Save Details button clicked!");
+
+            const formData = new FormData(event.target);
+            const urlEncodedData = new URLSearchParams(formData);
+
+            try {
+                const response = await fetch("/editattributevalue", { // Changed from /editattribute to /editattributevalue
+                    method: "POST",
+                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                    body: urlEncodedData.toString()
+                });
+
+                console.log("✅ Edit Response Status:", response.status);
+
+                if (!response.ok) {
+                    throw new Error(`Server error! Status: ${response.status}`);
+                }
+                
+                alert("Attribute Value updated successfully!");
+                await reloadManageAttributesValues(); // ✅ Reload content dynamically
+            } catch (error) {
+                console.error("🚨 Edit Error:", error);
+                alert("Failed to update attribute value.");
+            }
+        });
+
+        // Hide Edit Attribute Value View
+        cancelEditBtn.addEventListener("click", function () {
+            console.log("❌ Cancel Edit button clicked");
+            editAttributeValueView.style.display = "none";
+            attributeValueTableView.style.display = "block";
+        });
+
+        // ✅ Delete Attribute Value Functionality
+        document.querySelectorAll(".delete-value").forEach((deleteBtn) => {
+            deleteBtn.addEventListener("click", async function (event) {
+                event.preventDefault(); // Prevent page reload
+                console.log("🗑️ Delete button clicked!");
+
+                const attributeValueId = this.dataset.id;
+                if (!attributeValueId) {
+                    console.error("🚨 Attribute Value ID not found in dataset!");
+                    return;
+                }
+
+                if (!confirm("Are you sure you want to delete this attribute value?")) return;
+
+                try {
+                    const response = await fetch(`/deleteattributevalue/${attributeValueId}`, { // Changed from /deleteattribute to /deleteattributevalue
+                        method: "POST",
+                    });
+
+                    console.log("🗑️ Delete Response Status:", response.status);
+
+                    if (!response.ok) {
+                        throw new Error(`Server error! Status: ${response.status}`);
+                    }
+
+                    // ✅ Remove the deleted attribute value's row from the table dynamically
+                    const rowToDelete = this.closest("tr");
+                    if (rowToDelete) {
+                        rowToDelete.remove();
+                        console.log(`✅ Attribute Value ${attributeValueId} removed from table.`);
+                    }
+                } catch (error) {
+                    console.error("🚨 Delete Error:", error);
+                    alert("Failed to delete attribute value.");
+                }
+            });
+        });
+    }
+
+    // ✅ Function to Reload Manage Attributes Values Page Without Refreshing
+    async function reloadManageAttributesValues() {
+        console.log("🔄 Reloading Manage Attributes Values...");
+        const contentDiv = document.getElementById("dynamic-content");
+
+        if (!contentDiv) {
+            console.error("🚨 Error: #dynamic-content not found!");
+            return;
+        }
+
+        const updatedContent = await fetch("/attribute%20value"); // Changed from /mngattribute to /mngattributevalue
+        const html = await updatedContent.text();
+        contentDiv.innerHTML = html; // Replace only the content
+
+        bindManageAttributesValuesEvents(); // ✅ Rebind event listeners after reload
+    }
+
+    // Initial Binding of Events
+    bindManageAttributesValuesEvents();
+
+}, 500);
+
+</script>
+
+</body>
+</html>

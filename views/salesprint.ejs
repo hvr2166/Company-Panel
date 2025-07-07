@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Invoice</title>
+  <style>
+  body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f9f9f9;
+    }
+    .container {
+      max-width: 760px;
+      margin: 20px auto;
+      background: white;
+      padding: 20px;
+    }
+    .header {
+      text-align: center;
+    }
+    .header img {
+      max-width: 200px;
+      height: auto;
+      display: block;
+      margin: 0 auto 10px;
+    }
+    .title {
+      font-size: 20px;
+      font-weight: bold;
+    }
+    .sub-header {
+      font-size: 12px;
+      color: #555;
+      margin: 5px 0 15px;
+    }
+    .blue-line {
+      height: 2px;
+      background-color: #007bff;
+      margin: 10px 0 20px;
+    }
+    .info-section {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      font-size: 12px;
+    }
+    .info-left {
+      width: 48%;
+    }
+    .info-right {
+      width: 48%;
+      text-align: right;
+    }
+    .info-left div, .info-right div {
+      margin-bottom: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      font-size: 12px;
+    }
+    thead tr {
+      background-color: #007bff !important;
+      color: white !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    th {
+      text-align: left;
+    }
+    th, td {
+      border: 1px solid #000;
+      padding: 5px 6px;
+      text-align: left;
+    }
+    .totals {
+      margin-top: 20px;
+      font-size: 12px;
+    }
+    .totals div {
+      text-align: right;
+      margin-bottom: 5px;
+    }
+    .signatures {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 50px;
+      font-size: 12px;
+    }
+    .signatures div {
+      text-align: center;
+    }
+    .print-button {
+      display: block;
+      margin: 30px auto;
+      padding: 10px 20px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+  
+   @media print {
+  .print-button,
+  #google_translate_element,
+  .goog-te-banner-frame,
+  .skiptranslate,
+  .goog-logo-link,
+  .goog-te-gadget,
+  iframe {
+    display: none !important;
+  }
+
+  thead tr {
+    background-color: #007bff !important;
+    color: white !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
+
+
+
+
+  /* Optional: remove Google branding spacing */
+  .goog-logo-link, .goog-te-gadget span {
+    display: none !important;
+  }
+  .goog-te-gadget {
+    color: transparent !important;
+  }
+
+  .bank-details {
+  font-size: 12px;
+  margin-top: 20px;
+}
+.bank-details div {
+  margin-bottom: 4px;
+  text-align: left;
+}
+
+  </style>
+
+  <!-- Google Translate -->
+
+  
+  <script type="text/javascript">
+    function googleTranslateElementInit() {
+      new google.translate.TranslateElement({
+        pageLanguage: 'en',
+        layout: google.translate.TranslateElement.InlineLayout.SIMPLE
+      }, 'google_translate_element');
+    }
+  </script>
+  <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+  
+  
+</head>
+
+<body>
+    <div id="google_translate_element" style="position: absolute; top: 10px; right: 10px; z-index: 9999;"></div>
+
+ 
+  <div class="container">
+    <div class="header">
+      <img src="/logo (1).jpeg" alt="Company Logo">
+      <div class="title">Vivek Gems & Jewelry Co. Ltd.</div>
+      <div class="sub-header">
+        Silom Branch - 919/1 Jewelry Trade Center Silom Road, Bangrak, Bangkok 10500,<br>
+        Thailand Booth No. 2B07, 2nd Floor, Mob No: +66899201007, TAX ID No: 010555915220 (Head Office)
+      </div>
+    </div>
+
+    <div class="blue-line"></div>
+
+ <div class="info-section">
+  <div class="info-left">
+    <div><strong>Name:</strong> <%= customer.cust_name %></div>
+    <div><strong>Email:</strong> <%= customer.cust_email %></div>
+    <div><strong>Mobile:</strong> <%= customer.cust_mobile %></div>
+    <div><strong>Company Name:</strong> <%= customer.cust_firm_name %></div>
+    <div><strong>Address:</strong> <%= customer.cust_address %></div>
+    <div><strong>Tax ID:</strong></div>
+  </div>
+  <div class="info-right">
+    <div><strong>Invoice No.:</strong> <%= invoiceNo %></div>
+    <div><strong>Sales Date:</strong> <%= data[0]?.sales_date %></div>
+    <div><strong>Due Date:</strong> <%= data[0]?.due_date %></div>
+    <div><strong>Exchange Rate:</strong> <%= data[0]?.exchange_rate %></div>
+    <div><strong>Actual Currency:</strong> <%= data[0]?.currency %></div>
+  </div>
+</div>
+
+    <div class="blue-line"></div>
+
+ <table>
+  <thead>
+    <tr>
+      <th>S.NO</th>
+      <th>LOT NO</th>
+      <th>DESCRIPTION</th>
+      <th>QTY</th>
+      <th>WEIGHT (CTS)</th>
+      <th>UNIT PRICE</th>
+      <th>TAX</th>
+      <th>TOTAL</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% data.forEach((data, index) => { %>
+      <tr>
+        <td><%= index + 1 %></td>
+        <td><%= data.lot_no %></td>
+        <td><%= data.description %></td>
+        <td><%= data.pcs %></td>
+        <td><%= data.weight %></td>
+        <td><%= data.price.toFixed(2) %></td>
+        <td><%= data.tax %></td>
+        <td><%= data.net_amount.toFixed(2) %></td>
+      </tr>
+    <% }) %>
+  </tbody>
+</table>
+
+ <div class="bank-totals-section" style="display: flex; justify-content: space-between; margin-top: 20px; font-size: 12px;">
+  <div class="bank-details" style="text-align: left;">
+    <div><strong>Bank:</strong> KASIKORN BANK</div>
+    <div><strong>Account:</strong> 165-2-780098</div>
+    <div><strong>SWIFT Code:</strong> KASITHBK</div>
+  </div>
+  <div class="totals" style="text-align: right;">
+    <div><strong>Amount:</strong> <%= data[0]?.net_amount %></div>
+    <div><strong>Tax (%):</strong> 7.00%</div>
+    <div><strong>Total Tax Amount:</strong> <%= (data[0]?.net_amount * 0.07).toFixed(2) %></div>
+    <div><strong>Additional:</strong> <%= data[0]?.additional_charges %></div>
+    <div><strong>Tot Amount(฿):</strong> <%= data[0]?.net_total_amt %></div>
+    <div><strong>Amount in Words:</strong> <%= totalAmountInWords %></div>
+  </div>
+</div>
+
+<div class="signatures">
+  <div>
+    Customer Signature<br><br>
+    ______________
+  </div>
+  <div>
+    Seller Signature<br><br>
+    ______________
+  </div>
+</div>
+
+<button class="print-button" onclick="window.print()">Print Invoice</button>
+ 
+</body>
+</html>

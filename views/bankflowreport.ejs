@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bank flow report</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+</head>
+<body>
+    <div class="container" >
+              
+            <h2 style="text-align: center; color: #333;">Bank Statement</h2>
+    
+            <div class="filters" style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; margin-bottom: 20px;">
+                <label for="bank" style="font-weight: bold;">Head Category:</label>
+                <select id="bank" name="bank" style="padding: 5px; border-radius: 5px; border: 1px solid #ccc;">
+                    <option value="">Select Bank</option>
+                    <% banks.forEach(bank => { %>
+                        <option value="<%= bank.bank_name %>"><%= bank.bank_name %></option>
+                    <% }) %>
+                </select>
+    
+                <label for="dateFrom" style="font-weight: bold;">Date From:</label>
+                <input type="date" id="dateFrom" style="padding: 5px; border-radius: 5px; border: 1px solid #ccc;">
+    
+                <label for="dateUpto" style="font-weight: bold;">Date Upto:</label>
+                <input type="date" id="dateUpto" style="padding: 5px; border-radius: 5px; border: 1px solid #ccc;">
+    
+                <button id="searchBtn" style="background: #007bff; color: white; padding: 7px 15px; border: none; border-radius: 5px; cursor: pointer;">Search</button>
+                <button id="resetBtn" style="background: #6c757d; color: white; padding: 7px 15px; border: none; border-radius: 5px; cursor: pointer;">Reset</button>
+                <button id="printBtn" style="background: #28a745; color: white; padding: 7px 15px; border: none; border-radius: 5px; cursor: pointer;">Print</button>
+            </div>
+    
+            <!-- Cash Out Table -->
+             <!-- Cash Out Table -->
+        <h3 style="color: #c82333;">Cash Out</h3>
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+            <thead>
+                <tr style="background-color: #dc3545; color: white;">
+                    <th style="padding: 10px; border: 1px solid #ddd;">Sr No</th>
+                    <th style="padding: 10px; border: 1px solid #ddd;">Date</th>
+                    <th style="padding: 10px; border: 1px solid #ddd;">Bank</th>
+                    <th style="padding: 10px; border: 1px solid #ddd;">Mode</th>
+                    <th style="padding: 10px; border: 1px solid #ddd;">Cheque No</th>
+                    <th style="padding: 10px; border: 1px solid #ddd;">Name</th>
+                    <th style="padding: 10px; border: 1px solid #ddd;">Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% let totalCashOut = 0; %>
+                <% cashOut.forEach((row, index) => { %>
+                    <tr style="background-color: #f2f2f2;">
+                        <td style="padding: 8px; border: 1px solid #ddd;"><%= index + 1 %></td>
+                        <td style="padding: 8px; border: 1px solid #ddd;"><%= new Date(row.payment_date).toISOString().split('T')[0] %></td>
+                        <td style="padding: 8px; border: 1px solid #ddd;"><%= row.bank_name %></td>
+                        <td style="padding: 8px; border: 1px solid #ddd;"><%= row.payment_mode %></td>
+                        <td style="padding: 8px; border: 1px solid #ddd;"><%= row.payment_ref_no || 'N/A' %></td>
+                        <td style="padding: 8px; border: 1px solid #ddd;"><%= row.account_name %></td>
+                        <td style="padding: 8px; border: 1px solid #ddd; color: red;"><%= row.amount %></td>
+                    </tr>
+                    <% totalCashOut += parseFloat(row.amount); %>
+                <% }) %>
+                <tr style="font-weight: bold;">
+                    <td colspan="6" style="padding: 10px; border: 1px solid #ddd;">Total</td>
+                    <td style="padding: 10px; border: 1px solid #ddd; color: red;"><%= totalCashOut.toFixed(3) %></td>
+                </tr>
+            </tbody>
+        </table>
+    
+            <!-- Cash In Table -->
+            <h3 style="color: #28a745;">Cash In</h3>
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                <thead>
+                    <tr style="background: #28a745; color: white;">
+                        <th style="padding: 10px; border: 1px solid #ddd;">Sr No</th>
+                        <th style="padding: 10px; border: 1px solid #ddd;">Date</th>
+                        <th style="padding: 10px; border: 1px solid #ddd;">Bank</th>
+                        <th style="padding: 10px; border: 1px solid #ddd;">Mode</th>
+                        <th style="padding: 10px; border: 1px solid #ddd;">Cheque No</th>
+                        <th style="padding: 10px; border: 1px solid #ddd;">Name</th>
+                        <th style="padding: 10px; border: 1px solid #ddd;">Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% let totalCashIn = 0; %>
+                    <% cashIn.forEach((row, index) => { %>
+                        <tr style="background: #d4edda;">
+                            <td style="padding: 10px; border: 1px solid #ddd;"><%= index + 1 %></td>
+                            <td style="padding: 10px; border: 1px solid #ddd;"><%= new Date(row.payment_date).toISOString().split('T')[0] %></td>
+                            <td style="padding: 10px; border: 1px solid #ddd;"><%= row.bank_name %></td>
+                            <td style="padding: 10px; border: 1px solid #ddd;"><%= row.payment_mode %></td>
+                            <td style="padding: 10px; border: 1px solid #ddd;"><%= row.payment_ref_no || 'N/A' %></td>
+                            <td style="padding: 10px; border: 1px solid #ddd;"><%= row.account_name %></td>
+                            <td style="padding: 10px; border: 1px solid #ddd;"><%= row.amount %></td>
+                        </tr>
+                        <% totalCashIn += parseFloat(row.amount); %>
+                    <% }) %>
+                    <tr style="background: #218838; color: white;">
+                        <td colspan="6" style="font-weight: bold; padding: 10px; border: 1px solid #ddd;">Total</td>
+                        <td style="font-weight: bold; padding: 10px; border: 1px solid #ddd;"><%= totalCashIn.toFixed(3) %></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div style="text-align: right; margin-top: 20px;">
+    <form action="/export-bankflow" method="GET">
+        <button type="submit" style="background-color: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">
+            Export to Excel
+        </button>
+    </form>
+</div>
+
+
+        </div>
+
+    <script>
+        $(document).ready(function() {
+            $("#searchBtn").click(function() {
+                const bank = $("#bank").val();
+                const dateFrom = $("#dateFrom").val();
+                const dateUpto = $("#dateUpto").val();
+
+                window.location.href = `/reports/bank_book?bank=${bank}&dateFrom=${dateFrom}&dateUpto=${dateUpto}`;
+            });
+
+            $("#resetBtn").click(function() {
+                window.location.href = `/reports/bank_book`;
+            });
+
+            $("#printBtn").click(function() {
+                window.print();
+            });
+        });
+    </script>
+    
+</body>
+</html>

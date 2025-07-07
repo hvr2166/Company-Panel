@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>sales by customer</title>
+    <style>
+        body {
+          background-color: #f8f9fa;
+          font-family: Arial, sans-serif;
+        }
+    
+        .container {
+          padding: 20px;
+        }
+    
+        .report-container {
+          background: #fff;
+          padding: 20px;
+          border-radius: 10px;
+          box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+    
+        .report-title {
+          font-size: 20px;
+          font-weight: 600;
+          margin-bottom: 20px;
+        }
+    
+        .filter-row {
+          display: flex;
+          flex-wrap: nowrap;
+          align-items: flex-end;
+          gap: 15px;
+          margin-bottom: 20px;
+        }
+    
+        .filter-row .form-group {
+          flex: 1;
+          min-width: 160px;
+        }
+    
+        .btn-purple {
+          background-color: #8E44AD;
+          color: #fff;
+          padding: 6px 15px;
+          border: none;
+          border-radius: 4px;
+          cursor: pointer;
+        }
+    
+        .btn-orange {
+          background-color: orange;
+          color: #fff;
+          padding: 6px 15px;
+          border: none;
+          border-radius: 4px;
+          cursor: pointer;
+        }
+    
+        .btn-purple:hover,
+        .btn-orange:hover {
+          opacity: 0.9;
+        }
+    
+        .table {
+          width: 100%;
+          border-collapse: collapse;
+        }
+    
+        .table th,
+        .table td {
+          padding: 8px 12px;
+          border: 1px solid #dee2e6;
+        }
+    
+        .table thead {
+          background-color: #2566af;
+          color: #fff;
+        }
+    
+        .table tfoot td {
+          font-weight: bold;
+          text-align: right;
+        }
+      </style>
+
+</head>
+<body>
+
+  <div class="container">
+        <div style="box-shadow: 0 4px 8px rgba(0,0,0,0.1); border-radius: 10px; padding: 20px; background: white;">
+            <div style="font-size: 20px; font-weight: 600; margin-bottom: 20px;">Sales Report (Customer Wise)</div>
+            <form>
+                <div class="filter-row">
+                  <div class="form-group">
+                    <label for="customer" class="form-label">Customer</label>
+                    <select id="customer" class="form-select">
+                      <option>All customer</option>
+                      <!-- Dynamically filled -->
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label for="dateFrom" class="form-label">Date From</label>
+                    <input type="date" id="dateFrom" class="form-control" value="<%= new Date().toISOString().slice(0, 10) %>">
+                  </div>
+                  <div class="form-group">
+                    <label for="dateTo" class="form-label">Date Upto</label>
+                    <input type="date" id="dateTo" class="form-control" value="<%= new Date().toISOString().slice(0, 10) %>">
+                  </div>
+                  <div class="form-group d-flex gap-1">
+                    <button type="submit" class="btn btn-purple">Search</button>
+                    <button type="reset" class="btn btn-orange">Reset</button>
+                    <button type="button" class="btn btn-purple">Print</button>
+                  </div>
+                </div>
+              </form>
+
+
+          <div class="table-responsive">
+        <table class="table table-bordered">
+          <thead>
+            <tr>
+              <th>Sr No</th>
+              <th>Date</th>
+              <th>Customer Name</th>
+              <th>Amount</th>
+              <th>Due Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Dynamic data rows -->
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="3">Total:</td>
+              <td>0.000</td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Account Head</title>
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+</head>
+<body>
+    <div id="dynamic-content">
+ <div  id="manageaccounthead-page"  class="container-wrapper">
+
+
+   
+        <!-- Main Content -->
+        <main class="content">
+            <div class="container">
+                <h2>Manage Account Head</h2>
+               
+
+                <!-- Admin Table -->
+                <div id="AcccountHeadTableView" class="table-container">
+                    <button id="addaccountheadBtn" class="btn btn-primary">Add Account Head</button>
+                    <br><br>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Head Name</th>
+                                <th>Group Name</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% users.forEach(user => { %>
+                                <tr>
+                                    <td class="head_name"><%= user.head_name %></td>
+                                    <td class="group_name"><%= user.grp_name %></td>
+                                    <td class="active_status"><%= user.active_status %></td>
+                                    <td>
+                                        <div class="actions">
+                                            <!-- Edit Button -->
+                                            
+                                            <button type="button" class="btn btn-warning edit-user"  data-id="<%= user.nid %>">
+                                                <i class="fa-regular fa-pen-to-square"></i>
+                                            </button>
+                                    
+                                            <!-- Delete Button inside inline form -->
+                                            <form action="/deleteaccounthead/<%= user.nid %>" method="POST">
+                                                <button type="submit" class="btn btn-danger delete-accounthead" data-id="<%= user.nid %>">
+                                                    <i class="fa-regular fa-trash-can"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>   
+                                </tr>
+                            <% }); %>
+                        </tbody>
+                    </table>
+                    <div id="pagination" class="pagination">
+                        <button id="prevPage" class="btn btn-secondary">Previous</button>
+                        <span id="pageInfo"></span>
+                        <button id="nextPage" class="btn btn-secondary">Next</button>
+                    </div>
+                </div>
+
+               <!-- Add User Form -->
+               <div id="addAccountHeadview" style="display: none;">
+                <h3>Add Account Head</h3>
+                <form action="/addaccounthead" method="POST">
+                    <div class="form-group">
+                        <label>Head Name</label>
+                        <input type="text" name="head_name" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Group Name</label>
+                        <select name="grp_name" class="form-control" required>
+                            <option value="">Select group</option>
+                            <% grp.forEach(function(grp) { %>
+                                <option value="<%= grp.grp_name %>"><%= grp.grp_name %></option>
+                            <% }); %>
+                        </select>
+                    </div>
+                    <div class="form-group" style="border: 1px solid #ccc; padding: 10px; border-radius: 5px; display: inline-block;">
+                        <label>Status</label>
+                        <div  style="display: flex; align-items: center; gap: 15px;">
+                            <!-- Radio Button for Active -->
+                             <div style="display: flex; align-items: center; gap: 5px;">
+                            <input type="radio" id="status_active" name="status" value="Active" required>
+                            <label for="status_active">Active</label>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 5px;">
+                            <!-- Radio Button for Inactive -->
+                            <input type="radio" id="status_inactive" name="status" value="Inactive" required>
+                            <label for="status_inactive">Inactive</label>
+                        </div>
+                        </div>
+                        </div>
+                    <div class="button-group">
+                        <button type="submit" class="btn btn-success" id="submitBtn">Add </button>
+                        <button type="button" id="cancelBtn" class="btn btn-secondary">Cancel</button>
+                    </div>
+                </form>
+                </div>
+                
+            
+            <div id="editaccountheadView" style="display: none;">
+                <h3>Edit Account Head</h3>
+                <form id="editaccountheadForm" action="/editaccounthead" method="POST">
+                    <input type="hidden" name="nid" id="edit_nid"> <!-- Hidden field for user ID -->
+                    <div class="form-group">
+                        <label>Head Name</label>
+                        <input type="text" name="head_name" id="edit_head_name" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Group Name</label>
+                        <input type="text" name="group_name" id="edit_group_name" class="form-control" required>
+                    </div>
+                    <div class="form-group" id="status" style="border: 1px solid #ccc; padding: 10px; border-radius: 5px; display: inline-block;">
+                        <label >Status</label>
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                            <!-- Radio Button for Active -->
+                            <div style="display: flex; align-items: center; gap: 5px;">
+                            <input type="radio" id="status_active" name="active_status" value="Active" required>
+                            <label for="status_active">Active</label>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 5px;">
+                            <!-- Radio Button for Inactive -->
+                            <input type="radio" id="status_inactive" name="active_status" value="Inactive" required>
+                            <label for="status_inactive">Inactive</label>
+                        </div>
+                        </div>
+                        </div>
+                    <div class="button-group">
+                        <button type="submit" class="btn btn-success" id="saveEditBtn">Save Details</button>
+                        <button type="button" id="cancelEditBtn" class="btn btn-secondary">Cancel</button>
+                    </div>
+                </form>
+            </div>
+            </div>
+    </main>
+</div>
+</div>
+<script >
+
+console.log("🛠️ Manage Account Head script loaded!");
+
+// Delay execution slightly to ensure elements are available
+setTimeout(() => {
+    console.log("⏳ Checking for elements...");
+
+    function bindManageAccountHeadEvents() {
+        const addAccountHeadBtn = document.getElementById("addaccountheadBtn"); // Changed from addAttributeBtn to addAccountHeadBtn
+        const cancelBtn = document.getElementById("cancelBtn");
+        const submitBtn = document.getElementById("submitBtn");
+        const addAccountHeadView = document.getElementById("addAccountHeadview"); // Changed from addAttributeView to addAccountHeadView
+        const accountHeadTableView = document.getElementById("AcccountHeadTableView"); // Changed from attributeTableView to accountHeadTableView
+        const addAccountHeadForm = document.querySelector("#addAccountHeadview form"); // Changed from addAttributeForm to addAccountHeadForm
+        const accountHeadTableBody = document.querySelector("#AcccountHeadTableView tbody"); // Changed from attributeTableBody to accountHeadTableBody
+
+        // Edit Account Head Elements
+        const editAccountHeadView = document.getElementById("editaccountheadView"); // Changed from editAttributeView to editAccountHeadView
+        const editAccountHeadForm = document.querySelector("#editaccountheadView form"); // Changed from editAttributeForm to editAccountHeadForm
+        const cancelEditBtn = document.getElementById("cancelEditBtn");
+
+        if (!editAccountHeadView) {
+            console.error("🚨 #editaccountheadView not found in the DOM!");
+        } else {
+            console.log("✅ #editaccountheadView found:", editAccountHeadView);
+        }
+
+        if (!addAccountHeadBtn || !cancelBtn || !submitBtn || !addAccountHeadView || !accountHeadTableView || !addAccountHeadForm || !accountHeadTableBody || !editAccountHeadView || !editAccountHeadForm || !cancelEditBtn) {
+            console.error("❌ Some Manage Account Head elements are missing! DOM might not be fully loaded.");
+            return;
+        }
+
+        console.log("✅ Manage Account Head elements found, adding event listeners...");
+
+        const rows = Array.from(accountHeadTableBody.querySelectorAll("tr"));
+            const itemsPerPage = 5; // Number of rows per page
+            let currentPage = 1;
+
+            function showPage(page) {
+                const start = (page - 1) * itemsPerPage;
+                const end = start + itemsPerPage;
+
+                rows.forEach((row, index) => {
+                    row.style.display = (index >= start && index < end) ? "" : "none";
+                });
+
+                document.getElementById("pageInfo").textContent = `Page ${page} of ${Math.ceil(rows.length / itemsPerPage)}`;
+            }
+
+            document.getElementById("prevPage").addEventListener("click", function() {
+                if (currentPage > 1) {
+                    currentPage--;
+                    showPage(currentPage);
+                }
+            });
+
+            document.getElementById("nextPage").addEventListener("click", function() {
+                if (currentPage < Math.ceil(rows.length / itemsPerPage)) {
+                    currentPage++;
+                    showPage(currentPage);
+                }
+            });
+
+            // Initial page load
+            showPage(currentPage);
+
+        // Show Add Account Head Form and Hide Account Head Table
+        addAccountHeadBtn.addEventListener("click", function () {
+            console.log("➕ Add Account Head button clicked");
+            accountHeadTableView.style.display = "none";
+            addAccountHeadView.style.display = "block";
+            editAccountHeadView.style.display = "none"; // Hide edit form
+        });
+
+        // Hide Add Account Head Form and Show Account Head Table
+        cancelBtn.addEventListener("click", function () {
+            console.log("❌ Cancel button clicked");
+            addAccountHeadView.style.display = "none";
+            accountHeadTableView.style.display = "block";
+        });
+
+        // Submit Form via AJAX and Dynamically Update Table
+        addAccountHeadForm.addEventListener("submit", async (event) => {
+            event.preventDefault(); // Prevent default form submission
+            console.log("🚀 Submit button clicked!");
+
+            const formData = new FormData(event.target);
+            const urlEncodedData = new URLSearchParams(formData);
+
+            try {
+                const response = await fetch("/addaccounthead", { // Changed from /addattribute to /addaccounthead
+                    method: "POST",
+                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                    body: urlEncodedData.toString()
+                });
+
+                console.log("✅ Response Status:", response.status);
+
+                if (!response.ok) {
+                    throw new Error(`Server error! Status: ${response.status}`);
+                }
+                
+                alert("Account Head added successfully!");
+                await reloadManageAccountHead(); // ✅ Reload content dynamically
+            } catch (error) {
+                console.error("🚨 Fetch Error:", error);
+                alert("Something went wrong.");
+            }
+        });
+
+        // ✅ Edit Account Head Functionality
+        document.querySelectorAll(".edit-user").forEach((editBtn) => {
+    editBtn.addEventListener("click", function () {
+        console.log("✏️ Edit button clicked!");
+
+        const accountHeadRow = this.closest("tr");
+        if (!accountHeadRow) {
+            console.error("🚨 Error: Cannot find account head row.");
+            return;
+        }
+
+        // Extract account head data from table row
+        const accountHeadId = this.dataset.id; // Get nid from data-id attribute
+        const headName = accountHeadRow.querySelector(".head_name").textContent;
+        const groupName = accountHeadRow.querySelector(".group_name").textContent;
+        const activeStatus = accountHeadRow.querySelector(".active_status").textContent.trim().toLowerCase(); // Convert to lowercase
+
+        // Populate the edit form fields
+        document.querySelector("#editaccountheadView input[name='nid']").value = accountHeadId;
+        document.querySelector("#editaccountheadView input[name='head_name']").value = headName;
+        document.querySelector("#editaccountheadView input[name='group_name']").value = groupName;
+
+        const activeRadio = document.querySelector("#editaccountheadView input[name='active_status'][value='Active']");
+        const inactiveRadio = document.querySelector("#editaccountheadView input[name='active_status'][value='Inactive']");
+
+        // Set the correct radio button based on activeStatus
+        if (activeStatus === "active") {
+            activeRadio.checked = true;
+        } else if (activeStatus === "inactive") {
+            inactiveRadio.checked = true;
+        } else {
+            console.error("🚨 Invalid active status:", activeStatus);
+        }
+
+        // Show Edit Account Head View & Hide Others
+        accountHeadTableView.style.display = "none";
+        addAccountHeadView.style.display = "none";
+        editAccountHeadView.style.display = "block"; // Ensure this is set to "block"
+    });
+
+            editBtn.addEventListener("click", function () {
+                console.log("✏️ Edit button clicked!");
+
+                const accountHeadRow = this.closest("tr");
+                if (!accountHeadRow) {
+                    console.error("🚨 Error: Cannot find account head row.");
+                    return;
+                }
+
+                // Extract account head data from table row
+                const accountHeadId = accountHeadRow.querySelector(".user-id").textContent;
+                const headName = accountHeadRow.querySelector(".head_name").textContent;
+                const groupName = accountHeadRow.querySelector(".group_name").textContent;
+                const activeStatus = accountHeadRow.querySelector(".active_status").textContent.trim().toLowerCase(); // Convert to lowercase
+
+                // Populate the edit form fields
+                document.querySelector("#editaccountheadView input[name='nid']").value = accountHeadId;
+                document.querySelector("#editaccountheadView input[name='head_name ']").value = headName;
+                document.querySelector("#editaccountheadView input[name='group_name']").value = groupName;
+
+                const activeRadio = document.querySelector("#editaccountheadView input[name='active_status'][value='Active']");
+                const inactiveRadio = document.querySelector("#editaccountheadView input[name='active_status'][value='Inactive']");
+
+                // Set the correct radio button based on activeStatus
+                if (activeStatus === "active") {
+                    activeRadio.checked = true;
+                } else if (activeStatus === "inactive") {
+                    inactiveRadio.checked = true;
+                } else {
+                    console.error("🚨 Invalid active status:", activeStatus);
+                }
+
+                // Show Edit Account Head View & Hide Others
+                accountHeadTableView.style.display = "none";
+                addAccountHeadView.style.display = "none";
+                editAccountHeadView.style.display = "block"; // Ensure this is set to "block"
+            });
+        });
+
+        // ✅ Handle Edit Account Head Form Submission
+        editAccountHeadForm.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            console.log("💾 Save Details button clicked!");
+
+            const formData = new FormData(event.target);
+            const urlEncodedData = new URLSearchParams(formData);
+
+            try {
+                const response = await fetch("/editaccounthead", { // Changed from /editattribute to /editaccounthead
+                    method: "POST",
+                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                    body: urlEncodedData.toString()
+                });
+
+                console.log("✅ Edit Response Status:", response.status);
+
+                if (!response.ok) {
+                    throw new Error(`Server error! Status: ${response.status}`);
+                }
+                
+                alert("Account Head updated successfully!");
+                await reloadManageAccountHead(); // ✅ Reload content dynamically
+            } catch (error) {
+                console.error("🚨 Edit Error:", error);
+                alert("Failed to update account head.");
+            }
+        });
+
+        // Hide Edit Account Head View
+        cancelEditBtn.addEventListener("click", function () {
+            console.log("❌ Cancel Edit button clicked");
+            editAccountHeadView.style.display = "none";
+            accountHeadTableView.style.display = "block";
+        });
+
+        // ✅ Delete Account Head Functionality
+        document.querySelectorAll(".delete-accounthead").forEach((deleteBtn) => {
+            deleteBtn.addEventListener("click", async function (event) {
+                event.preventDefault(); // Prevent page reload
+                console.log("🗑️ Delete button clicked!");
+
+                const accountHeadId = this.dataset.id;
+                if (!accountHeadId) {
+                    console.error("🚨 Account Head ID not found in dataset!");
+                    return;
+                }
+
+                if (!confirm("Are you sure you want to delete this account head?")) return;
+
+                try {
+                    const response = await fetch(`/deleteaccounthead/${accountHeadId}`, { // Changed from /deleteattribute to /deleteaccounthead
+                        method: "POST",
+                    });
+
+                    console.log("🗑️ Delete Response Status:", response.status);
+
+                    if (!response.ok) {
+                        throw new Error(`Server error! Status: ${response.status}`);
+                    }
+
+                    // ✅ Remove the deleted account head's row from the table dynamically
+                    const rowToDelete = this.closest("tr");
+                    if (rowToDelete) {
+                        rowToDelete.remove();
+                        console.log(`✅ Account Head ${accountHeadId} removed from table.`);
+                    }
+                } catch (error) {
+                    console.error("🚨 Delete Error:", error);
+                    alert("Failed to delete account head.");
+                }
+            });
+        });
+    }
+
+    // ✅ Function to Reload Manage Account Head Page Without Refreshing
+    async function reloadManageAccountHead() {
+        console.log("🔄 Reloading Manage Account Head...");
+        const contentDiv = document.getElementById("dynamic-content");
+
+        if (!contentDiv) {
+            console.error("🚨 Error: #dynamic-content not found!");
+            return;
+        }
+
+        const updatedContent = await fetch("/manageaccounthead"); // Changed from /mngattribute to /mngaccounthead
+        const html = await updatedContent.text();
+        contentDiv.innerHTML = html; // Replace only the content
+
+        bindManageAccountHeadEvents(); // ✅ Rebind event listeners after reload
+    }
+
+    // Initial Binding of Events
+    bindManageAccountHeadEvents();
+
+}, 500);
+</script>
+
+</body>
+</html>

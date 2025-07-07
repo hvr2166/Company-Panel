@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Bank</title>
+    <!-- Styles -->
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+</head>
+<body>
+    <div id="dynamic-content">
+ <div  id="manageusers-page"  class="container-wrapper">
+
+        <!-- Main Content -->
+        <main class="content">
+            <div class="container">
+                <h2>Manage Bank</h2>
+               
+
+                <!-- Admin Table -->
+                <div id="BankView" class="table-container">
+                    <button id="addbankBtn" class="btn btn-primary">Add Bank</button>
+                    <br><br>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Bank Name</th>
+                                <th>Branch Name</th>
+                                <th>Account Number</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% users.forEach(user => { %>
+                                <tr>
+                                    <td class="bank_name"><%= user.bank_name %></td>
+                                    <td class="bank_branch"><%= user.bank_branch %></td>
+                                    <td class="acc_num"><%= user.acc_num %></td>
+                                    <td>
+                                        <div class="actions">
+                                            <!-- Edit Button -->
+                                            <button type="button" class="btn btn-warning edit-bank" data-id="<%= user.nid %>">
+                                                <i class="fa-regular fa-pen-to-square"></i>
+                                            </button>
+                                            <!-- Delete Button inside inline form -->
+                                            <form action="/deletebank/<%= user.nid %>" method="POST">
+                                                <button type="submit" class="btn btn-danger delete-bank" data-id="<%= user.nid %>">
+                                                    <i class="fa-regular fa-trash-can"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                    
+                                    
+                                    
+                                </tr>
+                            <% }); %>
+                        </tbody>
+                    </table>
+                    <div id="pagination" class="pagination">
+                        <button id="prevPage" class="btn btn-secondary">Previous</button>
+                        <span id="pageInfo"></span>
+                        <button id="nextPage" class="btn btn-secondary">Next</button>
+                    </div>
+                </div>
+
+                <!-- Add User Form -->
+               <!-- Add User Form -->
+               <div id="addBankview" style="display: none;">
+                <h3>Add Bank</h3>
+                <form action="/addbank" method="POST">
+                    <div class="form-group">
+                        <label>Bank Name</label>
+                        <input type="text" name="bank_name" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Brach Name</label>
+                        <input type="text" name="bank_branch" class="form-control" required>
+                    </div>
+                     <div class="form-group">
+                        <label>Account Number</label>
+                        <input type="number" name="acc_num" class="form-control" required>
+                    </div>
+                    <div class="button-group">
+                        <button type="submit" class="btn btn-success" id="submitBtn">Add </button>
+                        <button type="button" id="cancelBtn" class="btn btn-secondary">Cancel</button>
+                    </div>
+                </form>
+            </div>
+
+            <div id="editBankView" style="display: none;">
+                <h3>Edit Bank</h3>
+                <form id="editBankForm" action="/editbank" method="POST">
+                    <input type="hidden" name="nid" id="edit_nid"> <!-- Hidden field for user ID -->
+                    <div class="form-group">
+                        <label>Bank name</label>
+                        <input type="text" name="bank_name" id="edit_bank_name" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Branch Name</label>
+                        <input type="text" name="bank_branch" id="edit_bank_branch" class="form-control">
+                    </div>
+                      <div class="form-group">
+                        <label>Account Number</label>
+                        <input type="number" name="acc_num" id="edit_acc_num" class="form-control" required>
+                    </div>
+                    <div class="button-group">
+                        <button type="submit" class="btn btn-success" id="saveEditBtn">Save Details</button>
+                        <button type="button" id="cancelEditBtn" class="btn btn-secondary">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+</div>
+</div>
+<script>
+    console.log("🛠️ Manage Bank script loaded!");
+
+    setTimeout(() => {
+        console.log("⏳ Checking for elements...");
+
+        function bindManageUsersEvents() {
+            const addBankBtn = document.getElementById("addbankBtn");
+            const cancelBtn = document.getElementById("cancelBtn");
+            const submitBtn = document.getElementById("submitBtn");
+            const addBankView = document.getElementById("addBankview");
+            const bankTableView = document.getElementById("BankView");
+            const addBankForm = document.querySelector("#addBankview form");
+            const bankTableBody = document.querySelector("#BankView tbody");
+
+            // Edit Bank Elements
+            const editBankView = document.getElementById("editBankView");
+            const editBankForm = document.querySelector("#editBankView form");
+            const cancelEditBtn = document.getElementById("cancelEditBtn");
+
+            if (!addBankBtn || !cancelBtn || !submitBtn || !addBankView || !bankTableView || !addBankForm || !bankTableBody || !editBankView || !editBankForm || !cancelEditBtn) {
+                console.error("❌ Some Manage Bank elements are missing! DOM might not be fully loaded.");
+                return;
+            }
+
+            console.log("✅ Manage Bank elements found, adding event listeners...");
+
+            const rows = Array.from(bankTableBody.querySelectorAll("tr"));
+            const itemsPerPage = 5; // Number of rows per page
+            let currentPage = 1;
+
+            function showPage(page) {
+                const start = (page - 1) * itemsPerPage;
+                const end = start + itemsPerPage;
+
+                rows.forEach((row, index) => {
+                    row.style.display = (index >= start && index < end) ? "" : "none";
+                });
+
+                document.getElementById("pageInfo").textContent = `Page ${page} of ${Math.ceil(rows.length / itemsPerPage)}`;
+            }
+
+            document.getElementById("prevPage").addEventListener("click", function() {
+                if (currentPage > 1) {
+                    currentPage--;
+                    showPage(currentPage);
+                }
+            });
+
+            document.getElementById("nextPage").addEventListener("click", function() {
+                if (currentPage < Math.ceil(rows.length / itemsPerPage)) {
+                    currentPage++;
+                    showPage(currentPage);
+                }
+            });
+
+            // Initial page load
+            showPage(currentPage);
+
+            // Show Add Bank Form and Hide Bank Table
+            addBankBtn.addEventListener("click", function () {
+                console.log("➕ Add Bank button clicked");
+                bankTableView.style.display = "none";
+                addBankView.style.display = "block";
+                editBankView.style.display = "none"; // Hide edit form
+            });
+
+            // Hide Add Bank Form and Show Bank Table
+            cancelBtn.addEventListener("click", function () {
+                console.log("❌ Cancel button clicked");
+                addBankView.style.display = "none";
+                bankTableView.style.display = "block";
+            });
+
+            // Submit Form via AJAX and Dynamically Update Table
+            addBankForm.addEventListener("submit", async (event) => {
+                event.preventDefault(); // Prevent default form submission
+                console.log("🚀 Submit button clicked!");
+
+                const formData = new FormData(event.target);
+                const urlEncodedData = new URLSearchParams(formData);
+
+                try {
+                    const response = await fetch("/addbank", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                        body: urlEncodedData.toString()
+                    });
+
+                    console.log("✅ Response Status:", response.status);
+
+                    if (!response.ok) {
+                        throw new Error(`Server error! Status: ${response.status}`);
+                    }
+                    
+                    alert("Bank added successfully!");
+                    await reloadManageBanks(); // ✅ Reload content dynamically
+                } catch (error) {
+                    console.error("🚨 Fetch Error:", error);
+                    alert("Something went wrong.");
+                }
+            });
+
+            // ✅ Edit Bank Functionality
+            document.querySelectorAll(".edit-bank").forEach((editBtn) => {
+                editBtn.addEventListener("click", function () {
+                    console.log("✏️ Edit button clicked!");
+
+                    const bankRow = this.closest("tr");
+                    if (!bankRow) {
+                        console.error("🚨 Error: Cannot find bank row.");
+                        return;
+                    }
+
+                    // Extract bank data from table row
+                    const bankId = this.dataset.id;
+                    const bankName = bankRow.querySelector(".bank_name").textContent;
+                    const bankBranch = bankRow.querySelector(".bank_branch").textContent;
+                    const accNum =  bankRow.querySelector(".acc_num").textContent;
+
+                    // Populate the edit form fields
+                    document.querySelector("#editBankView input[name='nid']").value = bankId;
+                    document.querySelector("#editBankView input[name='bank_name']").value = bankName;
+                    document.querySelector("#editBankView input[name='bank_branch']").value = bankBranch;
+                    document.querySelector("#editBankView input[name='acc_num']").value = accNum;
+
+                    // Show Edit Bank View & Hide Others
+                    bankTableView.style.display = "none";
+                    addBankView.style.display = "none";
+                    editBankView.style.display = "block";
+                });
+            });
+
+            // ✅ Handle Edit Bank Form Submission
+            editBankForm.addEventListener("submit", async (event) => {
+                event.preventDefault();
+                console.log("💾 Save Details button clicked!");
+
+                const formData = new FormData(event.target);
+                const urlEncodedData = new URLSearchParams(formData);
+
+                try {
+                    const response = await fetch("/editbank", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                        body: urlEncodedData.toString()
+                    });
+
+                    console.log("✅ Edit Response Status:", response.status);
+
+                    if (!response.ok) {
+                        throw new Error(`Server error! Status: ${response.status}`);
+                    }
+                    
+                    alert("Bank updated successfully!");
+                    await reloadManageBanks(); // ✅ Reload content dynamically
+                } catch (error) {
+                    console.error("🚨 Edit Error:", error);
+                    alert("Failed to update bank.");
+                }
+            });
+
+            // Hide Edit Bank View
+            cancelEditBtn.addEventListener("click", function () {
+                console.log("❌ Cancel Edit button clicked");
+                editBankView.style.display = "none";
+                bankTableView.style.display = "block";
+            });
+
+            // ✅ Delete Bank Functionality
+            document.querySelectorAll(".delete-bank").forEach((deleteBtn) => {
+                deleteBtn.addEventListener("click", async function (event) {
+                    event.preventDefault(); // Prevent page reload
+                    console.log("🗑️ Delete button clicked!");
+
+                    const bankId = this.dataset.id;
+                    if (!bankId) {
+                        console.error("🚨 Bank ID not found in dataset!");
+                        return;
+                    }
+
+                    if (!confirm("Are you sure you want to delete this bank?")) return;
+
+                    try {
+                        const response = await fetch(`/deletebank/${bankId}`, {
+                            method: "POST",
+                        });
+
+                        console.log("🗑️ Delete Response Status:", response.status);
+
+                        if (!response.ok) {
+                            throw new Error(`Server error! Status: ${response.status}`);
+                        }
+
+                        // ✅ Remove the deleted bank's row from the table dynamically
+                        const rowToDelete = this.closest("tr");
+                        if (rowToDelete) {
+                            rowToDelete.remove();
+                            console.log(`✅ Bank ${bankId} removed from table.`);
+                        }
+                    } catch (error) {
+                        console.error("🚨 Delete Error:", error);
+                        alert("Failed to delete bank.");
+                    }
+                });
+            });
+        }
+
+        // ✅ Function to Reload Manage Banks Page Without Refreshing
+        async function reloadManageBanks() {
+            console.log("🔄 Reloading Manage Banks...");
+            const contentDiv = document.getElementById("dynamic-content");
+
+            if (!contentDiv) {
+                console.error("🚨 Error: #dynamic-content not found!");
+                return;
+            }
+
+            const updatedContent = await fetch("/manage%20bank");
+            const html = await updatedContent.text();
+            contentDiv.innerHTML = html; // Replace only the content
+
+            bindManageUsersEvents(); // ✅ Rebind event listeners after reload
+        }
+
+        // Initial Binding of Events
+        bindManageUsersEvents();
+
+    }, 500);
+</script>
+
+</body>
+</html>

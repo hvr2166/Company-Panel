@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Payment</title>
+    <!-- Styles -->
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+</head>
+<body>
+    <div id="dynamic-content">
+ <div  id="manageusers-page"  class="container-wrapper">
+        <!-- Main Content -->
+        <main class="content">
+            <div class="container">
+                <h2>Customer Payment</h2>
+
+              
+ 
+                <div id="customerpayment" class="table-container">
+                    <div class="filter-container">
+                        <label for="customerFilter">Customer</label>
+                        <select id="customerFilter" class="form-control">
+                            <option value="">Select Customer</option>
+                            <% users.forEach(function(user) { %>
+                                <option value="<%= user.cust_name %>"><%= user.cust_name %></option>
+                            <% }); %>
+                          
+                        </select>
+                        
+                        <label for="dateFrom">Date From</label>
+                        <input type="date" id="dateFrom" class="form-control" >
+                        
+                        <label for="dateUpto">Date Upto</label>
+                        <input type="date" id="dateUpto" class="form-control" >
+                        
+                        <button class="btn btn-primary">Search</button>
+                        <button class="btn btn-warning">Reset</button>
+                    </div>
+                    
+                    <br>
+                    
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Customer</th>
+                                <th>Sale Ref No</th>
+                                <th>Payment Date</th>
+                                <th>Payment Mode</th>
+                                <th>Amount</th>
+                                <th>Payment Ref No</th>
+                                <th>Remarks</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                    </table>
+                
+                    <div id="pagination" class="pagination">
+                        <button id="prevPage" class="btn btn-secondary">Previous</button>
+                        <span id="pageInfo"></span>
+                        <button id="nextPage" class="btn btn-secondary">Next</button>
+                    </div>
+                </div>
+                
+
+        
+        </div>
+    </main>
+</div>
+</div>
+<script>
+    console.log("🛠️ Manage Customer Payment script loaded!");
+
+    setTimeout(() => {
+        console.log("⏳ Checking for elements...");
+
+        function bindManageCustomerPaymentEvents() {
+            const searchBtn = document.querySelector(".btn.btn-primary"); // Search button
+            const resetBtn = document.querySelector(".btn.btn-warning"); // Reset button
+            const customerFilter = document.getElementById("customerFilter");
+            const dateFrom = document.getElementById("dateFrom");
+            const dateUpto = document.getElementById("dateUpto");
+            const paymentTableBody = document.querySelector("#customerpayment tbody");
+
+            console.log("✅ Manage Customer Payment elements found, adding event listeners...");
+
+            // Filter Payments by Date Range
+            searchBtn.addEventListener("click", function () {
+                const fromDate = new Date(dateFrom.value);
+                const toDate = new Date(dateUpto.value);
+
+                if (!dateFrom.value || !dateUpto.value) {
+                    alert("Please select both 'Date From' and 'Date Upto'.");
+                    return;
+                }
+
+                if (fromDate > toDate) {
+                    alert("'Date From' cannot be greater than 'Date Upto'.");
+                    return;
+                }
+
+                const rows = paymentTableBody.querySelectorAll("tr");
+                rows.forEach(row => {
+                    const rowDate = new Date(row.querySelector("td:nth-child(3)").textContent); // Assuming Payment Date is in the 3rd column
+                    if (rowDate >= fromDate && rowDate <= toDate) {
+                        row.style.display = ""; // Show the row
+                    } else {
+                        row.style.display = "none"; // Hide the row
+                    }
+                });
+            });
+
+            // Reset Filter and Show All Payments
+            resetBtn.addEventListener("click", function () {
+                dateFrom.value = ""; // Clear Date From
+                dateUpto.value = ""; // Clear Date Upto
+                customerFilter.value = ""; // Reset customer filter
+
+                const rows = paymentTableBody.querySelectorAll("tr");
+                rows.forEach(row => {
+                    row.style.display = ""; // Show all rows
+                });
+            });
+        }
+
+        document.querySelectorAll("input[type='date']").forEach((input) => {
+    if (!input.value) {
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
+        const dd = String(today.getDate()).padStart(2, '0');
+        input.value = `${yyyy}-${mm}-${dd}`;
+    }
+});
+
+        // Initial Binding of Events
+        bindManageCustomerPaymentEvents();
+
+    }, 500);
+</script>
+
+</body>
+</html>

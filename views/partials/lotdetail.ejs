@@ -1,0 +1,58 @@
+
+<div id="lot-detail-container"><% if (lot && purchases && sales) { %>
+    <h2>Lot Detail Reports - <%= lot %></h2>
+    <div style="display: flex; gap: 20px;">
+        <div style="flex: 1;">
+            <h3>Purchase Lot Details</h3>
+            <table border="1" width="100%">
+                <thead>
+                    <tr><th>Sr No</th><th>Date</th><th>Quantity</th><th>Due Date</th></tr>
+                </thead>
+                <tbody>
+                    <% purchases.forEach((p, i) => { %>
+                        <tr>
+                            <td><%= i + 1 %></td>
+                            <td><%= p.purchase_date %></td>
+                            <td><%= p.weight %></td>
+                            <td><%= p.due_date %></td>
+                        </tr>
+                    <% }); %>
+                </tbody>
+                <tfoot>
+                    <tr><td colspan="4"><strong>Total Quantity:</strong> <%= totalPurchaseQty %></td></tr>
+                </tfoot>
+            </table>
+        </div>
+
+        <div style="flex: 1;">
+            <h3>Sale Lot Details</h3>
+            <table border="1" width="100%">
+                <thead>
+                    <tr><th>Sr No</th><th>Date</th><th>Amount</th><th>Due Date</th></tr>
+                </thead>
+                <tbody>
+                    <% sales.forEach((s, i) => { %>
+                        <tr>
+                            <td><%= i + 1 %></td>
+                            <td><%= s.due_date %></td>
+                            <td><%= s.pcs %></td>
+                            <td><%= s.due_date %></td>
+                        </tr>
+                    <% }); %>
+                </tbody>
+                <tfoot>
+                    <tr><td colspan="4"><strong>Total Quantity:</strong> <%= totalSaleQty %></td></tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+
+    <p><strong>Total Purchase Quantity:</strong> <%= totalPurchaseQty %></p>
+    <p><strong>Total Sale Quantity:</strong> <%= totalSaleQty %></p>
+    <p><strong>Total Quantity Left:</strong> <%= stockLeft %></p>
+<% } else { %>
+    <!-- Default summary table view -->
+    <table>
+        <!-- your current table structure here -->
+    </table>
+<% } %></div>

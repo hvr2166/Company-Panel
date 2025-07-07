@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Ledger Report</title>
+
+</head>
+<body>
+
+  
+    
+    <div class="container">
+        <h2 style="color: #4A4A4A; text-align: left;">Ledger Reports</h2>
+
+        <div style="margin-bottom: 20px; text-align: left;">
+            <label for="search" style="font-weight: bold; margin-right: 10px;">Search by Name:</label>
+            <select id="search" name="search" style="padding: 10px; width: 200px; border: 1px solid #ddd; border-radius: 4px;">
+                <option value="">Select Customer</option>
+                <% customerNames.forEach(name => { %>
+                    <option value="<%= name %>"><%= name %></option>
+                <% }); %>
+            </select>
+            <button onclick="searchLedger()" style="background-color: #7A5BCE; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; margin-left: 10px;">Search</button>
+            <button onclick="resetSearch()" style="background-color: #FFA500; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; margin-left: 10px;">Reset</button>
+            <a href="/export-ledger" style="background-color: #28a745; color: white; padding: 10px 15px; border: none; border-radius: 4px; text-decoration: none; margin-left: 10px;">Export Excel</a>
+
+        </div>
+
+        <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+            <thead>
+                <tr style="background-color: #007BFF; color: white;">
+                    <th style="padding: 10px; border: 1px solid #ddd;">Sr No</th>
+                    <th style="padding: 10px; border: 1px solid #ddd;">Date</th>
+                    <th style="padding: 10px; border: 1px solid #ddd;">Customer Name</th>
+                    <th style="padding: 10px; border: 1px solid #ddd;">Type</th>
+                    <th style="padding: 10px; border: 1px solid #ddd;">Commission</th>
+                    <th style="padding: 10px; border: 1px solid #ddd;">Cash In</th>
+                    <th style="padding: 10px; border: 1px solid #ddd;">Cash Out</th>
+                    <th style="padding: 10px; border: 1px solid #ddd;">Due Date</th>
+                </tr>
+            </thead>
+            <tbody id="ledgerTableBody">
+                <% if (ledgerData.length > 0) { %>
+                    <% ledgerData.forEach((entry, index) => { %>
+                        <tr>
+                            <td style="padding: 10px; border: 1px solid #ddd;"><%= index + 1 %></td>
+                            <td style="padding: 10px; border: 1px solid #ddd;"><%= entry.date %></td>
+                            <td style="padding: 10px; border: 1px solid #ddd;"><%= entry.customer_name %></td>
+                            <td style="padding: 10px; border: 1px solid #ddd;"><%= entry.type %></td>
+                            <td style="padding: 10px; border: 1px solid #ddd;"><%= entry.commission || '-' %></td>
+                            <td style="padding: 10px; border: 1px solid #ddd;"><%= entry.cash_in || 0 %></td>
+                            <td style="padding: 10px; border: 1px solid #ddd;"><%= entry.cash_out || 0 %></td>
+                            <td style="padding: 10px; border: 1px solid #ddd;"><%= entry.due_date || '-' %></td>
+                        </tr>
+                    <% }); %>
+                <% } else { %>
+                    <tr>
+                        <td colspan="8" style="text-align: center; padding: 10px; border: 1px solid #ddd;">No Records Found</td>
+                    </tr>
+                <% } %>
+            </tbody>
+        </table>
+    </div>
+
+    
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            document.getElementById("search").addEventListener("change", searchLedger);
+        });
+    
+        async function searchLedger() {
+            let searchValue = document.getElementById("search").value;
+    
+            try {
+                const response = await fetch(`/ledger-report?search=${encodeURIComponent(searchValue)}`);
+                const data = await response.json(); // Expecting JSON response
+    
+                updateLedgerTable(data.ledgerData);
+            } catch (error) {
+                console.error("Error fetching ledger data:", error);
+            }
+        }
+    
+        function updateLedgerTable(ledgerData) {
+            const tableBody = document.getElementById("ledgerTableBody");
+            tableBody.innerHTML = ""; // Clear existing rows
+    
+            if (ledgerData.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="8" style="text-align: center; padding: 10px; border: 1px solid #ddd;">
+                            No Records Found
+                        </td>
+                    </tr>`;
+                return;
+            }
+    
+            ledgerData.forEach((entry, index) => {
+                const row = `
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;">${index + 1}</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">${entry.date}</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">${entry.customer_name}</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">${entry.type}</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">${entry.commission || '-'}</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">${entry.cash_in || 0}</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">${entry.cash_out || 0}</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">${entry.due_date || '-'}</td>
+                    </tr>`;
+                tableBody.innerHTML += row;
+            });
+        }
+    </script>
+    
+
+</body>
+</html>

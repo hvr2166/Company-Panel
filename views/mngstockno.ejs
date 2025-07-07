@@ -1,0 +1,1313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Stock</title>
+    <!-- Styles -->
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Barcode Library -->
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.0/dist/JsBarcode.all.min.js"></script>
+    <style>
+    
+.unified-btn {
+    padding: 8px 16px;
+    font-size: 14px;
+    height: 38px;
+    min-width: 130px;
+    text-align: center;
+    border: none;
+    background-color: #007bff;
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none; /* ✅ removes underline */
+    display: inline-block; /* ✅ makes <a> look like a button */
+    line-height: 1.5;
+}
+
+
+.unified-btn:hover {
+    background-color: #0069d9;
+}
+
+.modal-content {
+    background: white;
+    z-index: 10000;
+    padding: 30px;
+    border-radius: 8px;
+    max-width: 700px; /* 🔁 Was 400px or 500px — now larger */
+    width: 90%;        /* ✅ Responsive scaling */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 9999;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.3); /* subtle dimming */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.flex-field {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.form-control {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 100%;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+
+
+    </style>
+</head>
+<body>
+    <div id="dynamic-content">
+        <div id="manageusers-page" class="container-wrapper">
+            <!-- Main Content -->
+            <main class="content">
+                <div class="container">
+                    
+                    <!-- Users Table -->
+                    <div id="LotTableView" class="table-container">
+                        <h2>Manage Stock</h2>
+                     <div style="display: flex; gap: 10px; margin-bottom: 20px; align-items: center; flex-wrap: wrap;">
+    <form id="stockExcelForm" action="/uploadstockfile" method="POST" enctype="multipart/form-data" style="display: flex; gap: 10px; align-items: center;">
+        <input type="file" name="excelFile" accept=".xlsx" required style="padding: 6px;">
+        <button type="submit" class="btn btn-primary unified-btn">Upload Excel</button>
+    </form>
+
+    <a href="/downloadsamplestock" class="btn btn-primary unified-btn">Download Sample</a>
+    <a href="/exportstock" class="btn btn-primary unified-btn">Export Table</a>
+    <button id="addLotBtn" class="btn btn-primary unified-btn">Add Lot</button>
+</div>
+
+                        <div class="filter-section" style="margin-bottom: 20px; display: flex; gap: 10px; align-items: center;">
+                            <label for="filterHeadCategory" style="font-weight: bold;">Head Category:</label>
+                            <select id="filterHeadCategory" class="form-control" style="padding: 5px; border: 1px solid #ccc; border-radius: 4px;">
+                                <option value="">All</option>
+                                <% headcategory.forEach(function(head) { %>
+                                    <option value="<%= head.ctr_name %>"><%= head.ctr_name %></option>
+                                <% }); %>
+                            </select>
+                            <label for="filterCategory" style="font-weight: bold;">Category:</label>
+                            <select id="filterCategory" class="form-control" style="padding: 5px; border: 1px solid #ccc; border-radius: 4px;">
+                                <option value="">All</option>
+                                <% category.forEach(function(cat) { %>
+                                    <option value="<%= cat.ctr_name %>"><%= cat.ctr_name %></option>
+                                <% }); %>
+                            </select>
+                            <label for="filterLot" style="font-weight: bold;">Lot:</label>
+                            <input type="text" id="filterLot" class="form-control" placeholder="Enter Lot" style="padding: 5px; border: 1px solid #ccc; border-radius: 4px;">
+                            <button id="searchBtn" class="btn btn-primary" style="padding: 5px 10px; border: none; border-radius: 4px; cursor: pointer; background-color: #007bff; color: white;">Search</button>
+                            <button id="resetBtn" class="btn btn-secondary" style="padding: 5px 10px; border: none; border-radius: 4px; cursor: pointer; background-color: #6c757d; color: white;">Reset</button>
+                        </div>
+                        <br><br>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Head Category</th>
+                                    <th>Category</th>
+                                    <th>Lot</th>
+                                    <th>Barcode</th>
+                                    <th>Barcode Number</th>
+                                    <th>Weight</th>
+                                    <th>Weight Unit</th>
+                                    <th>Image</th>
+                                    <th>Certificate Image</th>
+                                    <th>Description</th>
+                                    <th>Dimension</th>
+                                    <th>Colour</th>
+                                    <th>Size</th>
+                                    <th>Quality</th>
+                                    <th>Mines</th>
+                                    <th>Shape</th>
+                                    <th>Stone Type</th>
+                                    <th>Pcs</th>
+                                    <th>Price Code</th>
+                                    <th>Price</th>
+                                    <th>Treatment</th>
+                                    <th>Cut</th>
+                                    <th>Location</th>
+                                    <th>Partner</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% stockItems.forEach(item => { %>
+                                    <tr>
+                                        <td class="stock-id"><%= item.nid %></td>
+                                        <td class="head-category"><%= item.head_category %></td>
+                                        <td class="category"><%= item.category %></td>
+                                        <td class="lot"><%= item.lot %></td>
+                                        <td class="barcode">
+                                            <% if (item.barcode_image) { %>
+                                                <img src="<%= item.barcode_image %>" alt="Barcode" />
+                                            <% } else { %>
+                                                No Barcode
+                                            <% } %>
+                                        </td>
+                                        <td class="Barcode-Number"><%= item.barcode %></td>
+                                        <td class="weight"><%= item.weight %>
+                                        </td>
+                                        <td class="weightunit"><%= item.weight_unit %></td>
+                                        <td class="image">
+                                            <% if (item.image) { %>
+                                                <img src="/uploads/<%= item.image %>" width="50" />
+                                            <% } else { %>
+                                                No Image
+                                            <% } %>
+                                        </td>
+                                        <td class="certificate-image">
+                                            <% if (item.certificate_image) { %>
+                                                <img src="/uploads/<%= item.certificate_image %>" width="50" />
+                                            <% } else { %>
+                                                No Certificate
+                                            <% } %>
+                                        </td>
+                                        <td class="description"><%= item.description %></td>
+                                        <td class="dimension"><%= item.dimension %></td>
+                                        <td class="colour"><%= item.colour %></td>
+                                        <td class="size"><%= item.size %></td>
+                                        <td class="quality"><%= item.quality %></td>
+                                        <td class="mines"><%= item.mines %></td>
+                                        <td class="shape"><%= item.shape %></td>
+                                        <td class="stone-type"><%= item.stone_type %></td>
+                                        <td class="pcs"><%= item.pcs %></td>
+                                        <td class="price-code"><%= item.price_code %></td>
+                                        <td class="price"><%= item.price %></td>
+                                        <td class="treatment"><%= item.treatment %></td>
+                                        <td class="cut"><%= item.cut %></td>
+                                        <td class="location"><%= item.location %></td>
+                                        <td class="partner"><%= item.partner %></td>
+                                        <td>
+                                            <div class="actions">
+                                                <button type="button" class="btn btn-warning edit-lot" data-id="<%= item.nid %>">
+                                                    <i class="fa-regular fa-pen-to-square"></i>
+                                                </button>
+                                                <form action="/deletelot/<%= item.nid %>" method="POST">
+                                                    <button type="submit" class="btn btn-danger delete-lot" data-id="<%= item.nid %>">
+                                                        <i class="fa-regular fa-trash-can"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <% }); %>
+                            </tbody>
+                        </table>
+                        <div id="pagination" class="pagination">
+                            <button id="prevPage" class="btn btn-secondary">Previous</button>
+                            <span id="pageInfo"></span>
+                            <button id="nextPage" class="btn btn-secondary">Next</button>
+                        </div>
+                    </div>
+                    <!-- Add Lot Form -->
+                    <div id="addlotView" style="display: none;">
+                        <h3>Add New Lot</h3>
+                        <form action="/addlot" method="POST" enctype="multipart/form-data" style="
+                         display: grid;
+    grid-template-columns: repeat(2, 1fr); /* 2 columns only */
+    gap: 20px;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background: #f9f9f9;
+    max-width: 1000px;
+    margin: auto;
+                    ">
+                    
+                        <div class="form-group"> 
+                    <label>Head Category</label>
+                            <div class="flex-field"  >   
+                                <select name="head_category" class="form-control" required>
+                                    <option value="">Select head category </option>
+                                    <% headcategory.forEach(function(head) { %>
+                                        <option value="<%= head.ctr_name %>"><%=  head.ctr_name %></option>
+                                    <% }); %>
+                                </select>
+                                <button type="button" id="addheadcategory" style="padding: 8px 15px; background: #6c5ce7; color: white; border: none; border-radius: 5px; cursor: pointer;">Add</button>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                              <label>Category</label>
+                            <div class="flex-field">
+                                <select name="category" class="form-control" required>
+                                <option value="">Select  category </option>
+                                <% category.forEach(function(category) { %>
+                                    <option value="<%= category.ctr_name %>"><%=  category.ctr_name %></option>
+                                <% }); %>
+                            </select>
+                            <button type="button" id="addcategory" style="padding: 8px 15px; background: #6c5ce7; color: white; border: none; border-radius: 5px; cursor: pointer;">Add</button>
+                            </div>
+                        </div>
+<div class="form-group">
+  <label>Lot Number</label>
+  <div class="flex-field">
+    <input type="text" name="lot" id="lotField" class="form-control" readonly required>
+    <button type="button" id="manualLotBtn"
+      style="padding: 8px 12px; background: #e67e22; color: white; border: none; border-radius: 4px;">
+      Manual
+    </button>
+  </div>
+</div>
+
+                          <div class="form-group">
+  <label>Barcode Number</label>
+<input type="text" name="barcode" readonly class="form-control" />
+</div>
+
+<div class="form-group">
+  <label>Barcode Preview</label>
+<div id="barcodePreview" name="barcodeImage"></div>
+</div>
+
+
+                            <div class="form-group">
+                                <label>Weight</label>
+                                <input type="text" name="weight" class="form-control" required>
+                            </div>
+                             <div class="form-group">
+                                <label>Weight Unit</label>
+                                <input type="text" name="weightunit" class="form-control" value="carat" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label>Image</label>
+                                <input type="file" name="image" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label>Certificate Image</label>
+                                <input type="file" name="certificate_image" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label>Description</label>
+                                <input type="text" name="description" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label>Dimension</label>
+                                <input type="text" name="dimension" class="form-control">
+
+                            </div>
+                            <div class="form-group">
+  <label>Colour</label>
+  <div style="display: flex; gap: 10px; align-items: center;">
+    <select name="colour" class="form-control" required>
+      <option value="">Select colour</option>
+      <% if (attributeGroups.Colour) {
+        attributeGroups.Colour.forEach(function(Colour) { %>
+          <option value="<%= Colour %>"><%= Colour %></option>
+      <% }); } %>
+    </select>
+    <button type="button" class="open-attribute-modal" data-attr="colour"
+      style="padding: 8px 15px; background: #6c5ce7; color: white; border: none; border-radius: 5px; cursor: pointer;">
+      Add
+    </button>
+  </div>
+</div>
+                          <div class="form-group">
+  <label>Size</label>
+  <div class="flex-field">
+    <select name="size" class="form-control" required>
+      <option value="">Select size</option>
+      <% if (attributeGroups.Size) {
+        attributeGroups.Size.forEach(function(Size) { %>
+          <option value="<%= Size %>"><%= Size %></option>
+      <% }); } %>
+    </select>
+    <button type="button" class="open-attribute-modal" data-attr="size"  style="padding: 8px 15px; background: #6c5ce7; color: white; border: none; border-radius: 5px; cursor: pointer;">Add</button>
+  </div>
+</div>
+                          <div class="form-group">
+  <label>Quality</label>
+  <div class="flex-field">
+    <select name="Quality" class="form-control" required>
+      <option value="">Select quality</option>
+      <% if (attributeGroups.Quality) {
+        attributeGroups.Quality.forEach(function(quality) { %>
+          <option value="<%= quality %>"><%= quality %></option>
+      <% }); } %>
+    </select>
+    <button type="button" class="open-attribute-modal" data-attr="Quality"  style="padding: 8px 15px; background: #6c5ce7; color: white; border: none; border-radius: 5px; cursor: pointer;">Add</button>
+  </div>
+</div>
+
+                           <div class="form-group">
+  <label>Mines</label>
+  <div class="flex-field">
+    <select name="Mines" class="form-control" required>
+      <option value="">Select mines</option>
+      <% if (attributeGroups.Mines) {
+        attributeGroups.Mines.forEach(function(mines) { %>
+          <option value="<%= mines %>"><%= mines %></option>
+      <% }); } %>
+    </select>
+    <button type="button" class="open-attribute-modal" data-attr="Mines"  style="padding: 8px 15px; background: #6c5ce7; color: white; border: none; border-radius: 5px; cursor: pointer;">Add</button>
+  </div>
+</div>
+                            <div class="form-group">
+  <label>Shape</label>
+  <div class="flex-field">
+    <select name="Shapes" class="form-control" required>
+      <option value="">Select shape</option>
+      <% if (attributeGroups.Shape) {
+        attributeGroups.Shape.forEach(function(Shape) { %>
+          <option value="<%= Shape %>"><%= Shape %></option>
+      <% }); } %>
+    </select>
+    <button type="button" class="open-attribute-modal" data-attr="shape"  style="padding: 8px 15px; background: #6c5ce7; color: white; border: none; border-radius: 5px; cursor: pointer;">Add</button>
+  </div>
+</div>
+                            
+<div class="form-group">
+  <label>Stone Type</label>
+  <div class="flex-field">
+    <select name="stone" class="form-control" required>
+      <option value="">Select stone</option>
+      <% if (attributeGroups.Stone) {
+        attributeGroups.Stone.forEach(function(Stone) { %>
+          <option value="<%= Stone  %>"><%= Stone  %></option>
+      <% }); } %>
+    </select>
+    <button type="button" class="open-attribute-modal" data-attr="stone"  style="padding: 8px 15px; background: #6c5ce7; color: white; border: none; border-radius: 5px; cursor: pointer;">Add</button>
+  </div>
+</div>
+                            <div class="form-group">
+                                <label>Pcs</label>
+                                <input type="number" name="pcs" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Price Code</label>
+                                <input type="text" name="price_code" class="form-control">
+                            </div>
+                           <div class="form-group">
+  <label>Treatment</label>
+  <div class="flex-field">
+    <select name="treatment" class="form-control" required>
+      <option value="">Select treatment</option>
+      <% if (attributeGroups.Treatment) {
+        attributeGroups.Treatment.forEach(function(Treatment) { %>
+          <option value="<%= Treatment %>"><%= Treatment %></option>
+      <% }); } %>
+    </select>
+    <button type="button" class="open-attribute-modal" data-attr="treatment"  style="padding: 8px 15px; background: #6c5ce7; color: white; border: none; border-radius: 5px; cursor: pointer;">Add</button>
+  </div>
+</div>
+
+<div class="form-group">
+  <label>Cut</label>
+  <div class="flex-field">
+    <select name="cut" class="form-control" required>
+      <option value="">Select cut</option>
+      <% if (attributeGroups.Cut) {
+        attributeGroups.Cut.forEach(function(Cut) { %>
+          <option value="<%= Cut %>"><%= Cut %></option>
+      <% }); } %>
+    </select>
+    <button type="button" class="open-attribute-modal" data-attr="cut"
+      style="padding: 8px 15px; background: #6c5ce7; color: white; border: none; border-radius: 5px; cursor: pointer;">
+      Add
+    </button>
+  </div>
+</div>
+
+<!-- LOCATION FIELD -->
+<div class="form-group">
+  <label>Location</label>
+  <input type="text" name="location" class="form-control" required>
+</div>
+
+
+                            <div class="form-group">
+                                <label>Partner</label>
+                                <input type="text" name="partner" class="form-control">
+                                
+                            </div>
+                            <div class="button-group"  style="
+                            display: flex;
+                            justify-content: space-between;
+                            grid-column: span 2;
+                            margin-top: 20px;
+                        ">
+                                <button type="submit" class="btn btn-success" id="submitBtn">Add</button>
+                                <button type="button" id="cancelBtn" class="btn btn-secondary">Cancel</button>
+                            </div>
+                        </form>
+                    </div>
+                    <!-- Edit Lot Form -->
+                    <!-- Redesigned #editLotView matching Add Lot Form Layout -->
+<div id="editLotView" style="display: none;">
+  <h3>Edit Lot</h3>
+  <form id="editLotForm" action="/editlot" method="POST" enctype="multipart/form-data"
+    style="
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      background: #f9f9f9;
+      max-width: 1000px;
+      margin: auto;
+    ">
+
+    <!-- Hidden Fields -->
+    <input type="hidden" name="nid" id="edit_nid">
+    <input type="hidden" name="old_image" id="old_image">
+    <input type="hidden" name="old_certificate_image" id="old_certificate_image">
+
+    <!-- Head Category -->
+    <div class="form-group">
+      <label>Head Category</label>
+      <div class="flex-field">
+        <select name="head_category" id="edit_head_category" class="form-control" required>
+          <option value="">Select Head Category</option>
+          <% headcategory.forEach(function(head) { %>
+            <option value="<%= head.ctr_name %>"><%= head.ctr_name %></option>
+          <% }); %>
+        </select>
+        <button type="button" id="addheadcategory" class="btn btn-secondary">Add</button>
+      </div>
+    </div>
+
+    <!-- Category -->
+    <div class="form-group">
+      <label>Category</label>
+      <div class="flex-field">
+        <select name="category" id="edit_category" class="form-control" required>
+          <option value="">Select Category</option>
+          <% category.forEach(function(cat) { %>
+            <option value="<%= cat.ctr_name %>"><%= cat.ctr_name %></option>
+          <% }); %>
+        </select>
+        <button type="button" id="addcategory" class="btn btn-secondary">Add</button>
+      </div>
+    </div>
+
+    <!-- Lot & Barcode -->
+    <div class="form-group">
+      <label>Lot</label>
+      <input type="text" name="lot" id="edit_lot" class="form-control" required>
+    </div>
+    <div class="form-group">
+      <label>Barcode</label>
+      <input type="text" name="barcode" id="edit_barcode" class="form-control" required>
+    </div>
+
+    <input type="hidden" name="old_barcode_image" id="old_barcode_image">
+
+
+    <!-- Weight -->
+    <div class="form-group">
+      <label>Weight</label>
+      <input type="text" name="weight" id="edit_weight" class="form-control" required>
+    </div>
+
+     <div class="form-group">
+                                <label>Weight Unit</label>
+                                <input type="text" name="weightunit" id="edit_weightunit" class="form-control" value="carat" readonly>
+                            </div>
+      
+    <!-- Image -->
+    <div class="form-group">
+      <label>Image</label>
+      <img id="edit_image_preview" src="" alt="Current Image" style="max-width: 100px; display: none;">
+      <input type="file" name="image" id="edit_image" class="form-control">
+    </div>
+
+    <!-- Certificate Image -->
+    <div class="form-group">
+      <label>Certificate Image</label>
+      <img id="edit_certificate_image_preview" src="" alt="Current Certificate Image" style="max-width: 100px; display: none;">
+      <input type="file" name="certificate_image" id="edit_certificate_image" class="form-control">
+    </div>
+
+    <!-- Description -->
+    <div class="form-group">
+      <label>Description</label>
+      <input type="text" name="description" id="edit_description" class="form-control">
+    </div>
+
+    <!-- Dimension -->
+    <div class="form-group">
+      <label>Dimension</label>
+      <input type="text" name="dimension" id="edit_dimension" class="form-control">
+    </div>
+
+    <!-- Dropdown Attributes -->
+    <% const attributes = ["Colour", "Size", "Quality", "Mines", "Shape", "Stone", "Treatment", "Cut"]; %>
+    <% attributes.forEach(function(attr) { 
+      const key = attr.toLowerCase().replace("stone", "stone_type"); %>
+      <div class="form-group">
+        <label><%= attr %></label>
+        <div class="flex-field">
+          <select name="<%= key %>" id="edit_<%= key %>" class="form-control" required>
+            <option value="">Select <%= attr.toLowerCase() %></option>
+            <% if (attributeGroups[attr]) {
+              attributeGroups[attr].forEach(function(val) { %>
+                <option value="<%= val %>"><%= val %></option>
+            <% }); } %>
+          </select>
+          <button type="button" class="open-attribute-modal btn btn-secondary" data-attr="<%= key %>">Add</button>
+        </div>
+      </div>
+    <% }); %>
+
+    <!-- Pcs -->
+    <div class="form-group">
+      <label>Pcs</label>
+      <input type="number" name="pcs" id="edit_pcs" class="form-control" required>
+    </div>
+
+    <!-- Price Code -->
+    <div class="form-group">
+      <label>Price Code</label>
+      <input type="text" name="price_code" id="edit_price_code" class="form-control">
+    </div>
+
+    <!-- Location -->
+    <div class="form-group">
+      <label>Location</label>
+      <input type="text" name="location" id="edit_location" class="form-control" required>
+    </div>
+
+    <!-- Partner -->
+    <div class="form-group">
+      <label>Partner</label>
+      <input type="text" name="partner" id="edit_partner" class="form-control">
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="button-group" style="grid-column: span 2; display: flex; justify-content: space-between;">
+      <button type="submit" class="btn btn-success" id="saveEditBtn">Save Changes</button>
+      <button type="button" id="cancelEditBtn" class="btn btn-secondary">Cancel</button>
+    </div>
+  </form>
+</div>
+
+                </div>
+
+                <div id="addHeadCategoryview" class="modal" style="display: none;">
+                    <div class="modal-content">
+                        <span class="close" id="closeModal">&times;</span>
+                        <h3>Add Head Category</h3>
+                        <form id="addHeadCategoryForm" action="/addheadcategory" method="POST">
+                            <div class="form-group">
+                                <label>Head Category Name</label>
+                                <input type="text" name="ctr_name" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Code</label>
+                                <input type="text" name="ctr_code" class="form-control" required>
+                            </div>
+                              <div class="form-group" style="border: 1px solid #ccc; padding: 10px; border-radius: 5px; display: inline-block;">
+                                <label>Status</label>
+                                <div style="display: flex; align-items: center; gap: 15px;">
+                                    <!-- Radio Button for Active -->
+                                     <div style="display: flex; align-items: center; gap: 5px;">
+                                    <input type="radio" id="status_active" name="status" value="Active" required>
+                                    <label for="status_active">Active</label>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 5px;">
+                                    <!-- Radio Button for Inactive -->
+                                    <input type="radio" id="status_inactive" name="status" value="Inactive" required>
+                                    <label for="status_inactive">Inactive</label>
+                                </div>
+                                </div>
+                                </div>
+                            <div class="button-group">
+                                <button type="submit" class="btn btn-success" id="submitBtn">Add</button>
+                                <button type="button" id="MODELcancelBtn" class="btn btn-secondary">Cancel</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div id="addCategoryview" class="modal" style="display: none;">
+                    <div class="modal-content">
+                        <span class="close" id="closecModal">&times;</span>
+                        <h3>Add Category</h3>
+                        <form id="addCategoryForm" action="/addcategory" method="POST">
+                            <div class="form-group">
+                                <label>Category Name</label>
+                                <input type="text" name="ctr_name" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Code</label>
+                                <input type="text" name="ctr_code" class="form-control" required>
+                            </div>
+                            <div class="form-group" style="border: 1px solid #ccc; padding: 10px; border-radius: 5px; display: inline-block;">
+                                <label>Status</label>
+                                <div style="display: flex; align-items: center; gap: 15px;">
+                                    <!-- Radio Button for Active -->
+                                     <div style="display: flex; align-items: center; gap: 5px;">
+                                    <input type="radio" id="status_active" name="status" value="Active" required>
+                                    <label for="status_active">Active</label>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 5px;">
+                                    <!-- Radio Button for Inactive -->
+                                    <input type="radio" id="status_inactive" name="status" value="Inactive" required>
+                                    <label for="status_inactive">Inactive</label>
+                                </div>
+                                </div>
+                                </div>
+                            <div class="button-group">
+                                <button type="submit" class="btn btn-success" id="submitBtn">Add</button>
+                                <button type="button" id="MODELccancelBtn" class="btn btn-secondary">Cancel</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div id="addattributevalueview" class="modal" style="display: none;">
+                    <div class="modal-content">
+                        <span class="close" id="closeavModal">&times;</span>
+                        <h3>Add Attribute Value</h3>
+                        <form id="addattributevalueform"action="/addattributevalue" method="POST">
+                            <div class="form-group">
+                                <label>Attribute Name</label>
+                                <select name="attribute_name" class="form-control" required>
+                                    <option value="">Select Attribute</option>
+                                    <% attributes.forEach(function(attribute) { %>
+                                        <option value="<%= attribute.attribute_name %>"><%= attribute.attribute_name %></option>
+                                    <% }); %>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Attribute Value</label>
+                                <input type="text" name="attribute_value" id="edit_attribute_value" class="form-control" required>
+                            </div>
+                            <div class="button-group">
+                                <button type="submit" class="btn btn-success" id="submitBtn">Add </button>
+                                <button type="button" id="MODELavcancelBtn" class="btn btn-secondary">Cancel</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+    <script>
+        console.log("🛠️ Manage Stock script loaded!");
+
+        // Delay execution slightly to ensure elements are available
+        setTimeout(() => {
+            console.log("⏳ Checking for elements...");
+
+            function bindManageStockEvents() {
+                const addLotBtn = document.getElementById("addLotBtn");
+                const cancelBtn = document.getElementById("cancelBtn");
+                const submitBtn = document.getElementById("submitBtn");
+                const addLotView = document.getElementById("addlotView");
+                const lotTableView = document.getElementById("LotTableView");
+                const addLotForm = document.querySelector("#addlotView form");
+                const lotTableBody = document.querySelector("#LotTableView tbody");
+                const addheadcategoryBtn = document.getElementById("addheadcategory"); // Button to open the modal
+            const addHeadCategoryview = document.getElementById("addHeadCategoryview");
+            const closeModal = document.getElementById("closeModal");
+            const MODELcancelBtn = document.getElementById("MODELcancelBtn");
+            const addHeadCategoryForm = document.getElementById("addHeadCategoryForm");
+
+            
+                  // Open the modal
+                  addheadcategoryBtn.addEventListener("click", function() {
+                    addHeadCategoryview.style.display = "block";
+            });
+
+            // Close the modal
+            closeModal.addEventListener("click", function() {
+                addHeadCategoryview.style.display = "none";
+            });
+
+            MODELcancelBtn.addEventListener("click", function() {
+                addHeadCategoryview.style.display = "none";
+            });
+
+               // Handle form submission
+               addHeadCategoryForm.addEventListener("submit", async (event) => {
+        event.preventDefault(); // Prevent default form submission
+        const formData = new FormData(addHeadCategoryForm);
+        const urlEncodedData = new URLSearchParams(formData);
+
+        try {
+            const response = await fetch("/addheadcategory", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: urlEncodedData.toString()
+            });
+
+            if (!response.ok) {
+                const errorMessage = await response.text();
+                alert(`Error: ${errorMessage}`);
+                return;
+            }
+
+            alert("head category added successfully!");
+            addHeadCategoryview.style.display = "none"; // Close the modal
+            await reloadManageStock(); // Reload the table or content
+        } catch (error) {
+            console.error("Error:", error);
+            alert("Something went wrong.");
+        }
+    });
+
+
+document.querySelectorAll(".open-attribute-modal").forEach((btn) => {
+    btn.addEventListener("click", function () {
+        const attr = this.getAttribute("data-attr");
+        // Optionally pre-select the attribute in the modal
+        const dropdown = document.querySelector("#addattributevalueview select[name='attribute_name']");
+        if (dropdown) {
+            dropdown.value = attr;
+        }
+        addattributevalueview.style.display = "block";
+    });
+});
+            const addattributevalueview = document.getElementById("addattributevalueview");
+            const closeavModal = document.getElementById("closeavModal");
+            const MODELavcancelBtn = document.getElementById("MODELavcancelBtn");
+            const addattributevalueform = document.getElementById("addattributevalueform");
+
+            
+               
+
+            // Close the modal
+            closeavModal.addEventListener("click", function() {
+                addattributevalueview.style.display = "none";
+            });
+
+            MODELavcancelBtn.addEventListener("click", function() {
+                addattributevalueview.style.display = "none";
+            });
+
+               // Handle form submission
+               addattributevalueform.addEventListener("submit", async (event) => {
+        event.preventDefault(); // Prevent default form submission
+        const formData = new FormData(addattributevalueform);
+        const urlEncodedData = new URLSearchParams(formData);
+
+        try {
+            const response = await fetch("/addattributevalue", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: urlEncodedData.toString()
+            });
+
+            if (!response.ok) {
+                const errorMessage = await response.text();
+                alert(`Error: ${errorMessage}`);
+                return;
+            }
+
+            alert(" attribute added successfully!");
+            addattributevalueview.style.display = "none"; // Close the modal
+            await reloadManageStock(); // Reload the table or content
+        } catch (error) {
+            console.error("Error:", error);
+            alert("Something went wrong.");
+        }
+    });
+
+
+    const addcategoryBtn = document.getElementById("addcategory"); // Button to open the modal
+            const addCategoryview = document.getElementById("addCategoryview");
+            const closecModal = document.getElementById("closecModal");
+            const MODELccancelBtn = document.getElementById("MODELccancelBtn");
+            const addCategoryForm = document.getElementById("addCategoryForm");
+
+            
+                  // Open the modal
+                  addcategoryBtn.addEventListener("click", function() {
+                    addCategoryview.style.display = "block";
+            });
+
+            // Close the modal
+            closecModal.addEventListener("click", function() {
+                addCategoryview.style.display = "none";
+            });
+
+            MODELccancelBtn.addEventListener("click", function() {
+                addCategoryview.style.display = "none";
+            });
+
+               // Handle form submission
+               addCategoryForm.addEventListener("submit", async (event) => {
+        event.preventDefault(); // Prevent default form submission
+        const formData = new FormData(addCategoryForm);
+        const urlEncodedData = new URLSearchParams(formData);
+
+        try {
+            const response = await fetch("/addcategory", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: urlEncodedData.toString()
+            });
+
+            if (!response.ok) {
+                const errorMessage = await response.text();
+                alert(`Error: ${errorMessage}`);
+                return;
+            }
+
+            alert(" category added successfully!");
+            addCategoryview.style.display = "none"; // Close the modal
+            await reloadManageStock(); // Reload the table or content
+        } catch (error) {
+            console.error("Error:", error);
+            alert("Something went wrong.");
+        }
+    });
+
+                // Edit Lot Elements
+                const editLotView = document.getElementById("editLotView");
+                const editLotForm = document.querySelector("#editLotView form");
+                const cancelEditBtn = document.getElementById("cancelEditBtn");
+
+                if (!addLotBtn || !cancelBtn || !submitBtn || !addLotView || !lotTableView || !addLotForm || !lotTableBody || !editLotView || !editLotForm || !cancelEditBtn) {
+                    console.error("❌ Some Manage Stock elements are missing! DOM might not be fully loaded.");
+                    return;
+                }
+
+                console.log("✅ Manage Stock elements found, adding event listeners...");
+
+                const rows = Array.from(lotTableBody.querySelectorAll("tr"));
+                const itemsPerPage = 5; // Number of rows per page
+                let currentPage = 1;
+
+                function showPage(page) {
+                    const start = (page - 1) * itemsPerPage;
+                    const end = start + itemsPerPage;
+
+                    rows.forEach((row, index) => {
+                        row.style.display = (index >= start && index < end) ? "" : "none";
+                    });
+
+                    document.getElementById("pageInfo").textContent = `Page ${page} of ${Math.ceil(rows.length / itemsPerPage)}`;
+                }
+
+                document.getElementById("prevPage").addEventListener("click", function () {
+                    if (currentPage > 1) {
+                        currentPage--;
+                        showPage(currentPage);
+                    }
+                });
+
+                document.getElementById("nextPage").addEventListener("click", function () {
+                    if (currentPage < Math.ceil(rows.length / itemsPerPage)) {
+                        currentPage++;
+                        showPage(currentPage);
+                    }
+                });
+
+                // Initial page load
+                showPage(currentPage);
+
+                // Show Add Lot Form and Hide Lot Table
+                addLotBtn.addEventListener("click", function () {
+  console.log("➕ Add Lot clicked"); // ✅ Confirm
+
+  lotTableView.style.display = "none";
+  addLotView.style.display = "block";
+
+  // Generate barcode only after form is visible
+  generateBarcode();
+});
+
+                // Hide Add Lot Form and Show Lot Table
+                cancelBtn.addEventListener("click", function () {
+                    console.log("❌ Cancel button clicked");
+                    addLotView.style.display = "none";
+                    lotTableView.style.display = "block";
+                });
+
+                // Submit Form via AJAX and Dynamically Update Table
+                addLotForm.addEventListener("submit", async (event) => {
+                    event.preventDefault(); // Prevent default form submission
+                    console.log("🚀 Submit button clicked!");
+
+                    const formData = new FormData(event.target);
+
+                    try {
+                        const response = await fetch("/addlot", {
+                            method: "POST",
+                            body: formData // Send FormData directly for file uploads
+                        });
+
+                        console.log("✅ Response Status:", response.status);
+
+                        if (!response.ok) {
+                            throw new Error(`Server error! Status: ${response.status}`);
+                        }
+
+                        alert("Lot added successfully!");
+                        await reloadManageStock(); // ✅ Reload content dynamically
+                    } catch (error) {
+                        console.error("🚨 Fetch Error:", error);
+                        alert("Something went wrong.");
+                    }
+                });
+
+                // ✅ Edit Lot Functionality
+                document.querySelectorAll(".edit-lot").forEach((editBtn) => {
+                    editBtn.addEventListener("click", function () {
+                        console.log("✏️ Edit button clicked!");
+
+                        const lotRow = this.closest("tr");
+                        if (!lotRow) {
+                            console.error("🚨 Error: Cannot find lot row.");
+                            return;
+                        }
+
+                        // Extract lot data from table row
+                        const lotId = lotRow.querySelector(".stock-id").textContent;
+                        const headCategory = lotRow.querySelector(".head-category").textContent;
+                        const category = lotRow.querySelector(".category").textContent;
+                        const lot = lotRow.querySelector(".lot").textContent;
+                      const barcode = lotRow.querySelector(".Barcode-Number")?.textContent.trim() || "";
+                        const barcodeImageSrc = lotRow.querySelector(".barcode img")?.src || "";
+                        const weight = lotRow.querySelector(".weight").textContent;
+                        const description = lotRow.querySelector(".description").textContent;
+                        const dimension = lotRow.querySelector(".dimension").textContent;
+                        const colour = lotRow.querySelector(".colour").textContent;
+                        const size = lotRow.querySelector(".size").textContent;
+                        const quality = lotRow.querySelector(".quality").textContent;
+                        const mines = lotRow.querySelector(".mines").textContent;
+                        const shape = lotRow.querySelector(".shape").textContent;
+                        const stoneType = lotRow.querySelector(".stone-type").textContent;
+                        const pcs = lotRow.querySelector(".pcs").textContent;
+                        const priceCode = lotRow.querySelector(".price-code").textContent;
+                        const treatment = lotRow.querySelector(".treatment").textContent;
+                        const cut = lotRow.querySelector(".cut").textContent;
+                         const location = lotRow.querySelector(".location")?.textContent.trim() || "";
+                        const partner = lotRow.querySelector(".partner").textContent;
+
+                        // Extract image data
+                        const imageSrc = lotRow.querySelector(".image img")?.src || "";
+                        const certificateImageSrc = lotRow.querySelector(".certificate-image img")?.src || "";
+
+                        // Populate the edit form fields
+                        document.querySelector("#editLotView input[name='nid']").value = lotId;
+                        document.querySelector("#editLotView input[name='lot']").value = lot;
+                        document.querySelector("#editLotView input[name='barcode']").value = barcode;
+                        document.querySelector("#editLotView input[name='old_barcode_image']").value = barcodeImageSrc;
+                        document.querySelector("#editLotView input[name='weight']").value = weight;
+                        document.querySelector("#editLotView input[name='description']").value = description;
+                        document.querySelector("#editLotView input[name='dimension']").value = dimension;
+                        document.querySelector("#editLotView select[name='colour']").value = colour;
+document.querySelector("#editLotView select[name='size']").value = size;
+                        document.querySelector("#editLotView select[name='quality']").value = quality;
+                        document.querySelector("#editLotView select[name='mines']").value = mines;
+                        document.querySelector("#editLotView select[name='shape']").value = shape;
+                       document.querySelector("#editLotView select[name='stone_type']").value = stoneType;
+                        document.querySelector("#editLotView input[name='pcs']").value = pcs;
+                        document.querySelector("#editLotView input[name='price_code']").value = priceCode;
+                        document.querySelector("#editLotView select[name='treatment']").value = treatment;  
+                        document.querySelector("#editLotView select[name='cut']").value = cut;
+                        document.querySelector("#editLotView input[name='partner']").value = partner;
+                        document.querySelector("#editLotView input[name='location']").value = location;
+
+                       
+
+
+                        // Populate hidden fields for old images
+                        const oldImageInput = document.querySelector("#editLotView input[name='old_image']");
+                        const oldCertificateImageInput = document.querySelector("#editLotView input[name='old_certificate_image']");
+
+                        if (imageSrc) {
+                            const imageFilename = imageSrc.split('/').pop(); // Extract filename
+                            oldImageInput.value = imageFilename || ""; // Set value or empty string if 
+                        } else {
+                            oldImageInput.value = ""; // Set to empty string if no image
+                        }
+
+                        if (certificateImageSrc) {
+                            const certificateImageFilename = certificateImageSrc.split('/').pop(); // Extract filename
+                            oldCertificateImageInput.value = certificateImageFilename || ""; // Set value or empty string if undefined
+                        } else {
+                            oldCertificateImageInput.value = ""; // Set to empty string if no certificate image
+                        }
+
+                        // Populate Head Category dropdown
+                        const headCategoryDropdown = document.querySelector("#editLotView select[name='head_category']");
+                        if (headCategoryDropdown) {
+                            for (let i = 0; i < headCategoryDropdown.options.length; i++) {
+                                if (headCategoryDropdown.options[i].value === headCategory) {
+                                    headCategoryDropdown.selectedIndex = i;
+                                    break;
+                                }
+                            }
+                        }
+
+                        // Populate Category dropdown
+                        const categoryDropdown = document.querySelector("#editLotView select[name='category']");
+                        if (categoryDropdown) {
+                            for (let i = 0; i < categoryDropdown.options.length; i++) {
+                                if (categoryDropdown.options[i].value === category) {
+                                    categoryDropdown.selectedIndex = i;
+                                    break;
+                                }
+                            }
+                        }
+
+                        // Populate image previews
+                        const imagePreview = document.getElementById("edit_image_preview");
+                        const certificateImagePreview = document.getElementById("edit_certificate_image_preview");
+
+                        if (imageSrc && imagePreview) {
+                            imagePreview.src = imageSrc;
+                            imagePreview.style.display = "block";
+                        } else if (imagePreview) {
+                            imagePreview.style.display = "none";
+                        }
+
+                        if (certificateImageSrc && certificateImagePreview) {
+                            certificateImagePreview.src = certificateImageSrc;
+                            certificateImagePreview.style.display = "block";
+                        } else if (certificateImagePreview) {
+                            certificateImagePreview.style.display = "none";
+                        }
+
+                        // Show Edit Lot View & Hide Others
+                        document.getElementById("LotTableView").style.display = "none";
+                        document.getElementById("addlotView").style.display = "none";
+                        document.getElementById("editLotView").style.display = "block";
+                    });
+                });
+
+
+
+let manualMode = false;
+
+document.getElementById("manualLotBtn").addEventListener("click", () => {
+  manualMode = !manualMode;
+  const lotInput = document.getElementById("lotField");
+  lotInput.readOnly = !manualMode;
+  document.getElementById("manualLotBtn").textContent = manualMode ? "Auto" : "Manual";
+
+  // If switched back to Auto, re-trigger lot number generation
+  if (!manualMode) {
+    const selected = document.querySelector('select[name="head_category"]').value;
+    if (selected) {
+      fetchAutoLotNumber(selected);
+    }
+  }
+});
+
+document.querySelector('select[name="head_category"]').addEventListener('change', function () {
+  if (!manualMode && this.value) {
+    fetchAutoLotNumber(this.value);
+  }
+});
+
+async function fetchAutoLotNumber(headCategory) {
+  const res = await fetch(`/get-next-lot?headCategory=${encodeURIComponent(headCategory)}`);
+  const data = await res.json();
+  document.getElementById("lotField").value = data.lotNumber;
+}
+
+
+                // ✅ Handle Edit Lot Form Submission
+                editLotForm.addEventListener("submit", async (event) => {
+                    event.preventDefault();
+                    console.log("💾 Save Details button clicked!");
+
+                    const formData = new FormData(event.target);
+                    for (let [key, value] of formData.entries()) {
+                        console.log(key, value);
+                    }
+                    try {
+                        const response = await fetch("/editlot", {
+                            method: "POST",
+                            body: formData // Send FormData directly for file uploads
+                        });
+
+                        console.log("✅ Edit Response Status:", response.status);
+
+                        if (!response.ok) {
+                            throw new Error(`Server error! Status: ${response.status}`);
+                        }
+
+                        alert("Lot updated successfully!");
+                        await reloadManageStock(); // ✅ Reload content dynamically
+                    } catch (error) {
+                        console.error("🚨 Edit Error:", error);
+                        alert("Failed to update lot.");
+                    }
+                });
+
+                // Hide Edit Lot View
+                cancelEditBtn.addEventListener("click", function () {
+                    console.log("❌ Cancel Edit button clicked");
+                    editLotView.style.display = "none";
+                    lotTableView.style.display = "block";
+                });
+
+                // ✅ Delete Lot Functionality
+            document.querySelectorAll(".delete-lot").forEach((deleteBtn) => {
+    deleteBtn.addEventListener("click", async function (event) {
+        event.preventDefault(); // prevent form default
+
+        const lotId = this.dataset.id;
+        if (!confirm("Are you sure you want to delete this lot?")) return;
+
+        try {
+            const response = await fetch(`/deletelot/${lotId}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                alert("Lot deleted successfully.");
+                this.closest("tr")?.remove();
+            } else {
+                alert("Deletion failed: " + result.message);
+            }
+        } catch (err) {
+            console.error("Delete error:", err);
+            alert("Error deleting lot.");
+        }
+    });
+});
+
+            }
+
+            document.getElementById("searchBtn").addEventListener("click", function () {
+                const filterHeadCategory = document.getElementById("filterHeadCategory").value.toLowerCase();
+                const filterCategory = document.getElementById("filterCategory").value.toLowerCase();
+                const filterLot = document.getElementById("filterLot").value.toLowerCase();
+
+                const rows = document.querySelectorAll("#LotTableView tbody tr");
+
+                rows.forEach(row => {
+                    const headCategory = row.querySelector(".head-category").textContent.toLowerCase();
+                    const category = row.querySelector(".category").textContent.toLowerCase();
+                    const lot = row.querySelector(".lot").textContent.toLowerCase();
+
+                    const matchHeadCategory = filterHeadCategory ? headCategory === filterHeadCategory : true;
+                    const matchCategory = filterCategory ? category === filterCategory : true;
+                    const matchLot = filterLot ? lot.includes(filterLot) : true;
+
+                    if (matchHeadCategory && matchCategory && matchLot) {
+                        row.style.display = "";
+                    } else {
+                        row.style.display = "none";
+                    }
+                });
+            });
+
+            // Reset Filters
+            document.getElementById("resetBtn").addEventListener("click", function () {
+                document.getElementById("filterHeadCategory").value = "";
+                document.getElementById("filterCategory").value = "";
+                document.getElementById("filterLot").value = "";
+
+                const rows = document.querySelectorAll("#LotTableView tbody tr");
+                rows.forEach(row => {
+                    row.style.display = "";
+                });
+            });
+
+            document.getElementById("stockExcelForm")?.addEventListener("submit", async function (e) {
+  e.preventDefault();
+  const formData = new FormData(e.target);
+
+  try {
+    const response = await fetch("/uploadstockexcel", {
+      method: "POST",
+      body: formData
+    });
+
+    if (response.ok) {
+      alert("Stock upload successful!");
+      // You can optionally reload the stock list if you have a reload function
+      // await reloadStockData();
+    } else {
+      alert("Stock upload failed.");
+    }
+  } catch (error) {
+    console.error("Stock Upload Error:", error);
+    alert("An error occurred during stock file upload.");
+  }
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+  generateBarcode(); // Auto-run when the form loads
+});
+
+function generateBarcode() {
+  fetch('/generate-barcode')
+    .then(res => {
+      if (!res.ok) throw new Error("Failed to fetch barcode");
+      return res.json();
+    })
+    .then(data => {
+      console.log("Barcode loaded:", data); // 🐞 You should see this in the browser console
+
+      const barcodeInput = document.querySelector("input[name='barcode']");
+      const barcodePreview = document.getElementById("barcodePreview");
+
+      if (barcodeInput && barcodePreview) {
+        barcodeInput.value = data.barcode;
+        barcodePreview.innerHTML = `<img src="${data.barcodeImage}" alt="Barcode Image" />`;
+      } else {
+        console.warn("Barcode input or preview element not found!");
+      }
+    })
+    .catch(err => {
+      console.error("Barcode generation error:", err);
+    });
+}
+            // ✅ Function to Reload Manage Stock Page Without Refreshing
+            async function reloadManageStock() {
+                console.log("🔄 Reloading Manage Stock...");
+                const contentDiv = document.getElementById("dynamic-content");
+
+                if (!contentDiv) {
+                    console.error("🚨 Error: #dynamic-content not found!");
+                    return;
+                }
+
+                const updatedContent = await fetch("/manage%20stockno");
+                const html = await updatedContent.text();
+                contentDiv.innerHTML = html; // Replace only the content
+
+                bindManageStockEvents(); // ✅ Rebind event listeners after reload
+            }
+
+            // Initial Binding of Events
+            bindManageStockEvents();
+
+        }, 500);
+
+        // Generate Barcodes
+            document.querySelectorAll(".barcode svg").forEach(svg => {
+            const id = svg.id.split("-")[1];
+            JsBarcode(svg, id, {
+                format: "CODE128",
+                displayValue: true,
+                fontSize: 12,
+                height: 30,
+                width: 1
+            });
+        });
+   
+
+</script>
+
+</body>
+</html>

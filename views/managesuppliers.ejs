@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Suppliers</title>
+
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    <div id="dynamic-content">
+ <div  id="manageusers-page"  class="container-wrapper">
+
+
+
+   
+        <!-- Main Content -->
+        <main class="content">
+            <div class="container">
+                <h2>Manage Suppliers</h2>
+               
+
+                <!-- suppliers Table -->
+                <div id="suppliersTableView" class="table-container">
+                    <button id="addsupplierBtn" class="btn btn-primary">Add Supplier</button>
+                    <br><br>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Comp Name</th>
+                                <th>Email</th>
+                                <th>Mobile</th>
+                                <th>Address</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% users.forEach(user => { %>
+                                <tr>
+                                    <td class="sup_name"><%= user.sup_name %></td>
+                                    <td class="sup_comp_name"><%= user.sup_comp_name %></td>
+                                    <td class="sup_email"><%= user.sup_email %></td>
+                                    <td class="sup_mobile"><%= user.sup_mobile %></td>
+                                    <td class="sup_address"><%= user.sup_address %></td>
+                                    <td class="active_status"><%= user.active_status %></td>
+                                    <td>
+                                        <div class="actions">
+                                            <!-- Edit Button -->
+                                            
+                                            <button type="button" class="btn btn-warning edit-supplier" data-id="<%= user.nid %>">
+                                                <i class="fa-regular fa-pen-to-square"></i>
+                                            </button>
+                                    
+                                            <!-- Delete Button inside inline form -->
+                                            <form action="/deletesupplier/<%= user.nid %>" method="POST">
+                                                <button type="submit" class="btn btn-danger delete-supplier" data-id="<%= user.nid %>">
+                                                    <i class="fa-regular fa-trash-can"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                    
+                                    
+                                    
+                                </tr>
+                            <% }); %>
+                        </tbody>
+                    </table>
+                    <div id="pagination" class="pagination">
+                        <button id="prevPage" class="btn btn-secondary">Previous</button>
+                        <span id="pageInfo"></span>
+                        <button id="nextPage" class="btn btn-secondary">Next</button>
+                    </div>
+                </div>
+
+               <!-- Add User Form -->
+               <div id="addSupplierview" style="display: none; max-height: 400px; overflow-y: auto; padding-right: 10px;">
+                <h3>Add Supplier</h3>
+                <form action="/addsupplier" method="POST">
+                    <div class="form-group">
+                        <label>Supplier Name</label>
+                        <input type="text" name="sup_name" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Company Name</label>
+                        <input type="text" name="sup_comp_name" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Eamil</label>
+                        <input type="email" name="sup_email" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Mobile</label>
+                        <input type="text" name="sup_mobile" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Address</label>
+                        <input type="text" name="sup_address" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Tax Id</label>
+                        <input type="text" name="sup_tax_id" class="form-control" required>
+                    </div>
+                    <div class="form-group" style="border: 1px solid #ccc; padding: 10px; border-radius: 5px; display: inline-block;">
+                        <label >Status</label>
+                        
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                            <!-- Radio Button for Active -->
+                            <div style="display: flex; align-items: center; gap: 5px;">
+                                <input type="radio" id="status_active" name="status" value="Active" required>
+                                <label for="status_active" style="font-size: 14px; color: #333;">Active</label>
+                            </div>
+                    
+                            <!-- Radio Button for Inactive -->
+                            <div style="display: flex; align-items: center; gap: 5px;">
+                                <input type="radio" id="status_inactive" name="status" value="Inactive" required>
+                                <label for="status_inactive" style="font-size: 14px; color: #333;">Inactive</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="button-group">
+                        <button type="submit" class="btn btn-success" id="submitBtn">Add </button>
+                        <button type="button" id="cancelBtn" class="btn btn-secondary">Cancel</button>
+                    </div>
+                </form>
+                </div>
+                
+            </div>
+            <div id="editsupplierView" style="display: none; max-height: 400px; overflow-y: auto; padding-right: 10px;">
+                <h3>Edit Supplier</h3>
+                <form id="editsupplierForm" action="/editsupplier" method="POST">
+                    <input type="hidden" name="nid" id="edit_nid"> <!-- Hidden field for user ID -->
+                    <div class="form-group">
+                        <label>Supplier Name</label>
+                        <input type="text" name="sup_name" id="edit_sup_name" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Company Name</label>
+                        <input type="text" name="sup_comp_name" id="edit_sup_comp_name" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Eamil</label>
+                        <input type="text" name="sup_email" id="edit_sup_email" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Mobile</label>
+                        <input type="text" name="sup_mobile" id="edit_sup_mobile" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Address</label>
+                        <input type="text" name="sup_address" id="edit_sup_address" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Tax Id</label>
+                        <input type="text" name="sup_tax_id" id="edit_sup_tax_id" class="form-control" required>
+                    </div>
+                     <div class="form-group" style="border: 1px solid #ccc; padding: 10px; border-radius: 5px; display: inline-block;">
+                        <label >Status</label>
+                        
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                            <!-- Radio Button for Active -->
+                            <div style="display: flex; align-items: center; gap: 5px;">
+                                <input type="radio" id="status_active" name="active_status" value="Active" required>
+                                <label for="status_active" style="font-size: 14px; color: #333;">Active</label>
+                            </div>
+                    
+                            <!-- Radio Button for Inactive -->
+                            <div style="display: flex; align-items: center; gap: 5px;">
+                                <input type="radio" id="status_inactive" name="active_status" value="Inactive" required>
+                                <label for="status_inactive" style="font-size: 14px; color: #333;">Inactive</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="button-group">
+                        <button type="submit" class="btn btn-success" id="saveEditBtn">Save Details</button>
+                        <button type="button" id="cancelEditBtn" class="btn btn-secondary">Cancel</button>
+                    </div>
+                </form>
+            </div>
+    </main>
+</div>
+</div>
+<script>
+    console.log("🛠️ Manage Suppliers script loaded!");
+
+    // Delay execution slightly to ensure elements are available
+    setTimeout(() => {
+        console.log("⏳ Checking for elements...");
+
+        function bindManageSuppliersEvents() {
+            const addsupplierBtn = document.getElementById("addsupplierBtn");
+            const cancelBtn = document.getElementById("cancelBtn");
+            const submitBtn = document.getElementById("submitBtn");
+            const addSupplierview = document.getElementById("addSupplierview");
+            const suppliersTableView = document.getElementById("suppliersTableView");
+            const addSupplierForm = document.querySelector("#addSupplierview form");
+            const suppliersTableBody = document.querySelector("#suppliersTableView tbody");
+
+            // Edit Supplier Elements
+            const editsupplierView = document.getElementById("editsupplierView");
+            const editsupplierForm = document.querySelector("#editsupplierView form");
+            const cancelEditBtn = document.getElementById("cancelEditBtn");
+
+            if (!addsupplierBtn || !cancelBtn || !submitBtn || !addSupplierview || !suppliersTableView || !addSupplierForm || !suppliersTableBody || !editsupplierView || !editsupplierForm || !cancelEditBtn) {
+                console.error("❌ Some Manage Supplier elements are missing! DOM might not be fully loaded.");
+                return;
+            }
+
+            console.log("✅ Manage Supplier elements found, adding event listeners...");
+
+            // Show Add Supplier Form and Hide Supplier Table
+            addsupplierBtn.addEventListener("click", function () {
+                console.log("➕ Add Supplier button clicked");
+                suppliersTableView.style.display = "none";
+                addSupplierview.style.display = "block";
+                editsupplierView.style.display = "none"; // Hide edit form
+            });
+
+            // Hide Add Supplier Form and Show Supplier Table
+            cancelBtn.addEventListener("click", function () {
+                console.log("❌ Cancel button clicked");
+                addSupplierview.style.display = "none";
+                suppliersTableView.style.display = "block";
+            });
+
+            // Submit Form via AJAX and Dynamically Update Table
+            addSupplierForm.addEventListener("submit", async (event) => {
+                event.preventDefault(); // Prevent default form submission
+                console.log("🚀 Submit button clicked!");
+
+                const formData = new FormData(event.target);
+                const urlEncodedData = new URLSearchParams(formData);
+
+                try {
+                    const response = await fetch("/addsupplier", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                        body: urlEncodedData.toString()
+                    });
+
+                    console.log("✅ Response Status:", response.status);
+
+                    if (!response.ok) {
+                        throw new Error(`Server error! Status: ${response.status}`);
+                    }
+
+                    alert("Supplier added successfully!");
+                    await reloadManageSuppliers(); // ✅ Reload content dynamically
+                } catch (error) {
+                    console.error("🚨 Fetch Error:", error);
+                    alert("Something went wrong.");
+                }
+            });
+
+            // ✅ Edit Supplier Functionality
+            document.querySelectorAll(".edit-supplier").forEach((editBtn) => {
+                editBtn.addEventListener("click", function () {
+                    console.log("✏️ Edit button clicked!");
+
+                    const supplierRow = this.closest("tr");
+                    if (!supplierRow) {
+                        console.error("🚨 Error: Cannot find supplier row.");
+                        return;
+                    }
+
+                    // Extract supplier data from table row
+                    const supplierId = this.dataset.id;
+                    const supName = supplierRow.querySelector(".sup_name").textContent;
+                    const supCompName = supplierRow.querySelector(".sup_comp_name").textContent;
+                    const supEmail = supplierRow.querySelector(".sup_email").textContent;
+                    const supMobile = supplierRow.querySelector(".sup_mobile").textContent;
+                    const supAddress = supplierRow.querySelector(".sup_address").textContent;
+                    const supTaxId = this.dataset.sup_tax_id ;
+                    const activeStatus = supplierRow.querySelector(".active_status").textContent.trim().toLowerCase();
+
+                    // Populate the edit form fields
+                    document.querySelector("#editsupplierView input[name='nid']").value = supplierId;
+                    document.querySelector("#editsupplierView input[name='sup_name']").value = supName;
+                    document.querySelector("#editsupplierView input[name='sup_comp_name']").value = supCompName;
+                    document.querySelector("#editsupplierView input[name='sup_email']").value = supEmail;
+                    document.querySelector("#editsupplierView input[name='sup_mobile']").value = supMobile;
+                    document.querySelector("#editsupplierView input[name='sup_address']").value = supAddress;
+                    document.querySelector("#editsupplierView input[name='sup_tax_id']").value = supTaxId;
+
+                    // Set the correct radio button based on activeStatus
+                    if (activeStatus === "active") {
+                        document.querySelector("#editsupplierView input[name='active_status'][value='Active']").checked = true;
+                    } else if (activeStatus === "inactive") {
+                        document.querySelector("#editsupplierView input[name='active_status'][value='Inactive']").checked = true;
+                    } else {
+                        console.error("🚨 Invalid active status:", activeStatus);
+                    }
+
+                    // Show Edit Supplier View & Hide Others
+                    suppliersTableView.style.display = "none";
+                    addSupplierview.style.display = "none";
+                    editsupplierView.style.display = "block";
+                });
+            });
+
+            // ✅ Handle Edit Supplier Form Submission
+            editsupplierForm.addEventListener("submit", async (event) => {
+                event.preventDefault();
+                console.log("💾 Save Details button clicked!");
+
+                const formData = new FormData(event.target);
+                const urlEncodedData = new URLSearchParams(formData);
+
+                try {
+                    const response = await fetch("/editsupplier", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                        body: urlEncodedData.toString()
+                    });
+
+                    console.log("✅ Edit Response Status:", response.status);
+
+                    if (!response.ok) {
+                        throw new Error(`Server error! Status: ${response.status}`);
+                    }
+
+                    alert("Supplier updated successfully!");
+                    await reloadManageSuppliers(); // ✅ Reload content dynamically
+                } catch (error) {
+                    console.error("🚨 Edit Error:", error);
+                    alert("Failed to update supplier.");
+                }
+            });
+
+            // Hide Edit Supplier View
+            cancelEditBtn.addEventListener("click", function () {
+                console.log("❌ Cancel Edit button clicked");
+                editsupplierView.style.display = "none";
+                suppliersTableView.style.display = "block";
+            });
+
+            // ✅ Delete Supplier Functionality
+            document.querySelectorAll(".delete-supplier").forEach((deleteBtn) => {
+                deleteBtn.addEventListener("click", async function (event) {
+                    event.preventDefault(); // Prevent page reload
+                    console.log("🗑️ Delete button clicked!");
+
+                    const supplierId = this.dataset.id;
+                    if (!supplierId) {
+                        console.error("🚨 Supplier ID not found in dataset!");
+                        return;
+                    }
+
+                    if (!confirm("Are you sure you want to delete this supplier?")) return;
+
+                    try {
+                        const response = await fetch(`/deletesupplier/${supplierId}`, {
+                            method: "POST",
+                        });
+
+                        console.log("🗑️ Delete Response Status:", response.status);
+
+                        if (!response.ok) {
+                            throw new Error(`Server error! Status: ${response.status}`);
+                        }
+
+                        // ✅ Remove the deleted supplier's row from the table dynamically
+                        const rowToDelete = this.closest("tr");
+                        if (rowToDelete) {
+                            rowToDelete.remove();
+                            console.log(`✅ Supplier ${supplierId} removed from table.`);
+                        }
+                    } catch (error) {
+                        console.error("🚨 Delete Error:", error);
+                        alert("Failed to delete supplier.");
+                    }
+                });
+            });
+        }
+
+        // ✅ Function to Reload Manage Suppliers Page Without Refreshing
+        async function reloadManageSuppliers() {
+            console.log("🔄 Reloading Manage Suppliers...");
+            const contentDiv = document.getElementById("dynamic-content");
+
+            if (!contentDiv) {
+                console.error("🚨 Error: #dynamic-content not found!");
+                return;
+            }
+
+            const updatedContent = await fetch("/managesuppliers");
+            const html = await updatedContent.text();
+            contentDiv.innerHTML = html; // Replace only the content
+
+            bindManageSuppliersEvents(); // ✅ Rebind event listeners after reload
+        }
+
+        // Initial Binding of Events
+        bindManageSuppliersEvents();
+    }, 500);
+</script>
+</body>
+</html>

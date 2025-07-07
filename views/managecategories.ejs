@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Categories</title>
+
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    <div id="dynamic-content">
+ <div  id="manageusers-page"  class="container-wrapper">
+
+   
+        <!-- Main Content -->
+        <main class="content">
+            <div class="container">
+               
+
+                <div id="CategoryTableView" class="table-container">
+                    <h2>Manage Categories</h2>
+
+                    <button id="addcategoryBtn" class="btn btn-primary">Add Category</button>
+                    <br><br>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Category Name</th>
+                                <th>Code</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% users.forEach(user => { %>
+                                <tr>
+                                    <td class="user-id"><%= user.nid %></td>
+                                    <td class="category_name"><%= user.ctr_name %></td>
+                                    <td class="category_code"><%= user.ctr_code %></td>
+                                    <td class="active_status"><%= user.active_status %></td>
+                                    <td>
+                                        <div class="actions">
+                                            <!-- Edit Button -->
+                                            
+                                            <button type="button" class="btn btn-warning edit-ctegory" data-id="<%= user.nid %>">
+                                                <i class="fa-regular fa-pen-to-square"></i>
+                                            </button>
+                                    
+                                            <!-- Delete Button inside inline form -->
+                                            <form action="/deletecategory/<%= user.nid %>" method="POST">
+                                                <button type="submit" class="btn btn-danger delete-category" data-id="<%= user.nid %>">
+                                                    <i class="fa-regular fa-trash-can"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                    
+                                    
+                                    
+                                </tr>
+                            <% }); %>
+                        </tbody>
+                    </table>
+                    <div id="pagination" class="pagination">
+                        <button id="prevPage" class="btn btn-secondary">Previous</button>
+                        <span id="pageInfo"></span>
+                        <button id="nextPage" class="btn btn-secondary">Next</button>
+                    </div>
+                </div>
+
+               <!-- Add User Form -->
+               <div id="addCategoryview" style="display: none;">
+                  <h3>Add Category</h3>
+                  <form id="addCategoryForm"> <!-- remove action="/addcategory" method="POST" -->
+
+                    <div class="form-group">
+                        <label>Category Name</label>
+                        <input type="text" name="ctr_name" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Code</label>
+                        <input type="text" name="ctr_code" class="form-control" required>
+                    </div>
+                    <div class="form-group" style="border: 1px solid #ccc; padding: 10px; border-radius: 5px; display: inline-block;">
+                        <label>Status</label>
+                        <div  style="display: flex; align-items: center; gap: 15px;">
+                            <!-- Radio Button for Active -->
+                         <div style="display: flex; align-items: center; gap: 5px;">
+                            <input type="radio" id="status_active" name="status" value="Active" required>
+                            <label for="status_active">Active</label>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 5px;">
+                            <!-- Radio Button for Inactive -->
+                            <input type="radio" id="status_inactive" name="status" value="Inactive" required>
+                            <label for="status_inactive">Inactive</label>
+                        </div>
+                         </div>
+                    </div>
+                    <div class="button-group">
+                        <button type="submit" class="btn btn-success" id="submitBtn">Add </button>
+                        <button type="button" id="cancelBtn" class="btn btn-secondary">Cancel</button>
+                    </div>
+                  </form>
+                </div>
+                
+              
+             <div id="editCategoryView" style="display: none;">
+                <h3>Edit Category</h3>
+                <form id="editcategoryForm" action="/editcategory" method="POST">
+                    <input type="hidden" name="nid" id="edit_nid"> <!-- Hidden field for user ID -->
+                    <div class="form-group">
+                        <label>Category name</label>
+                        <input type="text" name="ctr_name" id="edit_ctr_name" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Code</label>
+                        <input type="text" name="ctr_code" id="edit_ctr_code" class="form-control" required>
+                    </div>
+                    <div class="form-group" id="status" style="border: 1px solid #ccc; padding: 10px; border-radius: 5px; display: inline-block;">
+                        <label >Status</label>
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                            <!-- Radio Button for Active -->
+                             <div style="display: flex; align-items: center; gap: 5px;">
+                            <input type="radio" id="status_active" name="active_status" value="Active" required>
+                            <label for="status_active">Active</label>
+                        </div>
+                        <div style ="display: flex; align-items: center; gap: 5px;">
+                            <!-- Radio Button for Inactive -->
+                            <input type="radio" id="status_inactive" name="active_status" value="Inactive" required>
+                            <label for="status_inactive">Inactive</label>
+                        </div>
+                        </div>
+                    </div>
+                    <div class="button-group">
+                        <button type="submit" class="btn btn-success" id="saveEditBtn">Save Details</button>
+                        <button type="button" id="cancelEditBtn" class="btn btn-secondary">Cancel</button>
+                    </div>
+                </form>
+             </div>
+            </div>
+    </main>
+</div>
+</div>
+<script>
+    console.log("🛠️ Manage Categories script loaded!");
+    
+    // Delay execution slightly to ensure elements are available
+    setTimeout(() => {
+        console.log("⏳ Checking for elements...");
+    
+        function bindManageCategoriesEvents() {
+            const addCategoryBtn = document.getElementById("addcategoryBtn");
+            const cancelBtn = document.getElementById("cancelBtn");
+            const submitBtn = document.getElementById("submitBtn");
+            const addCategoryView = document.getElementById("addCategoryview");
+            const categoryTableView = document.getElementById("CategoryTableView");
+            const addCategoryForm = document.querySelector("#addCategoryview form");
+            const categoryTableBody = document.querySelector("#CategoryTableView tbody");
+    
+            // Edit Category Elements
+            const editCategoryView = document.getElementById("editCategoryView");
+            const editCategoryForm = document.querySelector("#editCategoryView form");
+            const cancelEditBtn = document.getElementById("cancelEditBtn");
+    
+            if (!editCategoryView) {
+                console.error("🚨 #editCategoryView not found in the DOM!");
+            } else {
+                console.log("✅ #editCategoryView found:", editCategoryView);
+            }
+    
+            if (!addCategoryBtn || !cancelBtn || !submitBtn || !addCategoryView || !categoryTableView || !addCategoryForm || !categoryTableBody || !editCategoryView || !editCategoryForm || !cancelEditBtn) {
+                console.error("❌ Some Manage Category elements are missing! DOM might not be fully loaded.");
+                return;
+            }
+    
+            console.log("✅ Manage Category elements found, adding event listeners...");
+    
+            // Show Add Category Form and Hide Category Table
+            addCategoryBtn.addEventListener("click", function () {
+                console.log("➕ Add Category button clicked");
+                categoryTableView.style.display = "none";
+                addCategoryView.style.display = "block";
+                editCategoryView.style.display = "none"; // Hide edit form
+            });
+    
+            // Hide Add Category Form and Show Category Table
+            cancelBtn.addEventListener("click", function () {
+                console.log("❌ Cancel button clicked");
+                addCategoryView.style.display = "none";
+                categoryTableView.style.display = "block";
+            });
+    
+            // Submit Form via AJAX and Dynamically Update Table
+        function handleAddCategorySubmit(event) {
+    event.preventDefault(); // Prevent default form submission
+    console.log("🚀 Submit button clicked!");
+
+    const formData = new FormData(event.target);
+    const urlEncodedData = new URLSearchParams(formData);
+
+    fetch("/addcategory", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: urlEncodedData.toString()
+    })
+    .then(response => {
+        console.log("✅ Response Status:", response.status);
+        if (!response.ok) {
+            throw new Error(`Server error! Status: ${response.status}`);
+        }
+        alert("Category added successfully!");
+        return reloadManageCategories();
+    })
+    .catch(error => {
+        console.error("🚨 Fetch Error:", error);
+        alert("Something went wrong.");
+    });
+}
+
+// Attach only once
+document.getElementById("addCategoryForm").addEventListener("submit", handleAddCategorySubmit);
+
+    
+            // ✅ Edit Category Functionality
+            document.querySelectorAll(".edit-ctegory").forEach((editBtn) => {
+                editBtn.addEventListener("click", function () {
+                    console.log("✏️ Edit button clicked!");
+    
+                    const categoryRow = this.closest("tr");
+                    if (!categoryRow) {
+                        console.error("🚨 Error: Cannot find category row.");
+                        return;
+                    }
+    
+                    // Extract category data from table row
+                    const categoryId = categoryRow.querySelector(".user-id").textContent;
+                    const categoryName = categoryRow.querySelector(".category_name").textContent;
+                    const categoryCode = categoryRow.querySelector(".category_code").textContent;
+                    const activeStatus = categoryRow.querySelector(".active_status").textContent.trim().toLowerCase(); // Convert to lowercase
+    
+                    // Populate the edit form fields
+                    document.querySelector("#editCategoryView input[name='nid']").value = categoryId;
+                    document.querySelector("#editCategoryView input[name='ctr_name']").value = categoryName;
+                    document.querySelector("#editCategoryView input[name='ctr_code']").value = categoryCode;
+    
+                    // Set the correct radio button based on activeStatus
+                    if (activeStatus === "active") {
+                        document.querySelector("#editCategoryView input[name='active_status'][value='Active']").checked = true;
+                    } else if (activeStatus === "inactive") {
+                        document.querySelector("#editCategoryView input[name='active_status'][value='Inactive']").checked = true;
+                    } else {
+                        console.error("🚨 Invalid active status:", activeStatus);
+                    }
+    
+                    // Show Edit Category View & Hide Others
+                    categoryTableView.style.display = "none";
+                    addCategoryView.style.display = "none";
+                    editCategoryView.style.display = "block"; // Ensure this is set to "block"
+                });
+            });
+    
+            // ✅ Handle Edit Category Form Submission
+            editCategoryForm.addEventListener("submit", async (event) => {
+                event.preventDefault();
+                console.log("💾 Save Details button clicked!");
+    
+                const formData = new FormData(event.target);
+                const urlEncodedData = new URLSearchParams(formData);
+    
+                try {
+                    const response = await fetch("/editcategory", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                        body: urlEncodedData.toString()
+                    });
+    
+                    console.log("✅ Edit Response Status:", response.status);
+    
+                    if (!response.ok) {
+                        throw new Error(`Server error! Status: ${response.status}`);
+                    }
+                    
+                    alert("Category updated successfully!");
+                    await reloadManageCategories(); // ✅ Reload content dynamically
+                } catch (error) {
+                    console.error("🚨 Edit Error:", error);
+                    alert("Failed to update category.");
+                }
+            });
+    
+            // Hide Edit Category View
+            cancelEditBtn.addEventListener("click", function () {
+                console.log("❌ Cancel Edit button clicked");
+                editCategoryView.style.display = "none";
+                categoryTableView.style.display = "block";
+            });
+    
+            // ✅ Delete Category Functionality
+            document.querySelectorAll(".delete-category").forEach((deleteBtn) => {
+                deleteBtn.addEventListener("click", async function (event) {
+                    event.preventDefault(); // Prevent page reload
+                    console.log("🗑️ Delete button clicked!");
+    
+                    const categoryId = this.dataset.id;
+                    if (!categoryId) {
+                        console.error("🚨 Category ID not found in dataset!");
+                        return;
+                    }
+    
+                    if (!confirm("Are you sure you want to delete this category?")) return;
+    
+                    try {
+                        const response = await fetch(`/deletecategory/${categoryId}`, {
+                            method: "POST",
+                        });
+    
+                        console.log("🗑️ Delete Response Status:", response.status);
+    
+                        if (!response.ok) {
+                            throw new Error(`Server error! Status: ${response.status}`);
+                        }
+    
+                        // ✅ Remove the deleted category's row from the table dynamically
+                        const rowToDelete = this.closest("tr");
+                        if (rowToDelete) {
+                            rowToDelete.remove();
+                            console.log(`✅ Category ${categoryId} removed from table.`);
+                        }
+                    } catch (error) {
+                        console.error("🚨 Delete Error:", error);
+                        alert("Failed to delete category.");
+                    }
+                });
+            });
+        }
+    
+        // ✅ Function to Reload Manage Categories Page Without Refreshing
+        async function reloadManageCategories() {
+            console.log("🔄 Reloading Manage Categories...");
+            const contentDiv = document.getElementById("dynamic-content");
+    
+            if (!contentDiv) {
+                console.error("🚨 Error: #dynamic-content not found!");
+                return;
+            }
+    
+            const updatedContent = await fetch("/categories");
+            const html = await updatedContent.text();
+            contentDiv.innerHTML = html; // Replace only the content
+    
+            bindManageCategoriesEvents(); // ✅ Rebind event listeners after reload
+        }
+    
+        // Initial Binding of Events
+        bindManageCategoriesEvents();
+    
+    }, 500);
+    </script>
+</body>
+</html>

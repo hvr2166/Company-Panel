@@ -1,0 +1,76 @@
+    <div id="print-section">
+    <table border="1" style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+   <thead>
+    <tr style="background-color: #007bff; color: white;">
+        <th>Lot No</th>
+        <th>Description</th>
+        <th>Size</th>
+        <th>Shape</th>
+        <th>Mine</th>
+        <th>Cut</th> <!-- Optional: if available -->
+        <th>Weight In Hand</th>
+        <th>Weight</th>
+        <th>Supplier</th>
+        <th>Purchase Date</th>
+        <th>Purchase Price</th>
+        <th>Total Price</th>
+        <th>Total Sale</th>
+        <th>Total Profit</th>
+    </tr>
+</thead>
+<tbody>
+<%
+let currentLot = null;
+let stockByLot = 0;
+let profitByLot = 0;
+
+reportData.forEach((row, idx) => {
+    const isNewLot = row.lot !== currentLot;
+    const isLastRow = idx === reportData.length - 1;
+    const nextLot = !isLastRow ? reportData[idx + 1].lot : null;
+
+    if (isNewLot) {
+        stockByLot = 0;
+        profitByLot = 0;
+        currentLot = row.lot;
+    }
+
+    stockByLot += parseFloat(row.weight_in_hand || 0);
+    profitByLot += parseFloat(row.total_profit || 0);
+%>
+    <tr>
+        <td><%= row.lot %></td>
+        <td><%= row.description %></td>
+        <td><%= row.size %></td>
+        <td><%= row.shape %></td>
+        <td><%= row.mine %></td>
+        <td><%= row.cut || '-' %></td>
+        <td><%= row.weight_in_hand %></td>
+        <td><%= row.total_weight %></td>
+        <td><%= row.supplier_name %></td>
+        <td><%= row.purchase_date %></td>
+        <td><%= row.purchase_price %></td>
+        <td><%= row.total_purchase %></td>
+        <td><%= row.total_sales %></td>
+        <td><%= row.total_profit %></td>
+    </tr>
+<%
+    if (isLastRow || nextLot !== currentLot) {
+%>
+  <tr style="background-color: #ddd; font-weight: bold;">
+    <td colspan="15">
+        <div style="display: flex; justify-content: space-between;">
+            <span>Current Stock: <%= stockByLot %></span>
+            <span>Total: <%= profitByLot.toLocaleString() %></span>
+        </div>
+    </td>
+</tr>
+
+<%
+    }
+});
+%>
+</tbody>
+
+    </table>
+</div>

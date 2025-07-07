@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Permissions</title>
+    <!-- Styles -->
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+  body {
+    overflow: auto !important; /* Allow full-page scrolling */
+  }
+
+  #dynamic-content {
+    overflow: visible !important;  /* Remove inner scroll */
+    max-height: none !important;
+  }
+
+  .container-wrapper {
+    overflow: visible !important;
+  }
+
+  .content {
+    overflow: visible !important;
+    min-height: auto !important;
+    height: auto !important;
+  }
+    </style>
+</head>
+<body>
+    <div id="dynamic-content">
+        <div id="manageusers-page" class="container-wrapper" >
+            
+            <!-- Main Content -->
+            <main class="content">
+                <div class="container" >
+                    <h2 style="text-align: left; color: #333;" >Manage Permissions</h2>
+
+                    <!-- Dropdown for selecting users -->
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
+    <label for="userSelect" style="font-weight: bold;"></label>
+    <select id="userSelect" style="flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+        <option value="">Select User</option>
+        <% users.forEach(function(user) { %>
+            <option value="<%= user.nid %>"><%= user.user_name %></option>
+        <% }); %>
+    </select>
+    <button id="adminSelectBtn" style="padding: 8px 16px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">
+        Admin
+    </button>
+</div>
+
+                   
+
+                  
+
+
+                    <!-- Display Menus and Submenus -->
+                    <% menus.forEach(function(menu) { %>
+                        <div class="permission-container" style="border: 1px solid #ddd; padding: 15px; border-radius: 5px; background: #f9f9f9; margin-bottom: 20px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <label style="font-size: 16px; font-weight: bold;">
+                                    <input type="checkbox" id="menu_<%= menu.id %>"> <%= menu.name %>
+                                </label>
+                                <button class="select-all" style="background: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer; padding: 6px 12px; transition: 0.3s; box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1); font-size: 14px;">
+                                    Select All
+                                </button>
+                            </div>
+                            <div style="margin-left: 20px; font-size: 14px; color: #555;">
+                                <% menu.submenus.forEach(function(submenu) { %>
+                                    <label style="display: block; margin-bottom: 5px;">
+                                        <input type="checkbox" id="submenu_<%= submenu.id %>"> <%= submenu.name %>
+                                    </label>
+                                <% }); %>
+                            </div>
+                        </div>
+                    <% }); %>
+                    <!-- Give Permission Button -->
+                    <button id="givepermission" style="width: 100%; padding: 10px; margin-top: 15px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                        Give Permission
+                    </button>
+                </div>
+            </main>
+        </div>
+</div>
+<script>
+    console.log("🛠️ Manage Users permission script loaded!");
+
+    // Delay execution to ensure elements are available
+    setTimeout(() => {
+        console.log("⏳ Checking for elements...");
+
+        const givePermissionButton = document.getElementById("givepermission"); // Get the button by ID
+        const userSelect = document.getElementById("userSelect");
+
+        if (!givePermissionButton || !userSelect) {
+            console.error("🚨 Required elements not found! Retrying...");
+            return;
+        }
+
+        // Add event listener for each "Select All" button
+        document.querySelectorAll(".select-all").forEach(selectAllButton => {
+            selectAllButton.addEventListener("click", function(event) {
+                event.stopPropagation(); // Prevent event from bubbling up to parent elements
+                const permissionContainer = this.closest('.permission-container'); // Get the closest parent container
+                const checkboxes = permissionContainer.querySelectorAll("input[type='checkbox']"); // Get all checkboxes in this container
+                const allChecked = Array.from(checkboxes).every(checkbox => checkbox.checked); // Check if all are checked
+
+                // Toggle checkboxes
+                checkboxes.forEach(checkbox => {
+                    checkbox.checked = !allChecked; // If all are checked, uncheck them; otherwise, check them
+                });
+            });
+        });
+
+     const adminBtn = document.getElementById("adminSelectBtn");
+let adminToggleState = false; // false = not selected, true = selected
+
+if (adminBtn) {
+    adminBtn.addEventListener("click", () => {
+        adminToggleState = !adminToggleState; // toggle the state
+        const checkboxes = document.querySelectorAll("input[type='checkbox']");
+        checkboxes.forEach(cb => cb.checked = adminToggleState);
+
+        // Optionally change button label or color to reflect toggle state
+        adminBtn.textContent = adminToggleState ? "Unselect All" : "Admin";
+        adminBtn.style.backgroundColor = adminToggleState ? "gray" : "#007bff";
+    });
+}
+
+
+        // Use the specific ID for the "Give Permission" button
+        givePermissionButton.addEventListener("click", () => {
+            console.log("✅ 'Give Permission' Button Clicked!");
+
+            const selectedUserNid = userSelect.value;
+            const selectedPermissions = [];
+
+            // Collect all checked checkboxes
+            document.querySelectorAll("input[type='checkbox']:checked").forEach((checkbox) => {
+                selectedPermissions.push(checkbox.id.split("_")[1]); // Extract numeric ID
+            });
+
+            console.log("🆔 Selected User NID:", selectedUserNid);
+            console.log("🔹 Selected Permissions:", selectedPermissions);
+
+            if (!selectedUserNid) {
+                alert("⚠️ Please select a user!");
+                return;
+            }
+
+            // Send Data to Backend
+            fetch("/assign-permissions", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    user_nid: selectedUserNid,
+                    permissions: selectedPermissions, // Send as an array
+                }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                console.log("📨 Server Response:", data);
+            })
+            .catch(error => console.error("❌ Fetch Error:", error));
+        });
+
+        userSelect.addEventListener("change", async function () {
+    const selectedUserId = this.value;
+
+    // Uncheck all permissions initially
+    document.querySelectorAll("input[type='checkbox']").forEach(cb => cb.checked = false);
+
+    if (!selectedUserId) return;
+
+    try {
+        const res = await fetch(`/get-permissions/${selectedUserId}`);
+        const data = await res.json();
+
+        console.log("✔️ Permissions to pre-check:", data.permissions);
+
+        if (data.permissions && Array.isArray(data.permissions)) {
+            data.permissions.forEach(id => {
+                const checkbox = document.querySelector(`#menu_${id}, #submenu_${id}`);
+                if (checkbox) checkbox.checked = true;
+            });
+        }
+    } catch (error) {
+        console.error("❌ Failed to load user permissions:", error);
+    }
+});
+
+
+    }, 1000); // Increased timeout to 1 second for better reliability
+</script>
+
+</body>
+</html>

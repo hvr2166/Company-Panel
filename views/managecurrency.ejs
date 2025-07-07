@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage currency</title>
+    <!-- Styles -->
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+</head>
+<body>
+    <div id="dynamic-content">
+ <div  id="manageusers-page"  class="container-wrapper">
+
+   
+        <!-- Main Content -->
+        <main class="content">
+            <div class="container">
+                <h2>Manage curruncy</h2>
+               
+
+                <!--  -->
+                <div id="currencytableView" class="table-container">
+                    <button id="addcurrencyBtn" class="btn btn-primary">Add currency</button>
+                    <br><br>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th> Name</th>
+                                <th>Symbol</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% users.forEach(user => { %>
+                                <tr>
+                                    <td class="cur_name"><%= user.cur_name %></td>
+                                    <td class="symbol"><%= user.symbol %></td>
+                                    <td>
+                                        <div class="actions">
+                                            <!-- Edit Button -->
+                                            <button type="button" class="btn btn-warning edit-curruncy" data-id="<%= user.nid %>">
+                                                <i class="fa-regular fa-pen-to-square"></i>
+                                            </button>
+                                            <!-- Delete Button inside inline form -->
+                                            <form action="/deletecurrency/<%= user.nid %>" method="POST">
+                                                <button type="submit" class="btn btn-danger delete-currency" data-id="<%= user.nid %>">
+                                                    <i class="fa-regular fa-trash-can"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                    
+                                    
+                                    
+                                </tr>
+                            <% }); %>
+                        </tbody>
+                    </table>
+                    <div id="pagination" class="pagination">
+                        <button id="prevPage" class="btn btn-secondary">Previous</button>
+                        <span id="pageInfo"></span>
+                        <button id="nextPage" class="btn btn-secondary">Next</button>
+                    </div>
+                </div>
+               <!-- Add User Form -->
+               <div id="addCurrencyview" style="display: none;">
+                <h3>Add Currency</h3>
+                <form action="/addcuurency" method="POST">
+                    <div class="form-group">
+                        <label>Currency Name</label>
+                        <input type="text" name="cur_name" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Symbol</label>
+                        <input type="text" name="symbol" class="form-control" required>
+                    </div>
+                    <div class="button-group">
+                        <button type="submit" class="btn btn-success" id="submitBtn">Add </button>
+                        <button type="button" id="cancelBtn" class="btn btn-secondary">Cancel</button>
+                    </div>
+                </form>
+            </div>
+
+            <div id="editCurrencyView" style="display: none;">
+                <h3>Edit Currency</h3>
+                <form id="editCurrencyForm" action="/editcurrency" method="POST">
+                    <input type="hidden" name="nid" id="edit_nid"> <!-- Hidden field for user ID -->
+                    <div class="form-group">
+                        <label>Currency Name</label>
+                        <input type="text" name="cur_name" id="edit_cur_name" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Symbol</label>
+                        <input type="text" name="symbol" id="edit_symbol" class="form-control">
+                    </div>
+                    <div class="button-group">
+                        <button type="submit" class="btn btn-success" id="saveEditBtn">Save Details</button>
+                        <button type="button" id="cancelEditBtn" class="btn btn-secondary">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+</div>
+</div>
+<script>
+    console.log("🛠️ Manage Currency script loaded!");
+
+    setTimeout(() => {
+        console.log("⏳ Checking for elements...");
+
+        function bindManageCurrencyEvents() {
+            const addCurrencyBtn = document.getElementById("addcurrencyBtn");
+            const cancelBtn = document.getElementById("cancelBtn");
+            const submitBtn = document.getElementById("submitBtn");
+            const addCurrencyView = document.getElementById("addCurrencyview");
+            const currencyTableView = document.getElementById("currencytableView");
+            const addCurrencyForm = document.querySelector("#addCurrencyview form");
+            const currencyTableBody = document.querySelector("#currencytableView tbody");
+
+            // Edit Currency Elements
+            const editCurrencyView = document.getElementById("editCurrencyView");
+            const editCurrencyForm = document.querySelector("#editCurrencyView form");
+            const cancelEditBtn = document.getElementById("cancelEditBtn");
+
+            if (!addCurrencyBtn || !cancelBtn || !submitBtn || !addCurrencyView || !currencyTableView || !addCurrencyForm || !currencyTableBody || !editCurrencyView || !editCurrencyForm || !cancelEditBtn) {
+                console.error("❌ Some Manage Currency elements are missing! DOM might not be fully loaded.");
+                return;
+            }
+
+            console.log("✅ Manage Currency elements found, adding event listeners...");
+
+            const rows = Array.from(currencyTableBody.querySelectorAll("tr"));
+            const itemsPerPage = 5; // Number of rows per page
+            let currentPage = 1;
+
+            function showPage(page) {
+                const start = (page - 1) * itemsPerPage;
+                const end = start + itemsPerPage;
+
+                rows.forEach((row, index) => {
+                    row.style.display = (index >= start && index < end) ? "" : "none";
+                });
+
+                document.getElementById("pageInfo").textContent = `Page ${page} of ${Math.ceil(rows.length / itemsPerPage)}`;
+            }
+
+            document.getElementById("prevPage").addEventListener("click", function() {
+                if (currentPage > 1) {
+                    currentPage--;
+                    showPage(currentPage);
+                }
+            });
+
+            document.getElementById("nextPage").addEventListener("click", function() {
+                if (currentPage < Math.ceil(rows.length / itemsPerPage)) {
+                    currentPage++;
+                    showPage(currentPage);
+                }
+            });
+
+            // Initial page load
+            showPage(currentPage);
+
+            // Show Add Currency Form and Hide Currency Table
+            addCurrencyBtn.addEventListener("click", function () {
+                console.log("➕ Add Currency button clicked");
+                currencyTableView.style.display = "none";
+                addCurrencyView.style.display = "block";
+                editCurrencyView.style.display = "none"; // Hide edit form
+            });
+
+            // Hide Add Currency Form and Show Currency Table
+            cancelBtn.addEventListener("click", function () {
+                console.log("❌ Cancel button clicked");
+                addCurrencyView.style.display = "none";
+                currencyTableView.style.display = "block";
+            });
+
+            // Submit Form via AJAX and Dynamically Update Table
+            addCurrencyForm.addEventListener("submit", async (event) => {
+                event.preventDefault(); // Prevent default form submission
+                console.log("🚀 Submit button clicked!");
+
+                const formData = new FormData(event.target);
+                const urlEncodedData = new URLSearchParams(formData);
+
+                try {
+                    const response = await fetch("/addcurrency", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                        body: urlEncodedData.toString()
+                    });
+
+                    console.log("✅ Response Status:", response.status);
+
+                    if (!response.ok) {
+                        throw new Error(`Server error! Status: ${response.status}`);
+                    }
+                    
+                    alert("Currency added successfully!");
+                    await reloadManageCurrencies(); // ✅ Reload content dynamically
+                } catch (error) {
+                    console.error("🚨 Fetch Error:", error);
+                    alert("Something went wrong.");
+                }
+            });
+
+            // ✅ Edit Currency Functionality
+            document.querySelectorAll(".edit-curruncy").forEach((editBtn) => {
+                editBtn.addEventListener("click", function () {
+                    console.log("✏️ Edit button clicked!");
+
+                    const currencyRow = this.closest("tr");
+                    if (!currencyRow) {
+                        console.error("🚨 Error: Cannot find currency row.");
+                        return;
+                    }
+
+                    // Extract currency data from table row
+                    const currencyId = this.dataset.id;
+                    const currencyName = currencyRow.querySelector(".cur_name").textContent;
+                    const currencySymbol = currencyRow.querySelector(".symbol").textContent;
+
+                    // Populate the edit form fields
+                    document.querySelector("#editCurrencyView input[name='nid']").value = currencyId;
+                    document.querySelector("#editCurrencyView input[name='cur_name']").value = currencyName;
+                    document.querySelector("#editCurrencyView input[name='symbol']").value = currencySymbol;
+
+                    // Show Edit Currency View & Hide Others
+                    currencyTableView.style.display = "none";
+                    addCurrencyView.style.display = "none";
+                    editCurrencyView.style.display = "block";
+                });
+            });
+
+            // ✅ Handle Edit Currency Form Submission
+            editCurrencyForm.addEventListener("submit", async (event) => {
+                event.preventDefault();
+                console.log("💾 Save Details button clicked!");
+
+                const formData = new FormData(event.target);
+                const urlEncodedData = new URLSearchParams(formData);
+
+                try {
+                    const response = await fetch("/editcurrency", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                        body: urlEncodedData.toString()
+                    });
+
+                    console.log("✅ Edit Response Status:", response.status);
+
+                    if (!response.ok) {
+                        throw new Error(`Server error! Status: ${response.status}`);
+                    }
+                    
+                    alert("Currency updated successfully!");
+                    await reloadManageCurrencies(); // ✅ Reload content dynamically
+                } catch (error) {
+                    console.error("🚨 Edit Error:", error);
+                    alert("Failed to update currency.");
+                }
+            });
+
+            // Hide Edit Currency View
+            cancelEditBtn.addEventListener("click", function () {
+                console.log("❌ Cancel Edit button clicked");
+                editCurrencyView.style.display = "none";
+                currencyTableView.style.display = "block";
+            });
+
+            // ✅ Delete Currency Functionality
+            document.querySelectorAll(".delete-currency").forEach((deleteBtn) => {
+                deleteBtn.addEventListener("click", async function (event) {
+                    event.preventDefault(); // Prevent page reload
+                    console.log("🗑️ Delete button clicked!");
+
+                    const currencyId = this.dataset.id;
+                    if (!currencyId) {
+                        console.error("🚨 Currency ID not found in dataset!");
+                        return;
+                    }
+
+                    if (!confirm("Are you sure you want to delete this currency?")) return;
+
+                    try {
+                        const response = await fetch(`/deletecurrency/${currencyId}`, {
+                            method: "POST",
+                        });
+
+                        console.log("🗑️ Delete Response Status:", response.status);
+
+                        if (!response.ok) {
+                            throw new Error(`Server error! Status: ${response.status}`);
+                        }
+
+                        // ✅ Remove the deleted currency's row from the table dynamically
+                        const rowToDelete = this.closest("tr");
+                        if (rowToDelete) {
+                            rowToDelete.remove();
+                            console.log(`✅ Currency ${currencyId} removed from table.`);
+                        }
+                    } catch (error) {
+                        console.error("🚨 Delete Error:", error);
+                        alert("Failed to delete currency.");
+                    }
+                });
+            });
+        }
+
+        // ✅ Function to Reload Manage Currencies Page Without Refreshing
+        async function reloadManageCurrencies() {
+            console.log("🔄 Reloading Manage Currencies...");
+            const contentDiv = document.getElementById("dynamic-content");
+
+            if (!contentDiv) {
+                console.error("🚨 Error: #dynamic-content not found!");
+                return;
+            }
+
+            const updatedContent = await fetch("/managecurrencies");
+            const html = await updatedContent.text();
+            contentDiv.innerHTML = html; // Replace only the content
+
+            bindManageCurrencyEvents(); // ✅ Rebind event listeners after reload
+        }
+
+        // Initial Binding of Events
+        bindManageCurrencyEvents();
+
+    }, 500);
+</script>
+
+</body>
+</html>

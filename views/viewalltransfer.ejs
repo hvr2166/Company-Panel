@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View all Transfers</title>
+    <!-- Styles -->
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+</head>
+<body>
+    <div id="dynamic-content">
+ <div  id="manageusers-page"  class="container-wrapper">
+
+   
+        <!-- Main Content -->
+        <main class="content">
+            <div class="container">
+                <h2>View All Transfers</h2>
+
+                <div id="Viewalltransfers" class="table-container">
+                
+                    <div class="filter-container">
+                        <label for="lotFilter">Filter By Lot</label>
+                        <select id="lotFilter" class="form-control">
+                            <option value="">Select Lot No</option>
+                            <% lots.forEach(lot => { %>
+                                <option value="<%= lot %>"><%= lot %></option>
+                            <% }); %>
+                        </select>
+                    </div>
+                
+                    <br>
+                
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Transfer Date</th>
+                                <th colspan="4" style="background-color: lightgreen;">From Lot(s)</th>
+                                <th colspan="4" style="background-color: lightblue;">To Lot(s)</th>
+                                <th>Recut Charges</th>
+                                <th>Recut Loss</th>
+                                <th>Avg Price</th>
+                                <th>Missing Quantity</th>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <th>Lot</th>
+                                <th>Qty</th>
+                                <th>Price</th>
+                                <th>Total</th>
+                                <th>Lot</th>
+                                <th>Qty</th>
+                                <th>Price</th>
+                                <th>Total</th>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        </thead>
+
+                        <tbody id="transferTableBody">
+                            <% transferStock.forEach(stock => { %>
+                                <tr data-from-lot="<%= stock.from_lot %>" data-to-lot="<%= stock.to_lot %>">
+                                    <td><%= stock.creationdate.toISOString().slice(0, 10) %></td>
+                                    <td><%= stock.from_lot %></td>
+                                    <td><%= stock.from_trans_qty %></td>
+                                    <td><%= stock.from_price %></td>
+                                    <td><%= stock.from_amount %></td>
+                                    <td><%= stock.to_lot %></td>
+                                    <td><%= stock.to_trans_qty %></td>
+                                    <td><%= stock.to_price %></td>
+                                    <td><%= stock.to_amount %></td>
+                                    <td><%= stock.recut_charges %></td>
+                                    <td><%= stock.recut_loss_qty %></td>
+                                    <td><%= stock.avg_price %></td>
+                                    <td><%= stock.missing_qty %></td>
+                                </tr>
+                            <% }); %>
+                        </tbody>
+                        
+                      
+                    </table>
+        
+                    <div id="pagination" class="pagination">
+                        <button id="prevPage" class="btn btn-secondary">Previous</button>
+                        <span id="pageInfo"></span>
+                        <button id="nextPage" class="btn btn-secondary">Next</button>
+                    </div>
+                </div>
+
+        
+        </div>
+    </main>
+</div>
+</div>
+<script>
+    console.log("🛠️ View all transfer script loaded!");
+
+    setTimeout(() => {
+         
+    document.getElementById('lotFilter').addEventListener('change', function () {
+        const selectedLot = this.value;
+        const rows = document.querySelectorAll('#transferTableBody tr');
+
+        rows.forEach(row => {
+            const fromLot = row.getAttribute('data-from-lot');
+            const toLot = row.getAttribute('data-to-lot');
+            const showRow = !selectedLot || fromLot === selectedLot || toLot === selectedLot;
+            row.style.display = showRow ? '' : 'none';
+        });
+    });
+
+    }, 500);
+</script>
+
+</body>
+</html>

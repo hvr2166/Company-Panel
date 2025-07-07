@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard</title>
+  <link href="https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Litepicker CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/litepicker/dist/css/litepicker.css" />
+
+<!-- Litepicker JS -->
+<script src="https://cdn.jsdelivr.net/npm/litepicker/dist/litepicker.js"></script>
+
+
+<style>
+/* ===== General Layout ===== */
+body {
+  background-color: #f9f9fb;
+  font-family: 'Segoe UI', sans-serif;
+  color: #1f1f1f;
+  margin: 0;
+}
+
+/* ===== Filter Section ===== */
+#duesFilterForm {
+  background: #fff;
+  padding: 1rem 1.5rem;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  margin-bottom: 1.5rem;
+}
+
+#duesFilterForm .form-control,
+#duesFilterForm .form-select {
+  border-radius: 8px;
+}
+
+#duesFilterForm .btn-primary {
+  background: linear-gradient(to right, #5e27fb, #8f52ff);
+  border: none;
+  border-radius: 8px;
+  padding: 0.5rem 1.2rem;
+  font-weight: 500;
+}
+
+/* ===== Dues Tables ===== */
+.tables-wrapper {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.dues-table-container {
+  flex: 1;
+  background-color: #fff;
+  padding: 0;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+}
+
+.dues-table-container h3 {
+  margin: 0;
+  padding: 0.75rem 1rem;
+  background: linear-gradient(to right, #5e27fb, #8f52ff);
+  color: #fff;
+  font-size: 1rem;
+}
+
+.dues-table-container table {
+  margin: 0;
+}
+
+.dues-table-container thead {
+  background: linear-gradient(to right, #5e27fb, #8f52ff);
+  color: #fff;
+}
+
+.dues-table-container tbody tr td,
+.dues-table-container thead th {
+  text-align: center;
+  vertical-align: middle;
+}
+
+.dues-table-container tbody tr:last-child {
+  background: linear-gradient(to right, #5e27fb, #8f52ff);
+  color: #fff;
+  font-weight: 600;
+}
+
+/* ===== Sales Summary ===== */
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.card-custom {
+  background-color: #fff;
+  padding: 1rem;
+  border-radius: 16px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.07);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.card-custom .card-icon {
+  font-size: 1.6rem;
+  background: rgba(0, 0, 0, 0.05);
+  padding: 0.6rem;
+  border-radius: 50%;
+  margin-bottom: 0.5rem;
+}
+
+.card-custom h4 {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 600;
+}
+
+.card-custom p {
+  margin: 0.2rem 0;
+  font-size: 1rem;
+  color: #444;
+}
+
+.card-custom small {
+  font-size: 0.85rem;
+  color: #888;
+}
+
+/* Specific background tones for each card */
+.summary-grid a:nth-child(1) .card-custom { background: #ffe5e9; }     /* Total Purchase */
+.summary-grid a:nth-child(2) .card-custom { background: #f3e4cc; }     /* Total Sales */
+.summary-grid a:nth-child(3) .card-custom { background: #d2f8d2; }     /* Total Stock */
+.summary-grid a:nth-child(4) .card-custom { background: #f2d4e7; }     /* Monthly Purchase */
+.summary-grid a:nth-child(5) .card-custom { background: #fef9d9; }     /* Monthly Sales */
+.summary-grid a:nth-child(6) .card-custom { background: #e5e4f7; }     /* Monthly Expenses */
+
+
+/* ===== Bank / Cash / Profit Cards ===== */
+.bank-card, .cash-card, .profit-card {
+  background: #fff;
+  padding: 1rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  margin-bottom: 1rem;
+}
+
+.section-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #1f1f1f;
+}
+
+.bg-light-box {
+  background-color: #fff;
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  display: flex;
+  align-items: center;
+}
+
+.bg-light-box .emoji {
+  font-size: 2rem;
+  margin-right: 0.75rem;
+}
+
+.bg-light-box h5 {
+  font-size: 1.3rem;
+  margin: 0;
+}
+
+.bg-light-box small {
+  color: #666;
+}
+
+/* ===== Charts ===== */
+.chart-container {
+  background: #fff;
+  padding: 1rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.chart-container canvas {
+  width: 100% !important;
+  height: 400px !important;
+}
+
+.chart-container canvas {
+  pointer-events: auto !important;
+  cursor: pointer;
+}
+
+.chartjs-legend li {
+  cursor: pointer;
+}
+
+
+.row-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #1f1f1f;
+  margin-bottom: 1rem;
+}
+
+.summary-grid a {
+  color: inherit !important;
+  text-decoration: none !important;
+  display: block;
+}
+
+.info-box {
+  background: #fff;
+  border: 1px solid #ddd; /* thin border */
+  border-radius: 12px;
+  padding: 1.2rem;
+  box-shadow: none; /* optional: remove shadow for clean lines */
+  margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.info-title {
+  font-size: 0.95rem;
+  font-weight: 500; /* slightly thinner than bold */
+  color: #333;
+  margin-bottom: 0.75rem;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 0.5rem;
+}
+
+.info-content {
+  display: flex;
+  align-items: center;
+  justify-content: center; /* center horizontally */
+  gap: 1rem;
+  flex: 1; /* take full height */
+}
+
+.info-icon {
+  width: 38px;
+  height: 38px;
+  object-fit: contain;
+}
+
+.info-value {
+  font-size: 1.4rem;
+  font-weight: 400; /* thin text */
+  margin: 0;
+  color: #222;
+}
+
+.info-content small {
+  font-weight: 300;
+  font-size: 0.9rem;
+  color: #777;
+}
+
+/* Override just the bank box layout */
+.bank-amount-box .info-content {
+  justify-content: flex-start; /* Align left */
+  text-align: left;
+}
+
+
+</style>
+
+</head>
+<body>
+<div class="container">
+
+ <form id="duesFilterForm">
+  <div class="row g-3 align-items-center">
+    <div class="col-md-4">
+      <label for="dateRangePicker" class="form-label">Date Range</label>
+      <input type="text" id="dateRangePicker" class="form-control" placeholder="Select date range" />
+      <input type="hidden" name="startDate" id="startDate" />
+      <input type="hidden" name="endDate" id="endDate" />
+    </div>
+
+    <div class="col-md-2">
+      <label for="minAmount" class="form-label">Amount Range</label>
+      <input type="number" name="minAmount" id="minAmount" class="form-control" placeholder="from" />
+    </div>
+
+    <div class="col-md-2">
+      <label class="form-label d-none d-md-block">&nbsp;</label>
+      <input type="number" name="maxAmount" id="maxAmount" class="form-control" placeholder="upto" />
+    </div>
+
+    <div class="col-md-2">
+      <label class="form-label d-none d-md-block">&nbsp;</label>
+      <button type="submit" class="btn btn-primary w-100">Search</button>
+    </div>
+  </div>
+</form>
+
+  
+ <div class="tables-wrapper mt-4">
+  <!-- Customer Dues -->
+  <div class="dues-table-container">
+    <h3>Customer Dues</h3>
+    <table class="table table-bordered mb-0">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Total Amount</th>
+          <th>Paid Amount</th>
+          <th>Due Balance</th>
+          <th>Due Date</th>
+        </tr>
+      </thead>
+      <tbody id="customerDuesBody">
+        <tr><td colspan="5" class="text-center">No records found.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Supplier Dues -->
+  <div class="dues-table-container">
+    <h3>Supplier Dues</h3>
+    <table class="table table-bordered mb-0">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Total Amount</th>
+          <th>Paid Amount</th>
+          <th>Due Balance</th>
+          <th>Due Date</th>
+        </tr>
+      </thead>
+      <tbody id="supplierDuesBody">
+        <tr><td colspan="5" class="text-center">No records found.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+   
+  <br>
+  <br>
+
+
+  <div class="d-flex justify-content-between align-items-center mt-5 mb-3">
+  <h3 class="row-title">Sales Summery</h3>
+  <button class="btn btn-outline-secondary btn-sm"><i class="bx bx-download"></i> Export</button>
+</div>
+
+<a href="#" class="load-page text-decoration-none text-dark" data-page="/manage%20purchase">
+<div class="summary-grid">
+  <div class="card-custom">
+      <div class="card-icon">
+      <img src="purchaseicon.svg" alt="purchase icon" >
+    </div>
+    <h4><%= data.totalPurchases || 0 %></h4>
+    <p>Total Purchase</p>
+  </div>
+</a>
+
+  <a href="#" class="load-page text-decoration-none text-dark" data-page="/manage%20sales">
+  <div class="card-custom">
+      <div class="card-icon">
+      <img src="salesicon.svg" alt="sales icon">
+    </div>
+    <h4><%= data.totalSales || 0 %></h4>
+    <p>Total Sales</p>
+  </div>
+  </a>
+
+  <a href="#" class="load-page text-decoration-none text-dark" data-page="/manage%20stockno">
+  <div class="card-custom">
+    <div class="card-icon">  
+          <img src="stockicon.svg" alt="stock icon" >
+</div>
+    <h4><%= data.totalStock || 0 %></h4>
+    <p>Total Stock</p>
+  </div>
+  </a>
+
+
+  <a href="#" class="load-page text-decoration-none text-dark" data-page="/manage%20purchase">
+    <div class="card-custom">
+      <div class="card-icon">  
+            <img src="monthlypuricon.svg" alt="monthlypuricon">
+</div>
+      <h4><%= data.monthlyPurchase || 0 %></h4>
+      <p>Monthly Purchase</p>
+      
+    </div>
+  </a>
+
+  <a href="#" class="load-page text-decoration-none text-dark" data-page="/manage%20sales">
+    <div class="card-custom">
+      <div class="card-icon">  
+          <img src="monthlysaleicon.svg" alt="monthlysaleicon">
+        </div>
+      <h4><%= data.monthlySales || 0 %></h4>
+      <p>Monthly Sales</p>
+      
+    </div>
+  </a>
+
+  <a href="#" class="load-page text-decoration-none text-dark" data-page="/personal%20expense">
+    <div class="card-custom">
+      <div class="card-icon">   
+         <img src="monthlyexpicon.svg" alt="monthlyexpicon" >
+      </div>
+      <h4><%= data.monthlyExpenses || 0 %></h4>
+      <p>Monthly Expenses</p>
+      
+    </div>
+  </a>
+</div>
+    <!-- Lower Section -->
+    <!-- Lower Section: Bank, Cash Flow, Profit/Loss -->
+<div class="row mt-5 mb-3">
+  <!-- Bank Amount takes 6 columns -->
+  <div class="col-md-6">
+    <div class="info-box bank-amount-box h-100">
+
+      <h5 class="info-title">Bank Amount</h5>
+      <select id="bankSelect" class="form-select mb-3">
+        <% data.banks.forEach(bank => { %>
+          <option value="<%= bank.bank_name %>" <%= bank.bank_name === data.selectedBank ? 'selected' : '' %>>
+            <%= bank.bank_name %>
+          </option>
+        <% }); %>
+      </select>
+      <div class="info-content">
+        <img src="bankicon.png" class="info-icon" />
+        <div>
+          <h4 class="info-value" id="bankAmount">฿<%= data.bankAmount || '0.00' %></h4>
+          <small><%= data.selectedBank || '—' %></small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cash Flow takes 3 columns -->
+  <div class="col-md-3">
+    <div class="info-box h-100">
+      <h5 class="info-title">Cash Flow</h5>
+      <div class="info-content">
+        <img src="stockicon.svg" class="info-icon" />
+        <div>
+          <h4 class="info-value">฿<%= data.cashFlow || '0.00' %></h4>
+          <small>Total Cash In/Out</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Profit & Loss takes 3 columns -->
+  <div class="col-md-3">
+    <div class="info-box h-100">
+      <h5 class="info-title">Profit & Loss</h5>
+      <div class="info-content">
+        <img src="salesicon.svg" class="info-icon" />
+        <div>
+          <h4 class="info-value">฿<%= data.profitLoss || '0.00' %></h4>
+          <small>Total Profit&Loss</small>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+   <div class="row mt-4">
+  <div class="col-md-6">
+    <div class="chart-container">
+      <div class="row-title">Market</div>
+      <canvas id="purchaseSalesChart"></canvas>
+    </div>
+  </div>
+
+  <div class="col-md-6">
+    <div class="chart-container">
+      <div class="row-title">Products Of The Month</div>
+      <canvas id="stoneTypeChart"></canvas>
+    </div>
+  </div>
+</div>
+
+  </div>
+</div>
+
+
+<script>
+function loadDashboard() {
+  console.log("Loading dashboard...");
+  // Declare chart instances at a higher scope
+window.purchaseSalesChartInstance = null;
+window.stoneTypeChartInstance = null;
+
+
+   setTimeout(() => {
+        console.log("⏳ Checking for elements...");
+
+        picker = new Litepicker({
+    element: document.getElementById('dateRangePicker'),
+    singleMode: false,
+    format: 'YYYY-MM-DD'
+  })
+     // Purchase vs Sales Chart
+    fetch('/api/chart-data')
+      .then(res => res.json())
+      .then(data => {
+        console.log("Chart API Data >>>", data);
+
+        if (purchaseSalesChartInstance) {
+          purchaseSalesChartInstance.destroy();
+        }
+
+     const ctx1 = document.getElementById('purchaseSalesChart').getContext('2d');
+
+        const labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const purchaseData = Array(12).fill(0);
+        const salesData = Array(12).fill(0);
+
+        data.purchases.forEach(p => purchaseData[p.month - 1] = parseFloat(p.total_purchase));
+        data.sales.forEach(s => salesData[s.month - 1] = parseFloat(s.total_sales));
+
+purchaseSalesChartInstance = new Chart(ctx1, {
+  type: 'bar',
+  data: {
+    labels: labels,
+    datasets: [
+      {
+        label: 'Purchases',
+        data: purchaseData,
+        backgroundColor: '#5D3FD3', // Deep purple
+        borderColor: '#5D3FD3',
+        borderWidth: 0, // No border
+        barPercentage: 0.8,
+        categoryPercentage: 0.9
+      },
+      {
+        label: 'Sales',
+        data: salesData,
+        backgroundColor: '#00A36C', // Jade green
+        borderColor: '#00A36C',
+        borderWidth: 0, // No border
+        barPercentage: 0.8,
+        categoryPercentage: 0.9
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'top',
+        labels: {
+          color: '#333',
+          font: {
+            size: 12,
+            family: "'Segoe UI', sans-serif"
+          },
+          padding: 20,
+          usePointStyle: true,
+          pointStyle: 'rectRounded'
+        }
+      },
+      tooltip: {
+        backgroundColor: 'rgba(0, 0, 0, 0.85)',
+        titleFont: {
+          size: 14,
+          weight: 'bold',
+          family: "'Segoe UI', sans-serif"
+        },
+        bodyFont: {
+          size: 12,
+          family: "'Segoe UI', sans-serif"
+        },
+        padding: 12,
+        cornerRadius: 6,
+        displayColors: true,
+        callbacks: {
+          label: function(context) {
+            return `${context.dataset.label}: ฿${context.raw.toLocaleString()}`;
+          }
+        }
+      }
+    },
+    scales: {
+      x: {
+        grid: {
+          display: false,
+          drawBorder: false
+        },
+        ticks: {
+          color: '#666',
+          font: {
+            size: 11,
+            family: "'Segoe UI', sans-serif"
+          }
+        }
+      },
+      y: {
+        grid: {
+          color: 'rgba(0, 0, 0, 0.05)',
+          drawBorder: false
+        },
+        ticks: {
+          color: '#666',
+          font: {
+            size: 11,
+            family: "'Segoe UI', sans-serif"
+          },
+          callback: function(value) {
+            return `฿${(value / 1000).toFixed(0)}k`;
+          },
+          padding: 10
+        },
+        beginAtZero: true
+      }
+    },
+    animation: {
+      duration: 800,
+      easing: 'easeOutQuad'
+    }
+  }
+});
+      });
+
+  // Stone Type Chart
+fetch('/api/stone-type-chart')
+  .then(res => res.json())
+  .then(data => {
+    if (stoneTypeChartInstance) {
+      stoneTypeChartInstance.destroy();
+    }
+
+    const ctx2 = document.getElementById('stoneTypeChart').getContext('2d');
+
+    const labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const rubyData = Array(12).fill(0);
+    const emeraldData = Array(12).fill(0);
+    const sapphireData = Array(12).fill(0);
+
+    data.forEach(row => {
+      const monthIdx = row.month - 1;
+      if (row.stone_type === 'ruby') {
+        rubyData[monthIdx] = row.total_pcs;
+      } else if (row.stone_type === 'emerald') {
+        emeraldData[monthIdx] = row.total_pcs;
+      } else if (row.stone_type === 'sapphire') {
+        sapphireData[monthIdx] = row.total_pcs;
+      }
+    });
+
+   stoneTypeChartInstance = new Chart(ctx2, {
+  type: 'line',
+  data: {
+    labels: labels,
+    datasets: [
+      {
+        label: 'Ruby',
+        data: rubyData,
+        borderColor: '#E91E63',
+        backgroundColor: 'rgba(233, 30, 99, 0.1)',
+        borderWidth: 3,
+        tension: 0.3,
+        fill: true,
+        pointBackgroundColor: '#E91E63',
+        pointRadius: 4,
+        pointHoverRadius: 6,
+        pointBorderColor: '#fff',
+        pointBorderWidth: 2
+      },
+      {
+        label: 'Emerald',
+        data: emeraldData,
+        borderColor: '#4CAF50',
+        backgroundColor: 'rgba(76, 175, 80, 0.1)',
+        borderWidth: 3,
+        tension: 0.3,
+        fill: true,
+        pointBackgroundColor: '#4CAF50',
+        pointRadius: 4,
+        pointHoverRadius: 6,
+        pointBorderColor: '#fff',
+        pointBorderWidth: 2
+      },
+      {
+        label: 'Sapphire',
+        data: sapphireData,
+        borderColor: '#2196F3',
+        backgroundColor: 'rgba(33, 150, 243, 0.1)',
+        borderWidth: 3,
+        tension: 0.3,
+        fill: true,
+        pointBackgroundColor: '#2196F3',
+        pointRadius: 4,
+        pointHoverRadius: 6,
+        pointBorderColor: '#fff',
+        pointBorderWidth: 2
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'top',
+        labels: {
+          color: '#333',
+          font: {
+            size: 12,
+            family: "'Segoe UI', sans-serif"
+          },
+          padding: 20,
+          usePointStyle: true,
+          pointStyle: 'circle'
+        }
+      },
+      tooltip: {
+        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+        titleFont: {
+          size: 14,
+          weight: 'bold'
+        },
+        bodyFont: {
+          size: 12
+        },
+        padding: 12,
+        cornerRadius: 8,
+        displayColors: true,
+        callbacks: {
+          label: function(context) {
+            return `${context.dataset.label}: ${context.raw} pcs`;
+          }
+        }
+      }
+    },
+    scales: {
+      x: {
+        grid: {
+          display: false,
+          drawBorder: false
+        },
+        ticks: {
+          color: '#666',
+          font: {
+            size: 11
+          }
+        }
+      },
+      y: {
+        grid: {
+          color: 'rgba(0, 0, 0, 0.05)',
+          drawBorder: false
+        },
+        ticks: {
+          color: '#666',
+          font: {
+            size: 11
+          },
+          padding: 10
+        }
+      }
+    },
+    interaction: {
+      intersect: false,
+      mode: 'index'
+    },
+    animation: {
+      duration: 1000,
+      easing: 'easeOutQuart'
+    }
+  }
+});
+  });
+
+
+    
+  document.getElementById('bankSelect').addEventListener('change', function() {
+    const bankName = this.value;
+    fetch(`/api/bank-amount?bank=${encodeURIComponent(bankName)}`)
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById('bankAmount').innerText = `฿${data.amount.toFixed(2)}`;
+      });
+  });
+
+  document.getElementById('duesFilterForm').addEventListener('submit', function (e) {
+  e.preventDefault();
+
+  // ✅ Get dates from picker (if selected)
+  const start = picker.getStartDate();
+  const end = picker.getEndDate();
+
+  // ✅ Set hidden date fields *only if* they're selected
+  if (start && end) {
+    document.getElementById('startDate').value = start.format('YYYY-MM-DD');
+    document.getElementById('endDate').value = end.format('YYYY-MM-DD');
+  } else {
+    document.getElementById('startDate').value = '';
+    document.getElementById('endDate').value = '';
+  }
+
+  // ✅ Proceed no matter what
+  const formData = new FormData(this);
+  const params = new URLSearchParams(formData);
+
+  console.log("✅ Final filter params:", params.toString());
+
+  fetch(`/api/get-dues?${params.toString()}`)
+    .then(res => res.json())
+    .then(data => {
+      renderTable('customerDuesTable', data.customerDues, data.customerTotals, 'Customer Dues');
+      renderTable('supplierDuesTable', data.supplierDues, data.supplierTotals, 'Supplier Dues');
+    })
+    .catch(err => {
+      console.error('❌ Error loading dues data:', err);
+    });
+});
+
+
+
+
+function renderTable(containerId, rows, totals, title) {
+  const tableBody = document.querySelector(`#${containerId} tbody`);
+  if (!tableBody) return;
+
+  if (rows.length === 0) {
+    tableBody.innerHTML = `<tr><td colspan="5" class="text-center">No records found.</td></tr>`;
+    return;
+  }
+
+  // Dynamically decide if this is customer or supplier
+  const nameField = containerId.includes('customer') ? 'customer_name' : 'supplier_name';
+
+  const rowsHtml = rows.map(row => {
+    const dueDate = row.payment_date ? new Date(row.payment_date) : null;
+    const formattedDate = dueDate && !isNaN(dueDate.getTime())
+      ? dueDate.toISOString().split('T')[0]
+      : 'N/A';
+
+    return `
+      <tr>
+        <td>${row[nameField]}</td>
+        <td>${parseFloat(row.invoice_amount).toFixed(2)}</td>
+        <td>${parseFloat(row.paid_amount).toFixed(2)}</td>
+        <td>${parseFloat(row.due_balance).toFixed(2)}</td>
+        <td>${formattedDate}</td>
+      </tr>
+    `;
+  }).join('');
+
+  const totalRow = `
+    <tr>
+      <th>Total</th>
+      <th>${parseFloat(totals.total_amount).toFixed(2)}</th>
+      <th>${parseFloat(totals.paid_amount).toFixed(2)}</th>
+      <th>${parseFloat(totals.due_balance).toFixed(2)}</th>
+      <th></th>
+    </tr>
+  `;
+
+  tableBody.innerHTML = rowsHtml + totalRow;
+}
+
+document.querySelectorAll(".load-page").forEach(link => {
+  link.addEventListener("click", function (event) {
+    event.preventDefault();
+    const page = this.getAttribute("data-page");
+    loadPage(page);
+  });
+});
+   
+
+    }, 500);
+  }
+
+
+  function loadDependenciesThenInitDashboard() {
+  const scriptsToLoad = [
+    {
+      src: "https://cdn.jsdelivr.net/npm/litepicker/dist/litepicker.js",
+      globalName: "Litepicker"
+    },
+    {
+      src: "https://cdn.jsdelivr.net/npm/chart.js",
+      globalName: "Chart"
+    }
+  ];
+
+  let loaded = 0;
+
+  scriptsToLoad.forEach(lib => {
+    if (typeof window[lib.globalName] !== "undefined") {
+      loaded++;
+      if (loaded === scriptsToLoad.length) loadDashboard();
+      return;
+    }
+
+    const script = document.createElement("script");
+    script.src = lib.src;
+    script.onload = () => {
+      loaded++;
+      if (loaded === scriptsToLoad.length) {
+        loadDashboard();
+      }
+    };
+    document.head.appendChild(script);
+  });
+}
+
+// Call it when this page is loaded into #dynamic-content
+loadDependenciesThenInitDashboard();
+</script>
+</body>
+</html>

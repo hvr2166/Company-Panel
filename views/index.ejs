@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="UTF-8">
+    <title> Drop Down Sidebar Menu | CodingLab </title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Boxiocns CDN Link -->
+    <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <style>
+
+      
+      .sidebar .nav-links li .sub-menu {
+  padding: 10px 10px 14px 50px; /* Adjust padding for better spacing */
+  font-size: 16px; /* Increase font size for better readability */
+}
+
+.sidebar .nav-links li .sub-menu a {
+  font-size: 13px; /* Slightly increase font size */
+  padding: 8px 0; /* Adjust padding for better spacing */
+  white-space: nowrap;
+  display: block; /* Ensure items are displayed properly */
+}
+
+.sidebar .nav-links li .sub-menu a:hover {
+  opacity: 1;
+  font-weight: 500; /* Bold text on hover for better visibility */
+  background: rgba(255, 255, 255, 0.1); /* Light hover effect */
+  border-radius: 4px; /* Rounded corners for better UI */
+  padding: 10px 12px; /* Increase hover padding */
+}
+
+.sidebar.close .nav-links li .sub-menu {
+  left: 100%;
+  top: 0;
+  margin-top: 0;
+  padding: 10px 15px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.sidebar.close .nav-links li:hover .sub-menu {
+  top: 0;
+  opacity: 1;
+  pointer-events: auto;
+  transition: all 0.4s ease;
+}
+
+.sidebar .logo-details {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px 0;
+}
+
+.sidebar .logo-details img {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+ margin-top: 20px;
+}
+
+.sidebar .nav-links li.nav-link.active {
+  background: none !important;
+}
+
+.sidebar .nav-links li.nav-link.active::before {
+  display: none !important; /* if there's a highlight bar using ::before */
+}
+
+.sidebar .nav-links li.nav-link.active a {
+  font-weight: bold;
+  color: inherit; /* preserves the default text color */
+}
+
+.sidebar .nav-links li.active {
+  background: none;
+}
+
+.sidebar .nav-links li.active a {
+  font-weight: bold;
+  color: inherit;
+}
+.footer {
+  position: fixed;
+  bottom: 0;
+  left: 250px; /* Same as home-section */
+  width: calc(100% - 250px);
+  height: 40px;
+  background-color: #f8f9fa;
+  color: #555;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  box-shadow: 0 -1px 5px rgba(0, 0, 0, 0.1);
+  z-index: 999;
+  transition: all 0.5s ease;
+  height: 40px;
+  background-color: #f8f9fa;
+  color: #555;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  box-shadow: 0 -1px 5px rgba(0, 0, 0, 0.1);
+  margin-top: auto; /* Push footer to the bottom automatically */
+  height: 40px;
+  background: #f8f9fa;
+  color: #555;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  margin-top: auto; /* pushes footer to bottom */
+  box-shadow: 0 -1px 5px rgba(0,0,0,0.1);
+}
+
+/* When sidebar is closed */
+.sidebar.close ~ .home-section .footer {
+  left: 78px;
+  width: calc(100% - 78px);
+}
+
+
+
+
+     </style>
+   </head>
+<body>
+  <div class="sidebar ">
+    <div class="logo-details">
+      <img src="/logo (1).jpeg" alt="Logo" style="width: 50px; height: 50px; border-radius: 50%; ">
+    </div>
+    <ul class="nav-links">
+      <%
+      const iconMap = {
+        'Dashboard': 'bx bx-grid-alt',
+        'Manage Users': 'bx bx-user',
+        'Manage stocks': 'bx bx-package',
+        'Expenses': 'bx bx-money',
+        'Purchase': 'bx bx-purchase-tag',
+        'Sales': 'bx bx-trending-up',
+        'Approvals': 'bx bx-check-shield',
+        'Report': 'bx bx-file',
+        'Other Masters': 'bx bx-cube',
+        'Profile': 'bx bx-id-card'
+      };
+      
+      
+    
+      // Get and sort main menus
+      let mainMenus = permissions.filter(p => p.parent_id === '0');
+      const getSubmenus = (parentId) => permissions.filter(p => p.parent_id === parentId.toString());
+    
+      // Preferred menu order
+      const preferred = [
+      'Dashboard',
+      'Manage Users',
+      'Manage stocks',
+      'Expenses',
+      'Purchase',
+      'Sales',
+      'Approvals',
+      'Report',
+      'Other Masters'
+    ];
+    
+    
+    mainMenus = mainMenus.sort((a, b) => {
+      const indexA = preferred.indexOf(a.rolename);
+      const indexB = preferred.indexOf(b.rolename);
+    
+      if (indexA === -1 && indexB === -1) return a.rolename.localeCompare(b.rolename);
+      if (indexA === -1) return 1;
+      if (indexB === -1) return -1;
+    
+      return indexA - indexB;
+    });
+    
+    
+    %>
+    
+    <% mainMenus.forEach(menu => { %>
+      <% const submenus = getSubmenus(menu.nid); %>
+      <li>
+        <div class="iocn-link">
+          <a href="#"
+             class="<%= submenus.length === 0 ? 'load-page' : '' %>"
+             data-page="/<%= menu.rolename.toLowerCase() %>">
+            <i class="<%= iconMap[menu.rolename] || 'bx bx-menu' %>"></i>
+            <span class="link_name"><%= menu.rolename %></span>
+          </a>
+          <% if (submenus.length > 0) { %>
+            <i class='bx bxs-chevron-down arrow'></i>
+          <% } %>
+        </div>
+        <% if (submenus.length > 0) { %>
+          <ul class="sub-menu">
+            <% submenus.forEach(sub => { %>
+              <li>
+                <a href="#" class="load-page" data-page="/<%= sub.rolename.toLowerCase() %>">
+                  <%= sub.rolename %>
+                </a>
+              </li>
+            <% }) %>
+          </ul>
+        <% } %>
+      </li>
+    <% }) %>
+    
+      <!-- Static profile section -->
+      <li>
+        <div class="iocn-link">
+          <a href="#">
+            <i class='bx bx-id-card'></i>
+            <span class="link_name">Profile</span>
+          </a>
+          <i class='bx bxs-chevron-down arrow'></i>
+        </div>
+        <ul class="sub-menu">
+          <li><a class="link_name" href="#">Profile</a></li>
+          <li><a href="#" id="downloadData">Download Data</a></li>
+
+          <li><a href="/viewalltransfers" class="load-page" data-page="viewalltransfers">Change Profile</a></li>
+          <li><a href="/logout">Logout</a></li>
+        </ul>
+      </li>
+    </ul>
+
+    <div class="profile-details">
+      <div class="profile-content">
+        <!-- <img src="/profile.jpg" alt="profileImg" /> -->
+      </div>
+      <div class="name-job">
+        <div class="profile_name"><%= user.firstname %> <%= user.lastname %></div>
+        <div class="job">Logged In</div>
+      </div>
+      <i class=''></i>
+    </div>
+    
+  </div>
+  <section class="home-section">
+    <div class="home-content">
+      <i class='bx bx-menu'></i>
+      <span class="text">Welcome to Vivek Jewels</span> 
+    </div>
+  
+    <div id="dynamic-content">
+      <!-- Dynamic page content -->
+    </div>
+  
+    <footer class="footer">
+      <p>&copy; 2025 Vivek Jewels. All rights reserved.</p>
+    </footer>
+  </section>
+ 
+
+  <script src="script.js"></script>
+  <script>
+document.addEventListener("DOMContentLoaded", function () {
+  const initialPage = "<%= initialPage %>";
+  
+  if (initialPage && !document.querySelector("#dashboard-loaded")) {
+    loadPage(initialPage);
+  }
+});
+
+  </script>
+
+</body>
+</html>

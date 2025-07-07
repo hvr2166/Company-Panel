@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <title>Stock Report</title>
+<style>
+    @media print {
+        body * {
+            visibility: hidden;
+        }
+        #print-section, #print-section * {
+            visibility: visible;
+        }
+        #print-section {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+        }
+    }
+
+.container {
+    background: #fff;
+    padding: 15px;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+
+h2, h3 {
+    font-size: 16px;
+    margin-bottom: 10px;
+    color: #007bff;
+}
+
+form input[type="text"] {
+    padding: 4px 8px;
+    font-size: 13px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    margin-right: 6px;
+    width: 180px;
+}
+
+select {
+    padding: 2px 6px; /* Smaller padding */
+    font-size: 12px; /* Decrease font size */
+    border-radius: 3px; /* Slightly smaller rounded corners */
+    width: 140px; /* Reduce width */
+}
+
+#lotFilter {
+    padding: 2px 6px;
+    font-size: 12px;
+    width: 130px; /* Reduce width */
+}
+
+
+button {
+    padding: 3px 8px;
+    font-size: 12px;
+    border-radius: 3px;
+}
+
+/* Make filter group more compact */
+.filter-group {
+    gap: 5px;
+    flex-wrap: nowrap; /* Avoid unnecessary line breaks */
+}
+
+button {
+    padding: 4px 10px;
+    font-size: 13px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+button[type="submit"] {
+    background-color: #007bff;
+    color: white;
+}
+
+#resetBtn {
+    background-color: #6c757d;
+    color: white;
+}
+
+button:hover {
+    opacity: 0.95;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin-top: 15px;
+}
+
+table th, table td {
+    padding: 6px 8px;
+    border: 1px solid #ddd;
+    text-align: center;
+}
+
+thead {
+    background-color: #007bff;
+    color: white;
+}
+
+tfoot {
+    background-color: #f1f1f1;
+    font-weight: bold;
+}
+
+.modal-content {
+    padding: 10px;
+    font-size: 13px;
+    border-radius: 6px;
+}
+
+.modal table th {
+    font-size: 13px;
+    padding: 6px;
+}
+
+.filter-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.filter-group label {
+    font-size: 13px;
+    margin-right: 4px;
+}
+
+.filter-group select,
+.filter-group input {
+    padding: 5px 8px;
+    font-size: 13px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    min-width: 140px;
+    background-color: #fff;
+}
+
+.filter-group button {
+    padding: 6px 14px;
+    font-size: 13px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.filter-group button:hover {
+    background-color: #0056b3;
+}
+
+
+
+
+</style>
+</head>
+<body>
+   <div class="container">
+
+    
+    <div style="margin-bottom: 20px;">
+<form id="lotSearchForm" method="GET" action="/stock report">
+
+    <label for="lotFilter">Lot Numbers:</label>
+    <input type="text" name="lot" id="lotFilter" placeholder="Enter Lot Number" >
+    <button type="submit" style="padding: 5px 10px;">Search Lot Report</button>
+        <button type="button" id="resetBtn" style="padding: 5px 10px; background-color: #6c757d; color: white; border: none; border-radius: 4px;">Reset</button>
+</form>
+
+
+<div id="lot-detail-container"><% if (lot && purchases && sales) { %>
+    <h2>Lot Detail Reports - <%= lot %></h2>
+    <div style="display: flex; gap: 20px;">
+        <div style="flex: 1;">
+            <h3>Purchase Lot Details</h3>
+            <table border="1" width="100%">
+                <thead>
+                    <tr><th>Sr No</th><th>Date</th><th>Quantity</th><th>Due Date</th></tr>
+                </thead>
+                <tbody>
+                    <% purchases.forEach((p, i) => { %>
+                        <tr>
+                            <td><%= i + 1 %></td>
+                            <td><%= p.purchase_date %></td>
+                            <td><%= p.weight %></td>
+                            <td><%= p.due_date %></td>
+                        </tr>
+                    <% }); %>
+                </tbody>
+                <tfoot>
+                    <tr><td colspan="4"><strong>Total Quantity:</strong> <%= totalPurchaseQty %></td></tr>
+                </tfoot>
+            </table>
+        </div>
+
+        <div style="flex: 1;">
+            <h3>Sale Lot Details</h3>
+            <table border="1" width="100%">
+                <thead>
+                    <tr><th>Sr No</th><th>Date</th><th>Amount</th><th>Due Date</th></tr>
+                </thead>
+                <tbody>
+                    <% sales.forEach((s, i) => { %>
+                        <tr>
+                            <td><%= i + 1 %></td>
+                            <td><%= s.due_date %></td>
+                            <td><%= s.pcs %></td>
+                            <td><%= s.due_date %></td>
+                        </tr>
+                    <% }); %>
+                </tbody>
+                <tfoot>
+                    <tr><td colspan="4"><strong>Total Quantity:</strong> <%= totalSaleQty %></td></tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+
+    <p><strong>Total Purchase Quantity:</strong> <%= totalPurchaseQty %></p>
+    <p><strong>Total Sale Quantity:</strong> <%= totalSaleQty %></p>
+    <p><strong>Total Quantity Left:</strong> <%= stockLeft %></p>
+<% } else { %>
+    <!-- Default summary table view -->
+    <table>
+        <!-- your current table structure here -->
+    </table>
+<% } %></div>
+
+
+
+        <div id="extra-controls">
+<div class="filter-group">
+    <label for="sizeFilter">Size:</label>
+    <select id="sizeFilter">
+        <option value="all">All Sizes</option>
+        <% [...new Set(reportData.map(row => row.size))].forEach(size => { %>
+            <option value="<%= size %>"><%= size %></option>
+        <% }); %>
+    </select>
+
+    <label for="shapeFilter">Shape:</label>
+    <select id="shapeFilter">
+        <option value="all">All Shapes</option>
+        <% [...new Set(reportData.map(row => row.shape))].forEach(shape => { %>
+            <option value="<%= shape %>"><%= shape %></option>
+        <% }); %>
+    </select>
+
+    <label for="weightFilter">Weight In Hand:</label>
+    <select id="weightFilter">
+        <option value="all">All Weights</option>
+        <% [...new Set(reportData.map(row => row.weight_in_hand))].forEach(weight => { %>
+            <option value="<%= weight %>"><%= weight %></option>
+        <% }); %>
+    </select>
+
+    <button id="applyFilters">Apply Filters</button>
+    <button id="resetFilters" style="background-color: #6c757d;">Reset</button>
+    <button id="printBtn" style="background-color: #28a745;">Print</button>
+    <button id="exportExcelBtn" style="background-color: #17a2b8;">Export to Excel</button>
+</div>
+
+    </div>
+    
+    <div id="stock-summary-table">
+    <div id="print-section">
+    <table border="1" style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+   <thead>
+    <tr style="background-color: #007bff; color: white;">
+        <th>Lot No</th>
+        <th>Description</th>
+        <th>Size</th>
+        <th>Shape</th>
+        <th>Mine</th>
+        <th>Cut</th> <!-- Optional: if available -->
+        <th>Weight In Hand</th>
+        <th>Weight</th>
+        <th>Supplier</th>
+        <th>Purchase Date</th>
+        <th>Purchase Price</th>
+        <th>Total Price</th>
+        <th>Total Sale</th>
+        <th>Total Profit</th>
+    </tr>
+</thead>
+<tbody>
+<%
+let currentLot = null;
+let stockByLot = 0;
+let profitByLot = 0;
+
+reportData.forEach((row, idx) => {
+    const isNewLot = row.lot !== currentLot;
+    const isLastRow = idx === reportData.length - 1;
+    const nextLot = !isLastRow ? reportData[idx + 1].lot : null;
+
+    if (isNewLot) {
+        stockByLot = 0;
+        profitByLot = 0;
+        currentLot = row.lot;
+    }
+
+    stockByLot += parseFloat(row.weight_in_hand || 0);
+    profitByLot += parseFloat(row.total_profit || 0);
+%>
+    <tr>
+        <td><%= row.lot %></td>
+        <td><%= row.description %></td>
+        <td><%= row.size %></td>
+        <td><%= row.shape %></td>
+        <td><%= row.mine %></td>
+        <td><%= row.cut || '-' %></td>
+        <td><%= row.weight_in_hand %></td>
+        <td><%= row.total_weight %></td>
+        <td><%= row.supplier_name %></td>
+        <td><%= row.purchase_date %></td>
+        <td><%= row.purchase_price %></td>
+        <td><%= row.total_purchase %></td>
+        <td><%= row.total_sales %></td>
+        <td><%= row.total_profit %></td>
+    </tr>
+<%
+    if (isLastRow || nextLot !== currentLot) {
+%>
+  <tr style="background-color: #ddd; font-weight: bold;">
+    <td colspan="15">
+        <div style="display: flex; justify-content: space-between;">
+            <span>Current Stock: <%= stockByLot %></span>
+            <span>Total: <%= profitByLot.toLocaleString() %></span>
+        </div>
+    </td>
+</tr>
+
+<%
+    }
+});
+%>
+</tbody>
+
+    </table>
+</div>
+</div>
+
+<div id="lotPopup" class="modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0, 0, 0, 0.5);">
+    <div class="modal-content" style="background-color: white; margin: 15% auto; padding: 20px; border: 1px solid #ccc; border-radius: 8px; width: 80%; max-width: 600px;">
+        <span class="close" id="closeModal" style="color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer;">&times;</span>
+        <h2 style="text-align: center; color: #007bff;">Lot Details</h2>
+        <table border="1" style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+            <thead>
+                <tr style="background-color: #007bff; color: white;">
+                    <th>Lot No</th>
+                    <th>Quantity in Hand</th>
+                    <th>Action</th>
+                    <th>Supplier</th>
+                    <th>Customer</th>
+                    <th>Action Date</th>
+                </tr>
+            </thead>
+            <tbody id="popupTableBody">
+                <!-- Data will be inserted here dynamically -->
+            </tbody>
+        </table>
+    </div>
+</div>
+</div>
+</div>
+
+    <script>
+        function exportToExcel() {
+    window.location.href = '/export-stockreport-excel';
+}
+
+
+        console.log("📜 Script loaded!");
+    
+        // Function to bind events dynamically
+        function bindReportEvents() {
+            console.log("🔄 Binding Report Events...");
+    
+            // Modal Variables
+            let modal = document.getElementById("lotPopup");
+            let closeModal = document.getElementById("closeModal");
+            let popupTableBody = document.getElementById("popupTableBody");
+    
+            // Filter and Search Variables
+            let lotFilter = document.getElementById("lotFilter");
+            let sizeFilter = document.getElementById("sizeFilter");
+            let shapeFilter = document.getElementById("shapeFilter");
+            let weightFilter = document.getElementById("weightFilter");
+            let searchBtn = document.getElementById("searchBtn");
+    
+            // ✅ Attach Click Event to `#reportTableBody` using Event Delegation
+            document.addEventListener("click", function (event) {
+                let clickedElement = event.target.closest(".clickable-lot");
+    
+                if (clickedElement) {
+                    event.preventDefault();
+                    let lotNo = clickedElement.getAttribute("data-lot");
+                    console.log("🎯 Lot Number Clicked:", lotNo);
+    
+                    if (!lotNo) {
+                        console.error("🚨 Lot number is missing in the dataset.");
+                        return;
+                    }
+    
+                    // ✅ Fetch Lot Data from Backend
+                    fetch(`/getLotData?lot=${encodeURIComponent(lotNo)}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            console.log("✅ Received data:", data);
+    
+                            popupTableBody.innerHTML = "";
+    
+                            if (!data || data.length === 0) {
+                                popupTableBody.innerHTML = "<tr><td colspan='6'>No Data Found</td></tr>";
+                            } else {
+                                data.forEach(row => {
+                                    let newRow = `
+                                        <tr>
+                                            <td>${row.lot}</td>
+                                            <td>${row.new_value}</td>
+                                            <td>${row.action}</td>
+                                            <td>${row.supplier}</td>
+                                            <td>${row.customer}</td>
+                                            <td>${row.action_date}</td>
+                                        </tr>
+                                    `;
+                                    popupTableBody.innerHTML += newRow;
+                                });
+                            }
+    
+                            // ✅ Show the modal
+                            console.log("📢 Opening modal...");
+                            modal.style.display = "block";
+                        })
+                        .catch(error => {
+                            console.error("❌ Error fetching lot data:", error);
+                        });
+                }
+            });
+    
+            // ✅ Close modal
+            if (closeModal) {
+                closeModal.addEventListener("click", function () {
+                    modal.style.display = "none";
+                });
+            }
+    
+            // ✅ Close modal when clicking outside
+            window.addEventListener("click", function (event) {
+                if (event.target === modal) {
+                    modal.style.display = "none";
+                }
+            });
+            
+
+
+
+            // ✅ Search button functionality
+            if (searchBtn) {
+                searchBtn.addEventListener("click", function () {
+                    let tableRows = document.querySelectorAll("#reportTableBody tr");
+                    let selectedLot = lotFilter.value;
+                    let selectedSize = sizeFilter.value;
+                    let selectedShape = shapeFilter.value;
+                    let selectedWeight = weightFilter.value;
+    
+                    tableRows.forEach(row => {
+                        let lotMatch = (selectedLot === "all" || row.querySelector(".lot-no").innerText === selectedLot);
+                        let sizeMatch = (selectedSize === "all" || row.querySelector(".size").innerText === selectedSize);
+                        let shapeMatch = (selectedShape === "all" || row.querySelector(".shape").innerText === selectedShape);
+                        let weightMatch = (selectedWeight === "all" || row.querySelector(".weight").innerText === selectedWeight);
+    
+                        row.style.display = (lotMatch && sizeMatch && shapeMatch && weightMatch) ? "table-row" : "none";
+                    });
+                });
+            }
+    
+ document.getElementById("applyFilters").addEventListener("click", function () {
+    const selectedSize = document.getElementById("sizeFilter").value;
+    const selectedShape = document.getElementById("shapeFilter").value;
+    const selectedWeight = document.getElementById("weightFilter").value;
+
+    const dataRows = document.querySelectorAll("#stock-summary-table tbody tr:not(.summary-row)");
+    const summaryRows = document.querySelectorAll("#stock-summary-table tbody tr.summary-row");
+
+    // Track which lots should stay visible
+    const visibleLots = new Set();
+
+    dataRows.forEach(row => {
+        const lot = row.getAttribute("data-lot");
+        const size = row.children[2]?.innerText?.trim() || '';
+        const shape = row.children[3]?.innerText?.trim() || '';
+        const weight = row.children[7]?.innerText?.trim() || '';
+
+        const matchSize = selectedSize === "all" || size === selectedSize;
+        const matchShape = selectedShape === "all" || shape === selectedShape;
+        const matchWeight = selectedWeight === "all" || weight === selectedWeight;
+
+        const isVisible = matchSize && matchShape && matchWeight;
+
+        row.style.display = isVisible ? "table-row" : "none";
+
+        if (isVisible) {
+            visibleLots.add(lot);
+        }
+    });
+
+    // Now hide/show summary rows based on which lot rows are visible
+    summaryRows.forEach(row => {
+        const lot = row.getAttribute("data-lot");
+        row.style.display = visibleLots.has(lot) ? "table-row" : "none";
+    });
+});
+
+document.getElementById("resetFilters").addEventListener("click", function () {
+    document.getElementById("sizeFilter").value = "all";
+    document.getElementById("shapeFilter").value = "all";
+    document.getElementById("weightFilter").value = "all";
+
+    const allRows = document.querySelectorAll("#stock-summary-table tbody tr");
+    allRows.forEach(row => {
+        row.style.display = "table-row";
+    });
+});
+
+
+const resetBtn = document.getElementById("resetBtn");
+resetBtn.addEventListener("click", function () {
+    fetch('/stock report?ajax=true')
+        .then(res => res.text())
+        .then(html => {
+            // Replace the lot detail container with nothing (or default view)
+            document.getElementById("lot-detail-container").innerHTML = "";
+
+            // Replace the summary table content
+            document.getElementById("stock-summary-table").innerHTML = html;
+
+            // ✅ Make sure summary table is visible again
+            document.getElementById("stock-summary-table").style.display = "block";
+
+            // ✅ Also restore the filters if they were hidden
+            document.getElementById("extra-controls").style.display = "block";
+        })
+        .catch(error => {
+            console.error("Error resetting report:", error);
+        });
+});
+
+
+
+
+    
+            // ✅ Print functionality
+            let printBtn = document.getElementById("printBtn");
+            if (printBtn) {
+                printBtn.addEventListener("click", function () {
+                    window.print();
+                });
+            }
+    
+            console.log("✅ Report Events Bound Successfully!");
+        }
+         
+        document.getElementById("exportExcelBtn").addEventListener("click", function () {
+    fetch('/export-stockreport-excel')
+        .then(response => {
+            if (!response.ok) throw new Error("Failed to fetch Excel report.");
+            return response.blob(); // Convert response to a binary file
+        })
+        .then(blob => {
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = "Stock_Report.xlsx"; // Set file name
+            document.body.appendChild(link);
+            link.click(); // Trigger the download
+            document.body.removeChild(link);
+        })
+        .catch(error => console.error("❌ Error exporting Excel:", error))
+        });
+
+    document.getElementById("lotSearchForm").addEventListener("submit", function (event) {
+    event.preventDefault();
+    const lot = document.getElementById("lotFilter").value;
+
+    if (!lot) return alert("Please enter a lot number.");
+
+    const lotValue = document.getElementById("lotFilter")?.value || '';
+
+fetch(`/stock report?lot=${encodeURIComponent(lotValue)}&ajax=true`)
+        .then(res => res.text())
+        .then(html => {
+            document.getElementById("lot-detail-container").innerHTML = html;
+
+            // ✅ Hide the main table
+            const summary = document.getElementById("stock-summary-table");
+            if (summary) summary.style.display = "none";
+
+            // ✅ Hide extra controls
+            const controls = document.getElementById("extra-controls");
+            if (controls) controls.style.display = "none";
+        })
+        .catch(err => {
+            console.error("❌ AJAX fetch failed:", err);
+        });
+});
+    
+        // Delay execution slightly to ensure elements are available
+        setTimeout(() => {
+            console.log("⏳ Initializing...");
+            bindReportEvents();
+        }, 500);
+    </script>
+    
+        
+</body>
+</html>

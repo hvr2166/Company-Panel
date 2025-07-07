@@ -1,0 +1,1148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Sales </title>
+    <!-- Styles -->
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head> 
+<body>
+    <div id="dynamic-content">
+ <div  id="manageusers-page"  class="container-wrapper">
+
+        <!-- Main Content -->
+        <main class="content">
+            <div class="container">
+                <h2>Manage Sales </h2>
+                <!-- Sales Table -->
+                <div id="sTableView" class="table-container">
+
+                   
+                    
+                    <div class="filter-container" style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                        <label for="accountFilter">Customer</label>
+                        <select id="accountFilter" class="form-control">
+                            <option value="">Select Customer</option>
+                            <% names.forEach(function(name) { %>
+                                <option value="<%= name.cust_name %>"><%=  name.cust_name %></option>
+                            <% }); %>
+                        </select>
+                           
+                        </select>
+                        <label for="dateFrom" style="font-weight: bold;">Date From</label>
+                        <input type="date" id="dateFrom" class="form-control" style="padding: 5px; border: 1px solid #ccc; border-radius: 4px;">
+                        
+                        <label for="dateUpto" style="font-weight: bold;">Date Upto</label>
+                        <input type="date" id="dateUpto" class="form-control" style="padding: 5px; border: 1px solid #ccc; border-radius: 4px;">
+                        
+                        <button id="searchBtn" class="btn btn-primary" style="background-color: #007bff; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer;">
+                            Search
+                        </button>
+                        
+                        <button id="resetBtn" class="btn btn-warning" style="background-color: #ffc107; color: black; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer;">
+                            Reset
+                        </button>
+                    </div>
+                
+                    <br>
+
+                    <button id="exportSalesExcel" class="btn btn-success" style="margin-bottom: 10px;">Export to Excel</button>
+
+                
+                    <button id="addPBtn" class="btn btn-primary">Add Sales </button>
+                    <br><br>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Company</th>
+                                <th>Sales Date</th>
+                                <th>Due date</th>
+                                 <th>Nett Amount</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% users.forEach(user => { %>
+                                <tr>
+                                    <td class="cust_name"><%= user.customer_name %></td>
+                                    <td class="sale_date"><%= user.sales_date %></td>
+                                    <td class="due_date"><%= user.due_date %></td>
+                                    <td class="net_total_amt"><%= user.net_total_amt %></td>
+                                    <td>
+                                        <div class="actions">
+                                            <!-- Edit Button -->
+                                            
+                                            <button type="button" class="btn btn-warning edit-sales" data-id="<%= user.nid %>">
+                                                <i class="fa-regular fa-pen-to-square"></i>
+                                            </button>
+    
+                                                <button type="button" class="btn btn-warning payment-sales" data-id="<%= user.nid %>">
+                                                    <i class="fa-regular fa-money-bill-1"></i>
+                                                </button>
+    
+                                                <button type="button" class="btn btn-warning print-sales" data-id="<%= user.nid %>">
+                                                    <i class="fa-solid fa-print"></i>
+                                                </button>
+    
+                                                <button type="button" class="btn btn-warning details-sales" data-id="<%= user.nid %>">
+                                                    <i class="fa-solid fa-magnifying-glass"></i>
+                                                </button>
+                                        </div>
+                                    </td>
+                                    
+                                    
+                                    
+                                </tr>
+                            <% }); %>
+                        </tbody>
+                    </table>
+                    <div id="pagination" class="pagination">
+                        <button id="prevPage" class="btn btn-secondary">Previous</button>
+                        <span id="pageInfo"></span>
+                        <button id="nextPage" class="btn btn-secondary">Next</button>
+                    </div>
+                </div>
+            
+               <!-- Add Sales   Form -->
+               <div id="addsView" style="display: none;">
+                <h3 style="margin-bottom: 20px; font-size: 20px; font-weight: bold;">Manage Sales</h3>
+                <form action="/addsales" method="POST">
+                    <input type="hidden" name="sales_id" id="sales_id" value="">
+
+                    <!-- customer Selection -->
+                    <div class="form-group" style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+                        <label style="width: 120px;">Customer</label>
+                        <select name="Customer" class="form-control" required style="flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+                            <option value="">Select Customer</option>
+                            <% names.forEach(function(name) { %>
+                                <option value="<%= name.nid %>"><%= name.cust_name %></option>
+                            <% }); %>
+                        </select>   
+                         <button type="button" id="addCUSTOMER" style="padding: 8px 15px; background: #6c5ce7; color: white; border: none; border-radius: 5px; cursor: pointer;">Add</button>
+                        <label style="width: 120px;">sale Date</label>
+                        <input type="date" name="sales_date" class="form-control" required style="flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+                        <label style="width: 120px;">Due Date</label>
+                        <input type="date" name="due_date" class="form-control" required style="flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+                    </div>
+            
+                    <!-- Item Details Container -->
+                    <div id="itemDetailsContainer" style="border: 1px solid #ddd; padding: 15px; border-radius: 5px; margin-bottom: 15px;">
+                        <label style="font-weight: bold;">Item Details</label>
+                        <div class="item-details" style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
+                            <div class="form-group" style="flex: 1;">
+                                <label>Lot No</label>
+                                <select name="item[0][lot_no]" id="lot_no" class="form-control" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+                                    <option value="">Select Lot No</option>
+                                    <% lots.forEach(function(lot) { %>
+                                        <option value="<%= lot.lot %>"><%= lot.lot %></option>
+                                    <% }); %>
+                                </select>
+                            </div>
+                            <div class="form-group" style="flex: 2;">
+                                <label>Description</label>
+                                <input type="text" name="item[0][description]" class="form-control" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+                            </div>
+                            <div class="form-group" style="flex: 1;">
+                                <label>Weight Unit</label>
+                                <input 
+                                    type="text" 
+                                    name="item[0][weight_unit]" 
+                                    class="form-control" 
+                                    value="carat" 
+                                    readonly 
+                                    style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;"
+                                >
+                            </div>
+                            
+                            <div class="form-group" style="flex: 1;">
+                                <label>Weight</label>
+                                <input type="text" name="item[0][weight]" class="form-control" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+                             
+                            </div>
+                            <div class="form-group" style="flex: 1;">
+                                <label>Pieces</label>
+                                <input type="number" id="pieces" name="item[0][pcs]" class="form-control" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+                           
+                            </div>
+                            <div class="form-group" style="flex: 1;">
+                                <label>Price</label>
+                                <input type="number" id="price" name="item[0][price]" class="form-control" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+                            </div>
+                            <div class="form-group" style="flex: 1;">
+                                <label>Tax</label>
+                                <input type="number" id="tax" name="item[0][tax]" class="form-control" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+                            </div>
+                            <div class="form-group" style="flex: 1;">
+                                <label>Net Amount</label>
+                                <input type="number" id="net_amount" name="item[0][netamount]" class="form-control" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;" readonly>
+                            </div>
+                        </div>
+                    </div>
+            
+                    <!-- Add More Button -->
+                    <button type="button" id="addMoreBtn" style="margin-bottom: 15px; padding: 8px 12px; background: #ccc; border: none; border-radius: 5px; cursor: pointer;">+ Add More</button>
+                    <div id="salesInformationContainer" style="border: 1px solid #ddd; padding: 15px; border-radius: 5px; margin-bottom: 15px; font-size: 14px;">
+                        <h4 style="font-size: 18px; font-weight: bold; margin-bottom: 10px;">Sales Information</h4>
+                        
+                        <div class="form-group" style="margin-bottom: 10px;">
+                            <label style="font-weight: 600;">Sales Person</label>
+                            <select name="sales_person" class="form-control" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px;">
+                                <option value="">Select Sales Person</option>
+                                <% snames.forEach(function(sname) { %>
+                                    <option value="<%= sname.sale_per_name %>"><%= sname.sale_per_name %></option>
+                                <% }); %>
+                            </select>
+                        </div>
+                    
+                        <div class="form-group" style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap; margin-bottom: 10px;">
+                            <label style="font-weight: 600;">Commission Type:</label>
+                            <label style="display: flex; align-items: center; gap: 5px;">
+                                <input type="radio" name="commission_type" value="received"> Commission Received
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 5px;">
+                                <input type="radio" name="commission_type" value="paid"> Commission Paid
+                            </label>
+                            <label style="display: flex; align-items: right; gap: 5px; margin-left: auto;">
+                                <input type="checkbox" name="tax_7" value="yes"> Tax (7% Additional)
+                            </label>
+                        </div>
+                    
+                        <div class="form-group" style="margin-bottom: 10px;">
+                            <label style="font-weight: 600;">Sales Person Commission Percentage (%)</label>
+                            <input type="number" name="commission_percentage" value="0" class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px;">
+                        </div>
+                    
+                        <div class="form-group">
+                            <label style="font-weight: 600;">Sales Person Commission</label>
+                            <input type="number" name="sales_commission" value="0" class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px;">
+                        </div>
+                    </div>
+                    
+                    
+                    
+                    <!-- Sales Person Dropdown -->
+                    <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px;">
+
+                        <div style="flex: 1; min-width: 150px;">
+                            <label for="additional_charges" style="font-weight: 500; display: block; margin-bottom: 5px;">Additional Charges</label>
+                            <input type="number" id="additional_charges" name="additional_charges" value="0"
+                                style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 5px; outline: none;">
+                        </div>
+                    
+                        <div style="flex: 1; min-width: 150px;">
+                            <label for="discount_percent" style="font-weight: 500; display: block; margin-bottom: 5px;">Discount Percent</label>
+                            <input type="number" id="discount_percent" name="discount_percent" value="0"
+                                style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 5px; outline: none;">
+                        </div>
+                    
+                        <div style="flex: 1; min-width: 150px;">
+                            <label for="discount_amount" style="font-weight: 500; display: block; margin-bottom: 5px;">Discount Amount</label>
+                            <input type="number" id="discount_amount" name="discount_amount" value="0"
+                                style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 5px; outline: none;">
+                        </div>
+                    
+                        <div style="flex: 1; min-width: 150px;">
+                            <label for="exchange_rate" style="font-weight: 500; display: block; margin-bottom: 5px;">Exchange Rate</label>
+                            <input type="number" id="exchange_rate" name="exchange_rate" value="0"
+                                style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 5px; outline: none;">
+                        </div>
+                    
+                        <div style="flex: 1; min-width: 150px;">
+                            <label for="nett_total_amount" style="font-weight: 500; display: block; margin-bottom: 5px;">Nett Total Amount</label>
+                            <input type="number" id="nett_total_amount" name="nett_total_amount" value="0" readonly
+                                style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 5px; outline: none; background: #e9ecef;">
+                        </div>
+                    
+                        <div style="flex: 1; min-width: 150px;">
+                            <label for="multiply_price_by" style="font-weight: 500; display: block; margin-bottom: 5px;">Multiply Price By</label>
+                            <div style="display: flex; align-items: center; gap: 5px;">
+                                <input type="number" id="multiply_price_by" name="multiply_price_by" value="0"
+                                    style="flex: 1; padding: 8px; border: 1px solid #ced4da; border-radius: 5px; outline: none;">
+                            </div>
+                        </div>
+                      
+                    </div>
+                    <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px;">
+                        <div style="flex: 1; min-width: 150px;">
+                            <label for="actual_currency" style="font-weight: 500; display: block; margin-bottom: 5px;">Actual Currency</label>
+                            <select id="actual_currency" name="actual_currency"
+                                style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 5px; background: white;">
+                                <option value="THB">THB (Baht)</option>
+                                <option value="USD">USD (Dollar)</option>
+                                <option value="EUR">EUR (Euro)</option>
+                            </select>
+                        </div>
+                    
+                        <div style="flex: 1; min-width: 150px;">
+                            <label for="currency_value" style="font-weight: 500; display: block; margin-bottom: 5px;">Currency Value</label>
+                            <input type="number" id="currency_value" name="currency_value" value="0"
+                                style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 5px;">
+                        </div>
+                    
+                        <div style="flex: 2; min-width: 300px;">
+                            <label for="remarks" style="font-weight: 500; display: block; margin-bottom: 5px;">Remarks</label>
+                            <input type="text" id="remarks" name="remarks"
+                                style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 5px;">
+                        </div>
+                    </div>
+            
+                    <!-- Buttons -->
+                    <div class="button-group" style="display: flex; gap: 10px;">
+                        <button type="submit" id="add" style="padding: 10px 15px; background: #2ecc71; color: white; border: none; border-radius: 5px; cursor: pointer;">add sale</button>
+                        <button type="submit" id="save" style="padding: 10px 15px; background: #2ecc71; color: white; border: none; border-radius: 5px; cursor: pointer;">Save Changes </button>
+
+                        <button type="button" id="cancelBtn" style="padding: 10px 15px; background: #6c5ce7; color: white; border: none; border-radius: 5px; cursor: pointer;">Back</button>
+                    </div>
+                </form>
+            </div>
+            </div>
+        
+ 
+        <!-- Add Payment View -->
+        <div id="addPaymentView" style="display: none;">
+            <h3 style="margin-bottom: 20px; font-size: 20px; font-weight: bold;">Customer Payments</h3>
+            <form action="/addsalespayment" method="POST">
+                <input type="hidden" id="parent_id" name="parent_id" value="">
+                <!-- Supplier Selection -->
+                <div class="form-group" style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+                    <label style="width: 120px;">Customer</label>
+                    <select name="customers" class="form-control" required style="flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+                        <option value="">Select customers</option>
+                        <% names.forEach(function(name) { %>
+                            <option value="<%= name.cust_name %>"><%= name.cust_name %></option>
+                        <% }); %>
+                    </select> 
+                </div>
+        
+                <div class="form-group" style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+                    <label style="width: 120px;">sale Ref No</label>
+                    <input type="text" name="sale_ref_no"  id="sale_ref_no"  class="form-control" required style="flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+                </div>
+        
+                <div class="form-group" style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+                    <label style="width: 120px;">Payment Mode</label>
+                    <select name="payment_mode" id="payment_mode" class="form-control" required style="flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+                        <option value="">Select Payment Mode</option>
+                        <option value="Cash">Cash</option>
+                        <option value="Bank Transfer">Bank Transfer</option>
+                        <option value="Cheque">Cheque</option>
+                    </select>
+                </div>
+
+                <div id="bankSelectGroup" style="display: none;">
+                    <label for="bankName">Bank</label>
+                    <select name="bank" id="bankName" class="form-control">
+                      <option value="">Select Bank</option>
+                      <% banksData.forEach(bank => { %>
+                        <option value="<%= bank.bank_name %>"><%= bank.bank_name %></option>
+                      <% }) %>
+                    </select>
+                  </div>
+                  
+        
+                <div class="form-group" style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+                    <label style="width: 120px;">Payment Date</label>
+                    <input type="date" name="payment_date" class="form-control" required style="flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+                </div>
+        
+                <div class="form-group" style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+                    <label style="width: 120px;">Amount</label>
+                    <input type="number" name="amount" class="form-control" required style="flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+                </div>
+                <div id="paymentBreakdown" style="margin-top: 10px;">
+                    <p><strong>Total Invoice Amount:</strong> ₹<span id="invoiceAmount">0</span></p>
+                    <p><strong>Amount Paid:</strong> ₹<span id="paidAmount">0</span></p>
+                    <p><strong>Due:</strong> ₹<span id="dueAmount">0</span></p>
+                  </div>
+                  
+                  
+        
+                <div class="form-group" style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+                    <label style="width: 120px;">Remarks</label>
+                    <input type="text" name="remark" class="form-control" style="flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+                </div>
+        
+                <!-- Buttons -->
+                <div class="button-group" style="display: flex; gap: 10px;">
+                    <button type="submit" id="updatePaymentBtn" style="padding: 10px 15px; background: #2ecc71; color: white; border: none; border-radius: 5px; cursor: pointer;">save changes</button>
+                    <button type="submit" id="addNewPaymentBtn" style="padding: 10px 15px; background: #2ecc71; color: white; border: none; border-radius: 5px; cursor: pointer;">Add</button>
+                    <button type="button" id="backTosalesBtn" style="padding: 10px 15px; background: #6c5ce7; color: white; border: none; border-radius: 5px; cursor: pointer;">Back</button>
+                </div>
+            </form>
+        </div>
+<!-- End of Add Payment View -->
+
+              <!-- Add Customer Modal -->
+              <div id="addCustomersview" class="modal" style="display: none;">
+                <div class="modal-content">
+                    <span class="close" id="closeModal">&times;</span>
+                    <h3>Add Customers</h3>
+                    <form id="addCustomerForm" action="/addcustomers" method="POST">
+                        <div class="form-group">
+                            <label>Customers Name</label>
+                            <input type="text" name="cust_name" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Mobile</label>
+                            <input type="text" name="cust_mobile" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" name="cust_email" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Company Name</label>
+                            <input type="text" name="cust_firm_name" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Address</label>
+                            <input type="text" name="cust_address" class="form-control" required>
+                        </div>
+                        <div class="form-group" style="border: 1px solid #ccc; padding: 10px; border-radius: 5px; display: inline-block;">
+                            <label>Status</label>
+                            <div style="display: flex; align-items: center; gap: 15px;">
+                                <div style="display: flex; align-items: center; gap: 5px;">
+                                    <input type="radio" id="status_active" name="status" value="Active" required>
+                                    <label for="status_active" style="font-size: 14px; color: #333;">Active</label>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 5px;">
+                                    <input type="radio" id="status_inactive" name="status" value="Inactive" required>
+                                    <label for="status_inactive" style="font-size: 14px; color: #333;">Inactive</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="button-group">
+                            <button type="submit" class="btn btn-success" id="submitBtn">Add</button>
+                            <button type="button" id="MODELcancelBtn" class="btn btn-secondary">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+                        
+        </div>
+    </main>
+</div>
+</div>
+<script>
+ console.log("🛠️ Manage Sales script loaded!");
+
+ 
+setTimeout(() => {
+    console.log("⏳ Checking for elements...");
+
+    function bindManageSalesEvents() {
+        const addSalesBtn = document.getElementById("addPBtn"); // Add Sales button
+        const cancelBtn = document.getElementById("cancelBtn"); // Cancel button (make sure this button exists in your HTML)
+        const addSalesView = document.getElementById("addsView"); // Add Sales view
+        const salesTableView = document.getElementById("sTableView"); // Sales Table view
+        const addSalesForm = document.querySelector("#addsView form"); // Add Sales form
+        const salesTableBody = document.querySelector("#sTableView tbody"); // Sales Table body
+        const addCustomerBtn = document.getElementById("addCUSTOMER"); // Button to open the modal
+            const addCustomersview = document.getElementById("addCustomersview");
+            const closeModal = document.getElementById("closeModal");
+            const MODELcancelBtn = document.getElementById("MODELcancelBtn");
+            const addCustomerForm = document.getElementById("addCustomerForm");
+
+            
+                  // Open the modal
+                  addCustomerBtn.addEventListener("click", function() {
+                    addCustomersview.style.display = "block";
+            });
+
+            // Close the modal
+            closeModal.addEventListener("click", function() {
+                addCustomersview.style.display = "none";
+            });
+
+            MODELcancelBtn.addEventListener("click", function() {
+                addCustomersview.style.display = "none";
+            });
+
+               // Handle form submission
+               addCustomerForm.addEventListener("submit", async (event) => {
+        event.preventDefault(); // Prevent default form submission
+        const formData = new FormData(addCustomerForm);
+        const urlEncodedData = new URLSearchParams(formData);
+
+        try {
+            const response = await fetch("/addcustomers", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: urlEncodedData.toString()
+            });
+
+            if (!response.ok) {
+                const errorMessage = await response.text();
+                alert(`Error: ${errorMessage}`);
+                return;
+            }
+
+            alert("Customer added successfully!");
+            addCustomersview.style.display = "none"; // Close the modal
+            await reloadManageSales(); // Reload the table or content
+        } catch (error) {
+            console.error("Error:", error);
+            alert("Something went wrong.");
+        }
+    });
+
+  
+
+    const printButtons = document.querySelectorAll(".print-sales");
+printButtons.forEach(button => {
+    button.addEventListener("click", function () {
+        const salesId = this.getAttribute("data-id");
+        console.log("Print button clicked for sales ID:", salesId);
+
+        // Redirect to the sales invoice route with the sales ID
+        window.location.href = `/salesinvoice/${salesId}`;
+    });
+});
+        
+
+    const piecesInput = document.getElementById("pieces");
+    const priceInput = document.getElementById("price");
+    const taxInput = document.getElementById("tax");
+    const netAmountInput = document.getElementById("net_amount");
+    const nettTotalAmountInput = document.getElementById("nett_total_amount");
+    const additionalChargesInput = document.getElementById("additional_charges");
+    const discountPercentInput = document.getElementById("discount_percent");
+    const multiplyPriceByInput = document.getElementById("multiply_price_by");
+    const discountAmountInput = document.getElementById("discount_amount"); // New field for discount amount
+
+     // Function to calculate the total net amount from all items
+     function calculateTotalNetAmount() {
+                    const itemRows = document.querySelectorAll('.item-details');
+                    let totalNetAmount = 0;
+
+                    itemRows.forEach(row => {
+                        const netAmountInput = row.querySelector('input[name*="[netamount]"]');
+                        const netAmount = parseFloat(netAmountInput.value) || 0;
+                        totalNetAmount += netAmount;
+                    });
+
+                    return totalNetAmount;
+                }
+
+    // Function to calculate net amount for a specific item
+    function calculateNetAmount(itemRow) {
+                const piecesInput = itemRow.querySelector('input[name*="[pcs]"]');
+                const priceInput = itemRow.querySelector('input[name*="[price]"]');
+                const taxInput = itemRow.querySelector('input[name*="[tax]"]');
+                const netAmountInput = itemRow.querySelector('input[name*="[netamount]"]');
+
+                const pieces = parseFloat(piecesInput.value) || 0;
+                const price = parseFloat(priceInput.value) || 0;
+                const taxPercent = parseFloat(taxInput.value) || 0;
+
+                // Calculate net amount
+                const subtotal = pieces * price;
+                const taxAmount = (taxPercent / 100) * subtotal; // Calculate tax as a percentage
+                const netAmount = subtotal + taxAmount;
+
+                netAmountInput.value = netAmount.toFixed(2);
+                calculateNettTotalAmount(); // Update nett total amount whenever net amount changes
+            }
+
+            function calculateNettTotalAmount() {
+            const totalNetAmount = calculateTotalNetAmount();
+            const additionalCharges = parseFloat(additionalChargesInput.value) || 0;
+            const discountPercent = parseFloat(discountPercentInput.value) || 0;
+            const multiplyPriceBy = parseFloat(multiplyPriceByInput.value) || 1;
+
+            // Calculate discount amount
+            const discountAmount = (discountPercent / 100) * totalNetAmount;
+            discountAmountInput.value = discountAmount.toFixed(2); // Update discount amount field
+
+            // Calculate nett total amount
+            const nettTotalAmount = (totalNetAmount + additionalCharges - discountAmount) * multiplyPriceBy;
+
+            nettTotalAmountInput.value = nettTotalAmount.toFixed(2);
+        }
+
+    // Event listeners for inputs
+    piecesInput.addEventListener("input", calculateNetAmount);
+    priceInput.addEventListener("input", calculateNetAmount);
+    taxInput.addEventListener("input", calculateNetAmount);
+    additionalChargesInput.addEventListener("input", calculateNettTotalAmount);
+    discountPercentInput.addEventListener("input", calculateNettTotalAmount);
+    multiplyPriceByInput.addEventListener("input", calculateNettTotalAmount);
+
+    // Attach event listeners for the first row inputs
+piecesInput.addEventListener("input", () => calculateNetAmount(addSalesForm.querySelector('.item-details')));
+priceInput.addEventListener("input", () => calculateNetAmount(addSalesForm.querySelector('.item-details')));
+taxInput.addEventListener("input", () => calculateNetAmount(addSalesForm.querySelector('.item-details')));
+
+
+        // Filter Elements
+        const customerFilter = document.getElementById("accountFilter"); // Customer filter
+        const dateFrom = document.getElementById("dateFrom"); // Date From
+        const dateUpto = document.getElementById("dateUpto"); // Date Upto
+        const searchBtn = document.getElementById("searchBtn"); // Search button
+        const resetBtn = document.getElementById("resetBtn"); // Reset button
+        const addMoreBtn = document.getElementById("addMoreBtn"); // Add More button
+        const itemDetailsContainer = document.getElementById("itemDetailsContainer"); // Item Details Container
+
+        console.log("✅ Manage Sales elements found, adding event listeners...");
+
+        // Show Add Sales Form and Hide Sales Table
+        addSalesBtn.addEventListener("click", function () {
+    console.log("➕ Add Sales button clicked");
+    salesTableView.style.display = "none";
+    addSalesView.style.display = "block";
+
+    // Reset the form
+    addSalesForm.reset();
+
+    addSalesForm.querySelectorAll("input[type='date']").forEach((input) => {
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const dd = String(today.getDate()).padStart(2, '0');
+    const formattedDate = `${yyyy}-${mm}-${dd}`;
+    input.value = formattedDate;
+});
+
+    // Show only the Add button
+    document.getElementById("add").style.display = "inline-block";
+    document.getElementById("save").style.display = "none";
+
+    // Set form action
+    addSalesForm.action = "/addsales";
+});
+
+        // Hide Add Sales Form and Show Sales Table
+        if (cancelBtn) {
+            cancelBtn.addEventListener("click", function () {
+                console.log("❌ Cancel button clicked");
+                addSalesView.style.display = "none";
+                salesTableView.style.display = "block";
+            });
+        }
+ 
+        
+
+// Hide Add Sales Form and Show Sales Table
+if (cancelBtn) {
+    cancelBtn.addEventListener("click", function () {
+        console.log("❌ Cancel button clicked");
+        addSalesView.style.display = "none";
+        salesTableView.style.display = "block";
+    });
+}
+
+
+
+    // Add event listener to the lot_no dropdown
+    document.getElementById('lot_no').addEventListener('change', function() {
+        const selectedLot = this.value;
+        const weightInput = document.getElementById('weight');
+        const pcsInput = document.getElementById('pcs');
+        const weightValidation = document.getElementById('weightValidation');
+        const pcsValidation = document.getElementById('pcsValidation');
+
+        // Find the selected lot in the lotsData object
+        const selectedLotData = lotsData[selectedLot];
+
+        if (selectedLotData) {
+            // Display the weight and pcs as validation
+            weightValidation.textContent = ` ${selectedLotData.weight}`;
+            pcsValidation.textContent = ` ${selectedLotData.pcs}`;
+        } else {
+            // Clear validation if no lot is selected or data is not found
+            weightValidation.textContent = '';
+            pcsValidation.textContent = '';
+        }
+    });
+
+
+        // Filter Sales by Date Range
+        searchBtn.addEventListener("click", function () {
+            const fromDate = new Date(dateFrom.value);
+            const toDate = new Date(dateUpto.value);
+
+            if (!dateFrom.value || !dateUpto.value) {
+                alert("Please select both 'Date From' and 'Date Upto'.");
+                return;
+            }
+
+            if (fromDate > toDate) {
+                alert("'Date From' cannot be greater than 'Date Upto'.");
+                return;
+            }
+
+            const rows = salesTableBody.querySelectorAll("tr");
+            rows.forEach(row => {
+                const rowDate = new Date(row.querySelector("td:nth-child(2)").textContent); // Assuming Sales Date is in the 2nd column
+                if (rowDate >= fromDate && rowDate <= toDate) {
+                    row.style.display = ""; // Show the row
+                } else {
+                    row.style.display = "none"; // Hide the row
+                }
+            });
+        });
+
+        const exportBtn = document.getElementById("exportSalesExcel");
+
+if (exportBtn) {
+    exportBtn.addEventListener("click", () => {
+        const table = document.querySelector("#sTableView table");
+
+        if (!table) {
+            alert("Sales table not found.");
+            return;
+        }
+
+        // Clone the table to clean it
+        const clonedTable = table.cloneNode(true);
+
+        // Remove the "Actions" column (last column)
+        clonedTable.querySelectorAll("thead tr th:last-child").forEach(th => th.remove());
+        clonedTable.querySelectorAll("tbody tr").forEach(row => {
+            row.querySelector("td:last-child")?.remove();
+        });
+
+        // Convert to Excel and trigger download
+        const workbook = XLSX.utils.table_to_book(clonedTable, { sheet: "Sales" });
+        XLSX.writeFile(workbook, "sales_data.xlsx");
+    });
+}
+
+
+          // Event listener for edit buttons
+          document.querySelectorAll(".edit-sales").forEach(button => {
+    button.addEventListener("click", async function () {
+        const salesId = this.getAttribute("data-id");
+        console.log("Edit button clicked for sales ID:", salesId);
+
+        try {
+            const saleResponse = await fetch(`/getSaleDetails/${salesId}`);
+            if (!saleResponse.ok) {
+                throw new Error(`Error fetching sale details: ${saleResponse.status}`);
+            }
+
+            const saleData = await saleResponse.json();
+            console.log("sales data:", saleData);
+
+            populateSaleForm(saleData);
+
+            // Show only the Save Changes button
+            document.getElementById("add").style.display = "none";
+            document.getElementById("save").style.display = "inline-block";
+
+            // Set form action for update route
+            addSalesForm.action = `/updatesales/${salesId}`;
+
+            document.querySelector("#addsView h3").textContent = "Edit sales";
+
+            salesTableView.style.display = "none";
+            addSalesView.style.display = "block";
+        } catch (error) {
+            console.error("Error fetching sales details:", error);
+            alert("Failed to load sales details.");
+        }
+    });
+});
+
+function populateSaleForm(data) {
+    // Populate main purchase details
+    document.getElementById("sales_id").value = data.nid; // 👈 Set hidden field
+
+    document.querySelector('select[name="Customer"]').value = data.customer_name; // Assuming supplier_name is the ID of the supplier
+    document.querySelector('input[name="sales_date"]').value = data.sales_date;
+    document.querySelector('input[name="due_date"]').value = data.due_date;
+    document.querySelector('input[name="additional_charges"]').value = data.additional_charges;
+    document.querySelector('input[name="discount_percent"]').value = data.discount_percent;
+    document.querySelector('input[name="discount_amount"]').value = data.discount_amount;
+    document.querySelector('input[name="exchange_rate"]').value = data.exchange_rate;
+    document.querySelector('input[name="nett_total_amount"]').value = data.net_total_amt;
+    document.querySelector('input[name="multiply_price_by"]').value = data.price_multiply_by;
+    document.querySelector('select[name="actual_currency"]').value = data.currency; // Assuming currency is a dropdown
+    document.querySelector('input[name="currency_value"]').value = data.currency_value;
+    document.querySelector('input[name="remarks"]').value = data.remarks;
+    document.querySelector('input[name="commission_percentage"]').value = data.commission_percentage;
+    document.querySelector('input[name="sales_commission"]').value = data.sales_commission;
+    document.querySelector('input[name="commission_type"][value="' + data.commission_type + '"]').checked = true; // Assuming commission_type is a radio button
+    document.querySelector('input[name="tax_7"]').checked = data.tax_7 === "yes"; // Assuming tax_7 is a checkbox
+    document.querySelector('select[name="sales_person"]').value = data.sales_person; // Assuming sales_person is a dropdown
+
+
+    // Populate item details (single item)
+    const itemDetailsContainer = document.getElementById("itemDetailsContainer");
+    itemDetailsContainer.innerHTML = ""; // Clear existing items
+
+    // Create a single item row based on the data
+    const itemRow = `
+    <div class="item-details" style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 10px;">
+        <div class="form-group" style="flex: 1;">
+            <label>Lot No</label>
+            <select name="item[0][lot_no]" class="form-control" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+                <option value="">Select Lot No</option>
+                <option value="${data.lot_no}" selected>${data.lot_no}</option> <!-- Assuming lot_no is part of the purchase data -->
+            </select>
+        </div>
+        <div class="form-group" style="flex: 2;">
+            <label>Description</label>
+            <input type="text" name="item[0][description]" class="form-control" value="${data.description}" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+        </div>
+        <div class="form-group" style="flex: 1;">
+            <label>Weight Unit</label>
+            <input type="text" name="item[0][weight_unit]" class="form-control" value="${data.weight_unit}" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+        </div>
+        <div class="form-group" style="flex: 1;">
+            <label>Weight</label>
+            <input type="text" name="item[0][weight]" class="form-control" value="${data.weight}" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+        </div>
+        <div class="form-group" style="flex: 1;">
+            <label>Pieces</label>
+            <input type="number" name="item[0][pcs]" class="form-control" value="${data.pcs}" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+        </div>
+        <div class="form-group" style="flex: 1;">
+            <label>Price</label>
+            <input type="number" name="item[0][price]" class="form-control" value="${data.price}" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+        </div>
+        <div class="form-group" style="flex: 1;">
+            <label>Tax</label>
+            <input type="number" name="item[0][tax]" class="form-control" value="${data.tax}" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+        </div>
+        <div class="form-group" style="flex: 1;">
+            <label>Net Amount</label>
+            <input type="number" name="item[0][netamount]" class="form-control" value="${data.net_amount}" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+        </div>
+    </div>
+`;
+itemDetailsContainer.insertAdjacentHTML("beforeend", itemRow);
+}
+let clickedButton = "";
+
+// Set the clicked button type
+document.getElementById("add").addEventListener("click", () => clickedButton = "add");
+document.getElementById("save").addEventListener("click", () => clickedButton = "save");
+
+// Form submission handler
+addSalesForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const formData = new FormData(addSalesForm);
+    const urlEncodedData = new URLSearchParams(formData);
+
+    // Determine the URL based on the clicked button
+    const isEdit = clickedButton === "save";
+    const salesId = formData.get("sales_id");
+    const url = isEdit ? `/updatesales/${salesId}` : "/addsales";
+
+    try {
+        const response = await fetch(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: urlEncodedData.toString()
+        });
+
+        const responseText = await response.text(); // Always read the response body
+
+        if (!response.ok) {
+            console.error("🚨 Server responded with error:", responseText);
+            throw new Error(`Server error! Status: ${response.status}`);
+        }
+
+        // Try to parse JSON, fallback to raw text
+        let result;
+        try {
+            result = JSON.parse(responseText);
+        } catch {
+            result = { status: "success", message: responseText };
+        }
+
+        if (result.status !== "success") {
+            alert("Failed to submit form: " + (result.message || "Unknown error"));
+            return;
+        }
+
+        alert(isEdit ? "Sales updated successfully!" : "Sales added successfully!");
+        await reloadManageSales(); // Reload the page content dynamically
+
+    } catch (error) {
+        console.error("Submit Error:", error);
+        alert("Something went wrong while submitting the form.");
+    }
+});
+
+        // Reset Filter and Show All Sales
+        resetBtn.addEventListener("click", function () {
+            dateFrom.value = ""; // Clear Date From
+            dateUpto.value = ""; // Clear Date Upto
+            customerFilter.value = ""; // Reset customer filter
+
+            const rows = salesTableBody.querySelectorAll("tr");
+            rows.forEach(row => {
+                row.style.display = ""; // Show all rows
+            });
+        });
+
+
+// Add More Button functionality
+let itemIndex = 1; // Start from 1 since 0 is already used
+
+document.getElementById("addMoreBtn").addEventListener("click", function () {
+                let container = document.getElementById("itemDetailsContainer");
+
+                let newRow = document.createElement("div");
+                newRow.classList.add("item-details");
+                newRow.style.display = "flex";
+                newRow.style.flexWrap = "wrap";
+                newRow.style.gap = "10px";
+                newRow.style.alignItems = "center";
+                newRow.style.marginTop = "10px";
+
+                newRow.innerHTML = `
+                    <div class="form-group" style="flex: 1;">
+                        <label>Lot No</label>
+                        <select name="item[${itemIndex}][lot_no]" class="form-control" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+                            <option value="">Select Lot No</option>
+                            <% lots.forEach(function(lot) { %>
+                                <option value="<%= lot.lot %>"><%= lot.lot %></option>
+                            <% }); %>
+                        </select>
+                    </div>
+                    <div class="form-group" style="flex: 2;">
+                        <label>Description</label>
+                        <input type="text" name="item[${itemIndex}][description]" class="form-control" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label>Weight Unit</label>
+                        <input 
+                            type="text" 
+                            name="item[${itemIndex}][weight_unit]" 
+                            class="form-control" 
+                            value="carat" 
+                            readonly 
+                            style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;"
+                        >
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label>Weight</label>
+                        <input type="text" name="item[${itemIndex}][weight]" class="form-control" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label>Pieces</label>
+                        <input type="number" name="item[${itemIndex}][pcs]" class="form-control" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label>Price</label>
+                        <input type="number" name="item[${itemIndex}][price]" class="form-control" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label>Tax</label>
+                        <input type="number" name="item[${itemIndex}][tax]" class="form-control" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label>Net Amount</label>
+                        <input type="number" name="item[${itemIndex}][netamount]" class="form-control" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+                    </div>
+                `;
+
+                container.appendChild(newRow);
+                 itemIndex++; // Increment the index for the next item
+
+                // Attach event listeners to the new inputs for calculations
+                const piecesInput = newRow.querySelector('input[name="item[' + (itemIndex - 1) + '][pcs]"]');
+                const priceInput = newRow.querySelector('input[name="item[' + (itemIndex - 1) + '][price]"]');
+                const taxInput = newRow.querySelector('input[name="item[' + (itemIndex - 1) + '][tax]"]');
+                const netAmountInput = newRow.querySelector('input[name="item[' + (itemIndex - 1) + '][netamount]"]');
+
+                function calculateNetAmount() {
+                    const pieces = parseFloat(piecesInput.value) || 0;
+                    const price = parseFloat(priceInput.value) || 0;
+                    const taxPercent = parseFloat(taxInput.value) || 0;
+
+                    // Calculate net amount
+                    const subtotal = pieces * price;
+                    const taxAmount = (taxPercent / 100) * subtotal; // Calculate tax as a percentage
+                    const netAmount = subtotal + taxAmount;
+
+                    netAmountInput.value = netAmount.toFixed(2);
+                    calculateNettTotalAmount(); // Update nett total amount whenever net amount changes
+                }
+
+                // Event listeners for the new inputs
+                piecesInput.addEventListener("input", calculateNetAmount);
+                priceInput.addEventListener("input", calculateNetAmount);
+                taxInput.addEventListener("input", calculateNetAmount);
+            });
+
+
+        // Back to Sales button functionality
+        document.getElementById("backTosalesBtn").addEventListener("click", function () {
+            console.log("Back button clicked in payment view");
+            document.getElementById("addPaymentView").style.display = "none"; // Hide Payment View
+            document.getElementById("sTableView").style.display = "block"; // Show Sales Table
+        });
+
+        // Add event listener for payment buttons
+        const paymentButtons = document.querySelectorAll(".payment-sales");
+        paymentButtons.forEach(button => {
+  button.addEventListener("click", async function () {
+    const saleId = this.getAttribute("data-id");
+    console.log("Payment button clicked for sale ID:", saleId);
+
+    document.getElementById("parent_id").value = saleId;
+
+    try {
+      const response = await fetch(`/getdetails/${saleId}`);
+      if (!response.ok) {
+        throw new Error(`Error fetching payment details: ${response.status}`);
+      }
+
+      const paymentData = await response.json();
+      console.log("Payment Data:", paymentData);
+
+      // Always fetch and display invoice/paid/due breakdown
+      try {
+        const summaryRes = await fetch(`/getsaleinvoiceinfo/${saleId}`);
+        const summary = await summaryRes.json();
+
+        document.getElementById("invoiceAmount").textContent = summary.total.toFixed(2);
+        document.getElementById("paidAmount").textContent = summary.paid.toFixed(2);
+        document.getElementById("dueAmount").textContent = summary.due.toFixed(2);
+        document.getElementById("paymentBreakdown").style.display = "block";
+      } catch (err) {
+        console.error("❌ Error loading invoice info:", err);
+      }
+
+      if (paymentData && paymentData.nid) {
+        // Existing payment - populate fields
+        document.getElementById("parent_id").value = paymentData.parent_id;
+        document.querySelector('select[name="customers"]').value = paymentData.customer_name;
+        document.querySelector('input[name="sale_ref_no"]').value = paymentData.sale_ref;
+        document.querySelector('select[name="payment_mode"]').value = paymentData.payment_mode;
+        document.querySelector('input[name="payment_date"]').value = paymentData.payment_date;
+        document.querySelector('input[name="amount"]').value = paymentData.amount;
+        document.querySelector('input[name="remark"]').value = paymentData.remark;
+
+        // Set form for updating
+        document.getElementById("addPaymentView").style.display = "block";
+        document.getElementById("addNewPaymentBtn").style.display = "none";
+        document.getElementById("updatePaymentBtn").style.display = "inline-block";
+        document.querySelector("#addPaymentView form").action = `/updatesalespayment/${saleId}`;
+      } else {
+        // No existing payment - set up blank form
+        document.getElementById("sale_ref_no").value = saleId;
+        document.getElementById("addPaymentView").style.display = "block";
+        document.getElementById("addNewPaymentBtn").style.display = "inline-block";
+        document.getElementById("updatePaymentBtn").style.display = "none";
+        document.querySelector("#addPaymentView form").action = "/addsalespayment";
+      }
+
+      // Hide the sales table
+      document.getElementById("sTableView").style.display = "none";
+    } catch (error) {
+      console.error("Error fetching payment details:", error);
+      alert("Failed to load payment details.");
+    }
+  });
+});
+
+        // Add event listener for payment form submission
+        document.querySelector("#addPaymentView form").addEventListener("submit", async (event) => {
+            event.preventDefault(); // Prevent default form submission
+            console.log("🚀 Payment form submitted!");
+
+            const formData = new FormData(event.target);
+            const urlEncodedData = new URLSearchParams(formData);
+
+            try {
+                const response = await fetch(event.target.action, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                    body: urlEncodedData.toString()
+                });
+
+                console.log("✅ Response Status:", response.status);
+
+                if (!response.ok) {
+                    throw new Error(`Server error! Status: ${response.status}`);
+                }
+
+                alert("Payment details updated successfully!");
+                await reloadManageSales(); // Reload the page content dynamically
+            } catch (error) {
+                console.error("🚨 Fetch Error:", error);
+                alert("Something went wrong while processing the payment.");
+            }
+        });
+    }
+
+    const paymentModeSelect = document.getElementById("payment_mode");
+const bankGroup = document.getElementById("bankSelectGroup");
+
+if (paymentModeSelect) {
+  paymentModeSelect.addEventListener("change", function () {
+    const selected = this.value.toLowerCase();
+    if (selected === "cheque" || selected === "bank transfer") {
+      bankGroup.style.display = "block";
+    } else {
+      bankGroup.style.display = "none";
+    }
+  });
+}
+
+
+document.querySelectorAll(".add-payment-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const saleId = btn.dataset.saleid;
+
+    // Fill the hidden field or input for sale ref
+    document.getElementById("sale_ref_no").value = saleId;
+
+    // Fetch invoice/payment summary
+    fetch(`/getsaleinvoiceinfo/${saleId}`)
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById("invoiceAmount").textContent = data.total.toFixed(2);
+        document.getElementById("paidAmount").textContent = data.paid.toFixed(2);
+        document.getElementById("dueAmount").textContent = data.due.toFixed(2);
+        document.getElementById("paymentBreakdown").style.display = "block";
+      });
+  });
+});
+
+
+document.querySelectorAll("input[type='date']").forEach((input) => {
+    if (!input.value) {
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
+        const dd = String(today.getDate()).padStart(2, '0');
+        input.value = `${yyyy}-${mm}-${dd}`;
+    }
+});
+
+
+
+     
+    // Function to Reload Manage Sales Page Without Refreshing
+    async function reloadManageSales() {
+        console.log("🔄 Reloading Manage Sales...");
+        const contentDiv = document.getElementById("dynamic-content");
+
+        if (!contentDiv) {
+            console.error("🚨 Error: #dynamic-content not found!");
+            return;
+        }
+
+        const updatedContent = await fetch("/managesales");
+        const html = await updatedContent.text();
+        contentDiv.innerHTML = html; // Replace only the content
+
+        bindManageSalesEvents(); // Rebind event listeners after reload
+    }
+
+    // Initial Binding of Events
+    bindManageSalesEvents();
+
+}, 500); // Delay of 500 milliseconds to ensure DOM is ready
+</script>
+</body>
+</html>

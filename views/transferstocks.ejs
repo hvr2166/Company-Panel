@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transfer Stocks</title>
+    <!-- Styles -->
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+</head>
+<body>
+    <div id="dynamic-content">
+        <div id="manageusers-page" class="container-wrapper">
+            <main class="content">
+                <div class="container">
+                    <div id="supplierpayment" class="table-container" style="overflow-x: auto;">
+                        <h2 style="text-align: left; color: #333;">Transfer Stocks</h2>
+                        <div id="supplierpayment" class="table-container">
+                            <h3 style="color: #333;">Lot Transfer</h3>
+
+                            <div class="transfer-section" style="display: flex; gap: 40px; justify-content: space-between; margin-bottom: 20px; align-items: flex-start; flex-wrap: wrap;">
+
+                                <!-- Source Section -->
+                                 
+                                <div class="source-section" style="flex: 0 0 48%; display: flex; flex-direction: column; gap: 10px;">
+    <h4 style="background: #ff9900; color: white; padding: 5px 10px; display: inline-block; border-radius: 4px;">Source</h4>
+    <div style="display: flex; gap: 12px; flex-wrap: nowrap; align-items: flex-end; margin-bottom: 15px;">
+        <!-- Select Lot No -->
+        <div style="flex: 1;">
+            <label for="lotNo"> Lot No</label>
+            <select id="sourceLot" name="lotNo" class="form-control" style="width: 100%; height: 34px;">
+                <option value="">Select Lot No</option>
+                <% lots.forEach(lot => { %>
+                    <option value="<%= lot.lot %>"><%= lot.lot %></option>
+                <% }); %>
+            </select>
+        </div>
+    
+        <!-- Current Qty -->
+        <div style="flex: 1;">
+            <label style="font-size: 14px;">Current Qty</label>
+            <input type="text" id="sourceQty"  placeholder="Current Qty" readonly style="width: 100%; height: 34px;" />
+        </div>
+    
+        <!-- Trans Qty -->
+        <div style="flex: 1;">
+            <label style="font-size: 14px;">Trans Qty</label>
+            <input type="number" id="sourceTransQty" class="form-control" style="width: 100%; height: 34px;" />
+        </div>
+    
+        <!-- Final Qty -->
+        <div style="flex: 1;">
+            <label style="font-size: 14px;">Final Qty</label>
+            <input type="text" id="sourceFinalQty" class="form-control" readonly style="width: 100%; height: 34px;" />
+        </div>
+    
+        <!-- Price -->
+        <div style="flex: 1;">
+            <label style="font-size: 14px;">Price</label>
+            <input type="text" id="sourcePrice" placeholder="Price" style="width: 100%; height: 34px;" />
+        </div>
+    
+        <!-- Total -->
+        <div style="flex: 1;">
+            <label style="font-size: 14px;">Total</label>
+            <input type="text" id="sourceTotal" class="form-control" readonly style="width: 100%; height: 34px;" />
+        </div>
+    </div>
+    
+    
+    
+    <button type="button" style="width: 100%; padding: 6px; background-color: #444; color: white; border-radius: 4px; font-size: 14px; font-weight: bold; border: none; cursor: pointer; margin-top: 10px;">+ Add More Lots</button>
+      
+
+
+    <!-- UNDER SOURCE SECTION -->
+<div style="margin-top: 20px;">
+  <input type="text" placeholder="Total Trans Qty" disabled />
+  <input type="text" placeholder="Recut Charge" />
+  <input type="text" placeholder="Total Amount" disabled />
+</div>
+  </div>
+
+<!-- Destination Section -->
+<div class="destination-section" style="flex: 0 0 48%; display: flex; flex-direction: column; gap: 10px;">
+    <h4 style="background: #009900; color: white; padding: 5px 10px; display: inline-block; border-radius: 4px;">Destination</h4>
+    <div class="destination-row" style="display: flex; gap: 12px; flex-wrap: nowrap; align-items: flex-end; margin-bottom: 15px;">
+        <!-- Select Lot No -->
+        <div style="flex: 1;">
+            <label for="lotNo"> Lot No</label>
+            <select id="destinationLot" name="lotNo" class="form-control"  style="width: 100%; height: 34px;">
+                <option value="">Select Lot No</option>
+                <% lots.forEach(lot => { %>
+                    <option value="<%= lot.lot %>"><%= lot.lot %></option>
+                <% }); %>
+            </select>
+        </div>
+    
+        <!-- Current Qty -->
+        <div style="flex: 1;">
+            <label style="font-size: 14px;">Current Qty</label>
+            <input type="text" id="destinationQty" placeholder="Current Qty" readonly style="width: 100%; height: 34px;" />
+        </div>
+    
+        <!-- Trans Qty -->
+        <div style="flex: 1;">
+            <label style="font-size: 14px;">Trans Qty</label>
+            <input type="number" id="destinationTransQty" class="form-control" style="width: 100%; height: 34px;" />
+        </div>
+    
+        <!-- Final Qty -->
+        <div style="flex: 1;">
+            <label style="font-size: 14px;">Final Qty</label>
+            <input type="text" id="destinationFinalQty" class="form-control" readonly style="width: 100%; height: 34px;" />
+        </div>
+    
+        <!-- Price -->
+        <div style="flex: 1;">
+            <label style="font-size: 14px;">Price</label>
+            <input type="text" id="destinationPrice" placeholder="Price" style="width: 100%; height: 34px;" />
+        </div>
+
+        <input type="hidden" class="avgPriceHidden" name="avg_price" />
+
+    
+        <!-- Total -->
+        <div style="flex: 1;">
+            <label style="font-size: 14px;">Total</label>
+            <input type="text" id="destinationTotal" class="form-control" readonly style="width: 100%; height: 34px;" />
+        </div>
+        <input type="hidden" class="avgPriceHidden" name="avg_price" />
+    </div>
+    <button style="width: 100%; padding: 6px; background-color: #444; color: white; border-radius: 4px; font-size: 14px; font-weight: bold; border: none; cursor: pointer; margin-top: 10px;">+ Add More Lots</button>
+
+    <!-- UNDER DESTINATION SECTION -->
+<div style="margin-top: 20px;">
+  <input type="text" placeholder="Recut Loss Qty" />
+  <input type="text" placeholder="Missing (Qty)" />
+  <input type="text" placeholder="Destination Total trans (Qty)" disabled />
+  <input type="text" placeholder=" Net_Total_Amt" disabled />
+</div>
+</div>
+                            </div>
+                            <!-- Remarks -->
+                            <input type="text" placeholder="Enter Remarks" style="width: 100%; padding: 8px; margin-top: 20px; border-radius: 4px; border: 1px solid #ccc;">
+
+                            <!-- Action Buttons -->
+                            <div style="display: flex; gap: 10px; justify-content: center; margin-top: 10px;">
+                                <button type="submit" style="padding: 8px 20px; background-color: #007bff; color: white; border-radius: 4px; border: none; cursor: pointer;">Transfer</button>
+                                <button type="button" id="cnclbtn" style="padding: 8px 20px; background-color: #ffc107; color: black; border-radius: 4px; border: none; cursor: pointer;">Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+      setTimeout(() => {
+        const getAllSelectedLots = () => {
+          return Array.from(document.querySelectorAll('select[id*="Lot"]'))
+            .map(select => select.value)
+            .filter(val => val);
+        };
+    
+        const updateAllLotOptions = () => {
+          const selectedLots = getAllSelectedLots();
+          const allDropdowns = document.querySelectorAll('select[id*="Lot"]');
+    
+          allDropdowns.forEach(dropdown => {
+            const currentValue = dropdown.value;
+            Array.from(dropdown.options).forEach(option => {
+              if (!option.value) return;
+              option.disabled = selectedLots.includes(option.value) && option.value !== currentValue;
+            });
+          });
+        };
+    
+        const handleLotChange = (selectEl, index = '', section = 'source') => {
+  selectEl.addEventListener('change', () => {
+    fetch(`/lot-details/${selectEl.value}`)
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById(`${section}Qty${index}`).value = data.pcs || '';
+        document.getElementById(`${section}Price${index}`).value = data.price || '';
+        updateAllLotOptions();
+        calculateValues(section, index); // <- THIS IS MISSING FOR DESTINATION
+      });
+  });
+};
+
+     const calculateValues = (section, index = '') => {
+  const qtyEl = document.getElementById(`${section}Qty${index}`);
+  const transQtyEl = document.getElementById(`${section}TransQty${index}`);
+  const priceEl = document.getElementById(`${section}Price${index}`);
+  const finalQtyEl = document.getElementById(`${section}FinalQty${index}`);
+  const totalEl = document.getElementById(`${section}Total${index}`);
+
+  const qty = parseFloat(qtyEl?.value) || 0;
+  const transQty = parseFloat(transQtyEl?.value) || 0;
+  const price = parseFloat(priceEl?.value) || 0;
+
+  if (finalQtyEl) {
+    if (section === 'destination') {
+      finalQtyEl.value = (qty + transQty).toFixed(2);
+    } else {
+      finalQtyEl.value = (qty - transQty).toFixed(2);
+    }
+  }
+
+  if (totalEl) {
+    totalEl.value = (transQty * price).toFixed(2);
+  }
+
+  if (section === 'source') {
+  const destTransQtyEl = document.getElementById('destinationTransQty');
+  if (destTransQtyEl) {
+    destTransQtyEl.value = getTotalSourceTransQty().toFixed(2);
+    calculateValues('destination'); // ✅ This triggers final qty and amount calculation
+  }
+  calculateSummary();
+}
+
+};
+
+    
+        const getTotalSourceTransQty = () => {
+          const transQtyInputs = document.querySelectorAll('input[id^="sourceTransQty"]');
+          let total = 0;
+          transQtyInputs.forEach(input => {
+            total += parseFloat(input.value) || 0;
+          });
+          return total;
+        };
+    
+        const attachRowEvents = (index) => {
+          const lotSelect = document.getElementById(`sourceLot${index}`);
+          const transQtyEl = document.getElementById(`sourceTransQty${index}`);
+          const priceEl = document.getElementById(`sourcePrice${index}`);
+    
+          if (lotSelect) handleLotChange(lotSelect, index, 'source');
+          if (transQtyEl) transQtyEl.addEventListener('input', () => {
+            calculateValues('source', index);
+            calculateSummary();
+          });
+          if (priceEl) priceEl.addEventListener('input', () => calculateValues('source', index));
+        };
+    
+        handleLotChange(document.getElementById('sourceLot'), '', 'source');
+        handleLotChange(document.getElementById('destinationLot'), '', 'destination');
+    
+        document.getElementById('sourceTransQty').addEventListener('input', () => {
+          calculateValues('source');
+          calculateSummary();
+        });
+        document.getElementById('sourcePrice').addEventListener('input', () => calculateValues('source'));
+        document.getElementById('destinationTransQty').addEventListener('input', () => calculateValues('destination'));
+        document.getElementById('destinationPrice').addEventListener('input', () => calculateValues('destination'));
+    
+        let sourceIndex = 1;
+        document.querySelector('.source-section button').addEventListener('click', () => {
+          const firstRow = document.querySelector('.source-section > div');
+          const clonedRow = firstRow.cloneNode(true);
+    
+          clonedRow.querySelectorAll('input, select').forEach(el => {
+            if (el.id) {
+              const baseId = el.id.replace(/\d*$/, '');
+              el.id = baseId + sourceIndex;
+            }
+            el.value = '';
+          });
+    
+          firstRow.parentNode.insertBefore(clonedRow, firstRow.nextSibling);
+          attachRowEvents(sourceIndex);
+          updateAllLotOptions();
+          sourceIndex++;
+        });
+    
+        document.addEventListener('change', (e) => {
+          if (e.target.tagName === 'SELECT' && e.target.id.includes('Lot')) {
+            updateAllLotOptions();
+          }
+        });
+    
+        const calculateSummary = () => {
+          const transQtyInputs = document.querySelectorAll('input[id^="sourceTransQty"]');
+          let totalTransQty = 0;
+          let totalAmount = 0;
+    
+          transQtyInputs.forEach(input => {
+            const index = input.id.match(/\d+/)?.[0] || '';
+            totalTransQty += parseFloat(input.value) || 0;
+            totalAmount += parseFloat(document.getElementById(`sourceTotal${index}`).value) || 0;
+          });
+    
+          document.querySelector('input[placeholder="Total Trans Qty"]').value = totalTransQty.toFixed(2);
+          const recutCharges = parseFloat(document.querySelector('input[placeholder="Recut Charge"]').value) || 0;
+          document.querySelector('input[placeholder="Total Amount"]').value = (totalAmount + recutCharges).toFixed(2);
+    
+          const destTransQty = parseFloat(document.getElementById("destinationTransQty").value) || 0;
+          const recutLossQty = parseFloat(document.querySelector('input[placeholder="Recut Loss Qty"]').value) || 0;
+          const missingQty = parseFloat(document.querySelector('input[placeholder="Missing (Qty)"]').value) || 0;
+          const finalDestTransQty = destTransQty - recutLossQty - missingQty;
+    
+          document.querySelector('input[placeholder="Destination Total trans (Qty)"]').value = finalDestTransQty.toFixed(2);
+          document.querySelector('input[placeholder=" Net_Total_Amt"]').value = (parseFloat(document.getElementById("destinationTotal").value) || 0).toFixed(2);
+
+          const totalSourceAmount = totalAmount; // already calculated from source
+const totalSourceQty = totalTransQty; // same as above
+
+// Loop through all destination rows
+document.querySelectorAll('.destination-row').forEach(row => {
+  const transQty = parseFloat(row.querySelector('[id^="destinationTransQty"]').value) || 0;
+  const totalAmt = parseFloat(row.querySelector('[id^="destinationTotal"]').value) || 0;
+
+  const totalAmtSum = totalSourceAmount + totalAmt;
+  const totalQtySum = totalSourceQty + transQty;
+  const avgPrice = totalQtySum ? (totalAmtSum / totalQtySum).toFixed(2) : 0;
+
+  const hiddenInput = row.querySelector('.avgPriceHidden');
+  if (hiddenInput) hiddenInput.value = avgPrice;
+});
+
+        };
+    
+        document.querySelector('input[placeholder="Recut Charge"]').addEventListener('input', calculateSummary);
+        document.querySelector('input[placeholder="Recut Loss Qty"]').addEventListener('input', calculateSummary);
+        document.querySelector('input[placeholder="Missing (Qty)"]').addEventListener('input', calculateSummary);
+    
+        document.querySelector("button[type='submit']").addEventListener("click", async () => {
+  const transQtyInputs = document.querySelectorAll('input[id^="sourceTransQty"]');
+  let totalSourceQty = 0;
+
+  transQtyInputs.forEach(input => {
+    totalSourceQty += parseFloat(input.value) || 0;
+  });
+
+  // Sum all destination trans qty to compare
+  const allDestTransQty = Array.from(document.querySelectorAll('input[id^="destinationTransQty"]'))
+    .reduce((acc, input) => acc + (parseFloat(input.value) || 0), 0);
+
+  if (allDestTransQty > totalSourceQty) {
+    alert("Destination Transfer Qty cannot exceed Total Source Transfer Qty.");
+    return;
+  }
+
+
+  // Collect source lots
+  const sourceRows = document.querySelectorAll('.source-section > div');
+  const sourceData = [];
+
+
+
+  sourceRows.forEach((row, i) => {
+    const sourcelot = row.querySelector(`#sourceLot${i === 0 ? '' : i}`)?.value || null;
+    const sourcetransQty = row.querySelector(`#sourceTransQty${i === 0 ? '' : i}`)?.value || null;
+    
+if (!sourcelot || !sourcetransQty) return; // ✅ Skip empty/invalid rows
+    const getById = id => row.querySelector(`#${id}${i === 0 ? '' : i}`)?.value || null;
+    sourceData.push({
+      lot: getById('sourceLot'),
+      current_qty: getById('sourceQty'),
+      trans_qty: getById('sourceTransQty'),
+      final_qty: getById('sourceFinalQty'),
+      price: getById('sourcePrice'),
+      amount: getById('sourceTotal')
+    });
+  });
+
+
+ 
+
+
+  // Collect destination lots (including avg_price)
+  const destinationRows = document.querySelectorAll('.destination-row');
+const destinationData = [];
+
+
+
+destinationRows.forEach((row, i) => {
+  const lot = row.querySelector(`#destinationLot${i === 0 ? '' : i}`)?.value || null;
+const transQty = row.querySelector(`#destinationTransQty${i === 0 ? '' : i}`)?.value || null;
+if (!lot || !transQty) return; // ✅ Skip empty/invalid rows
+
+  destinationData.push({
+    lot: lot,
+    current_qty: row.querySelector(`#destinationQty${i === 0 ? '' : i}`)?.value || null,
+    trans_qty: row.querySelector(`#destinationTransQty${i === 0 ? '' : i}`)?.value || null,
+    final_qty: row.querySelector(`#destinationFinalQty${i === 0 ? '' : i}`)?.value || null,
+    price: row.querySelector(`#destinationPrice${i === 0 ? '' : i}`)?.value || null,
+    amount: row.querySelector(`#destinationTotal${i === 0 ? '' : i}`)?.value || null,
+    avg_price: row.querySelector('.avgPriceHidden')?.value || null
+  });
+});
+
+  const payload = {
+    sourceLots: sourceData,
+    destinationLots: destinationData,
+    summary: {
+      total_tans_qty: document.querySelector("input[placeholder='Total Trans Qty']").value || null,
+      recut_charges: document.querySelector("input[placeholder='Recut Charge']").value || null,
+      total_amount: document.querySelector("input[placeholder='Total Amount']").value || null,
+      recut_loss_qty: document.querySelector("input[placeholder='Recut Loss Qty']").value || null,
+      missing_qty: document.querySelector("input[placeholder='Missing (Qty)']").value || null,
+      total_trans_qty: document.querySelector("input[placeholder='Destination Total trans (Qty)']").value || null,
+      net_total_amt: document.querySelector("input[placeholder=' Net_Total_Amt']").value || null
+    },
+    remarks: document.querySelector("input[placeholder='Enter Remarks']").value || null
+  };
+
+  if (sourceData.length === 0 || destinationData.length === 0) {
+                alert("Please fill at least one source and one destination row.");
+                return;
+              }
+
+  const response = await fetch('/transfer-stock', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+
+  const result = await response.json();
+  alert(result.message);
+});
+
+
+        let destinationIndex = 1;
+document.querySelectorAll('.destination-section button')[0].addEventListener('click', () => {
+  const firstRow = document.querySelector('.destination-row');
+  const clonedRow = firstRow.cloneNode(true);
+
+  // Re-ID all inputs/selects
+  clonedRow.querySelectorAll('input, select').forEach(el => {
+    if (el.id) {
+      const baseId = el.id.replace(/\d*$/, '');
+      el.id = baseId + destinationIndex;
+    }
+    el.value = '';
+  });
+
+  firstRow.parentNode.insertBefore(clonedRow, firstRow.nextSibling);
+  attachDestinationEvents(destinationIndex);
+  updateAllLotOptions();
+  destinationIndex++;
+});
+
+const attachDestinationEvents = (index) => {
+  const lotSelect = document.getElementById(`destinationLot${index}`);
+  const transQty = document.getElementById(`destinationTransQty${index}`);
+  const price = document.getElementById(`destinationPrice${index}`);
+
+  if (lotSelect) handleLotChange(lotSelect, index, 'destination');
+  if (transQty) transQty.addEventListener('input', () => calculateValues('destination', index));
+  if (price) price.addEventListener('input', () => calculateValues('destination', index));
+};
+
+      }, 500);
+    </script>
+    
+    
+    
+    
+    
+      
+</body>
+</html>

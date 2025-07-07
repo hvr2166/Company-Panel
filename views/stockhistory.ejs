@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock History</title>
+    <!-- Styles -->
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+</head>
+<body>
+    <div id="dynamic-content">
+ <div  id="manageusers-page"  class="container-wrapper">
+        <!-- Main Content -->
+        <main class="content">
+            <div class="container">
+                <h2>Stock History</h2>
+
+              
+ 
+                <div id="Viewalltransfers" class="table-container">
+                    <form id="lotFilterForm" class="lot-filter-form" style="display: flex; align-items: center; gap: 10px; margin-bottom: 1rem;">
+                        <select name="lot" id="lotSelect" class="form-control mr-2">
+                          <option value="">-- Select Lot --</option>
+                          <% Lots.forEach(lot => { %>
+                            <option value="<%= lot.lot %>" <%= selectedLot === lot.lot ? "selected" : "" %>><%= lot.lot %></option>
+                          <% }); %>
+                        </select>
+                        <button type="submit" class="btn btn-primary">Search</button>
+                      </form>
+                      
+                
+                    <br>
+                
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Lot No</th>
+                            
+                                <th>Quantity in hand </th>
+                                <th>Action</th>
+                                <th>Price</th>
+                                <th>supplier</th>
+                                <th>customer</th>
+                                <th>Action Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="lotDataBody">
+
+                            <% lotdatas.forEach(function(lotdata) { %>
+                                <tr>
+                                    <td><%= lotdata.lot %></td>
+                                    
+                                    <td><%= lotdata.new_value %></td>
+                                    <td><%= lotdata.action %></td>
+                                    <td><%= lotdata.price %></td>
+                                    <td><%= lotdata.supplier %></td>
+                                    <td><%= lotdata.customer %></td>
+                                    <td><%= lotdata.action_date %></td>
+                                </tr>
+                            <% }); %>
+                        </tbody>
+                    </table>
+        
+                    <div id="pagination" class="pagination">
+                        <button id="prevPage" class="btn btn-secondary">Previous</button>
+                        <span id="pageInfo"></span>
+                        <button id="nextPage" class="btn btn-secondary">Next</button>
+                    </div>
+                </div>
+
+        
+        </div>
+    </main>
+</div>
+</div>
+<script>
+    console.log("🛠️ Viewalltransfers script loaded!");
+
+    setTimeout(() => {
+        console.log("⏳ Checking for elements...");
+
+        function bindManageUsersEvents() {
+            const rows = document.querySelectorAll("#lotDataBody tr");
+
+            const itemsPerPage = 5; // Number of rows per page
+            let currentPage = 1;
+
+            function showPage(page) {
+                const start = (page - 1) * itemsPerPage;
+                const end = start + itemsPerPage;
+
+                rows.forEach((row, index) => {
+                    row.style.display = (index >= start && index < end) ? "" : "none";
+                });
+
+                document.getElementById("pageInfo").textContent = `Page ${page} of ${Math.ceil(rows.length / itemsPerPage)}`;
+            }
+
+            document.getElementById("prevPage").addEventListener("click", function() {
+                if (currentPage > 1) {
+                    currentPage--;
+                    showPage(currentPage);
+                }
+            });
+
+            document.getElementById("nextPage").addEventListener("click", function() {
+                if (currentPage < Math.ceil(rows.length / itemsPerPage)) {
+                    currentPage++;
+                    showPage(currentPage);
+                }
+            });
+
+            // Initial page load
+            showPage(currentPage);
+
+            document.getElementById("searchButton").addEventListener("click", function() {
+            const selectedLot = document.getElementById("lotFilter").value;
+            
+
+
+            rows.forEach(row => {
+                const lotCell = row.cells[0].textContent; // Get the lot number from the first cell
+                if (selectedLot === "" || lotCell === selectedLot) {
+                    row.style.display = ""; // Show the row
+                } else {
+                    row.style.display = "none"; // Hide the row
+                }
+            });
+        });
+
+            bindManageUsersEvents(); // ✅ Rebind event listeners after reload
+        }
+
+        // Initial Binding of Events
+        bindManageUsersEvents();
+
+    }, 500);
+</script>
+
+</body>
+</html>

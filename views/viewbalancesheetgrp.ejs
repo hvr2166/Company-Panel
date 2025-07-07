@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Balance sheet</title>
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+
+</head>
+<body>
+    <div id="dynamic-content">
+ <div  id="manageusers-page"  class="container-wrapper">
+
+   
+        <!-- Main Content -->
+        <main class="content">
+            <div class="container">
+                <h2>Manage Balance Sheet Group</h2>
+               
+
+                <!-- Users Table -->
+                <div id="balancesheetgrpTableView" class="table-container">
+                    <button id="addexpenseheadBtn" class="btn btn-primary">Add User</button>
+                    <br><br>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                 <th>Group Name </th>
+                                <th>Group Type</th>
+                                <th>Capital/Revenue</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% users.forEach(user => { %>
+                                <tr>
+                                    <td class="nid"><%= user.nid %></td>
+                                    <td class="grp_name"><%= user.grp_name %></td>
+                                    <td class="grp_type"><%= user.grp_type %></td>
+                                    <td class="grp_rev_cap"><%= user.grp_rev_cap %></td>
+                                    <td>
+                                        <div class="actions">
+                                            <!-- Edit Button -->
+                                            
+                                            <button type="button" class="btn btn-warning edit-expensehead">
+                                                <i class="fa-regular fa-pen-to-square"></i>
+                                            </button>
+                                    
+                                            <!-- Delete Button inside inline form -->
+                                            <form action="/deleteexpensehead/<%= user.nid %>" method="POST">
+                                                <button type="submit" class="btn btn-danger delete-expensehead" data-id="<%= user.nid %>">
+                                                    <i class="fa-regular fa-trash-can"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                    
+                                    
+                                    
+                                </tr>
+                            <% }); %>
+                        </tbody>
+                    </table>
+                    <div id="pagination" class="pagination">
+                        <button id="prevPage" class="btn btn-secondary">Previous</button>
+                        <span id="pageInfo"></span>
+                        <button id="nextPage" class="btn btn-secondary">Next</button>
+                    </div>
+                </div>
+
+                <!-- Add User Form -->
+               <!-- Add User Form -->
+               <div id="addexpenseheadView" style="display: none;">
+                <h3>Add Expensse Head</h3>
+                <form action="/addexpensehead" method="POST">
+                    <div class="form-group">
+                        <label>Group Name</label>
+                        <input type="text" name="grp_name" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Group Type</label>
+                        <input type="text" name="grp_type" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Capital/Revenue</label>
+                        <input type="text" name="grp_rev_cap" class="form-control" required>
+                    </div>
+            
+                    <div class="button-group">
+                        <button type="submit" class="btn btn-success" id="submitBtn">Add </button>
+                        <button type="button" id="cancelBtn" class="btn btn-secondary">Cancel</button>
+                    </div>
+                </form>
+            </div>
+
+            <div id="editExpenseHeadView" style="display: none;">
+                <h3>Edit Expense Head</h3>
+                <form id="editexpenseheadForm" action="/editexpensehead" method="POST">
+                    <input type="hidden" name="nid" id="edit_nid"> <!-- Hidden field for user ID -->
+                    <div class="form-group">
+                        <label>Group Name</label>
+                        <input type="text" name="grp_name" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Group Type</label>
+                        <input type="text" name="grp_type" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Capital/Revenue</label>
+                        <input type="text" name="grp_rev_cap" class="form-control" required>
+                    </div>
+                    <div class="button-group">
+                        <button type="submit" class="btn btn-success" id="saveEditBtn">Save Details</button>
+                        <button type="button" id="cancelEditBtn" class="btn btn-secondary">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+</div>
+</div>
+<script >
+ console.log("🛠️ Manage Balance Sheet Group script loaded!");
+
+// Delay execution slightly to ensure elements are available
+setTimeout(() => {
+    console.log("⏳ Checking for elements...");
+
+    function bindManageBalanceSheetEvents() {
+        const addExpenseHeadBtn = document.getElementById("addexpenseheadBtn");
+        const cancelBtn = document.getElementById("cancelBtn");
+        const submitBtn = document.getElementById("submitBtn");
+        const addExpenseHeadView = document.getElementById("addexpenseheadView");
+        const balanceSheetGrpTableView = document.getElementById("balancesheetgrpTableView");
+        const addExpenseHeadForm = document.querySelector("#addexpenseheadView form");
+        const balanceSheetGrpTableBody = document.querySelector("#balancesheetgrpTableView tbody");
+
+        // Edit Expense Head Elements
+        const editExpenseHeadView = document.getElementById("editExpenseHeadView");
+        const editExpenseHeadForm = document.querySelector("#editExpenseHeadView form");
+        const cancelEditBtn = document.getElementById("cancelEditBtn");
+
+        if (!addExpenseHeadBtn || !cancelBtn || !submitBtn || !addExpenseHeadView || !balanceSheetGrpTableView || !addExpenseHeadForm || !balanceSheetGrpTableBody || !editExpenseHeadView || !editExpenseHeadForm || !cancelEditBtn) {
+            console.error("❌ Some Manage Balance Sheet elements are missing! DOM might not be fully loaded.");
+            return;
+        }
+
+        console.log("✅ Manage Balance Sheet elements found, adding event listeners...");
+
+        
+        const rows = Array.from(balanceSheetGrpTableBody.querySelectorAll("tr"));
+            const itemsPerPage = 5; // Number of rows per page
+            let currentPage = 1;
+
+            function showPage(page) {
+                const start = (page - 1) * itemsPerPage;
+                const end = start + itemsPerPage;
+
+                rows.forEach((row, index) => {
+                    row.style.display = (index >= start && index < end) ? "" : "none";
+                });
+
+                document.getElementById("pageInfo").textContent = `Page ${page} of ${Math.ceil(rows.length / itemsPerPage)}`;
+            }
+
+            document.getElementById("prevPage").addEventListener("click", function() {
+                if (currentPage > 1) {
+                    currentPage--;
+                    showPage(currentPage);
+                }
+            });
+
+            document.getElementById("nextPage").addEventListener("click", function() {
+                if (currentPage < Math.ceil(rows.length / itemsPerPage)) {
+                    currentPage++;
+                    showPage(currentPage);
+                }
+            });
+
+            // Initial page load
+            showPage(currentPage);
+
+
+        // Show Add Expense Head Form and Hide Table
+        addExpenseHeadBtn.addEventListener("click", function () {
+            console.log("➕ Add Expense Head button clicked");
+            balanceSheetGrpTableView.style.display = "none";
+            addExpenseHeadView.style.display = "block";
+            editExpenseHeadView.style.display = "none"; // Hide edit form
+        });
+
+        // Hide Add Expense Head Form and Show Table
+        cancelBtn.addEventListener("click", function () {
+            console.log("❌ Cancel button clicked");
+            addExpenseHeadView.style.display = "none";
+            balanceSheetGrpTableView.style.display = "block";
+        });
+
+        // Submit Form via AJAX and Dynamically Update Table
+        addExpenseHeadForm.addEventListener("submit", async (event) => {
+            event.preventDefault(); // Prevent default form submission
+            console.log("🚀 Submit button clicked!");
+
+            const formData = new FormData(event.target);
+            const urlEncodedData = new URLSearchParams(formData);
+
+            try {
+                const response = await fetch("/addexpensehead", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                    body: urlEncodedData.toString()
+                });
+
+                console.log("✅ Response Status:", response.status);
+
+                if (!response.ok) {
+                    throw new Error(`Server error! Status: ${response.status}`);
+                }
+                
+                alert("Expense Head added successfully!");
+                await reloadManageBalanceSheet(); // ✅ Reload content dynamically
+            } catch (error) {
+                console.error("🚨 Fetch Error:", error);
+                alert("Something went wrong.");
+            }
+        });
+
+        // ✅ Edit Expense Head Functionality
+        document.querySelectorAll(".edit-expensehead").forEach((editBtn) => {
+            editBtn.addEventListener("click", function () {
+                console.log("✏️ Edit button clicked!");
+
+                const expenseHeadRow = this.closest("tr");
+                if (!expenseHeadRow) {
+                    console.error("🚨 Error: Cannot find expense head row.");
+                    return;
+                }
+
+                // Extract expense head data from table row
+                const expenseHeadId = expenseHeadRow.querySelector(".nid").textContent;
+                const grpName = expenseHeadRow.querySelector(".grp_name").textContent;
+                const grpType = expenseHeadRow.querySelector(".grp_type").textContent;
+                const grpRevCap = expenseHeadRow.querySelector(".grp_rev_cap").textContent;
+
+                // Populate the edit form fields
+                document.querySelector("#editExpenseHeadView input[name='nid']").value = expenseHeadId;
+                document.querySelector("#editExpenseHeadView input[name='grp_name']").value = grpName;
+                document.querySelector("#editExpenseHeadView input[name='grp_type']").value = grpType;
+                document.querySelector("#editExpenseHeadView input[name='grp_rev_cap']").value = grpRevCap;
+
+                // Show Edit Expense Head View & Hide Others
+                balanceSheetGrpTableView.style.display = "none";
+                addExpenseHeadView.style.display = "none";
+                editExpenseHeadView.style.display = "block";
+            });
+        });
+
+        // ✅ Handle Edit Expense Head Form Submission
+        editExpenseHeadForm.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            console.log("💾 Save Details button clicked!");
+
+            const formData = new FormData(event.target);
+            const urlEncodedData = new URLSearchParams(formData);
+
+            try {
+                const response = await fetch("/editexpensehead", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                    body: urlEncodedData.toString()
+                });
+
+                console.log("✅ Edit Response Status:", response.status);
+
+                if (!response.ok) {
+                    throw new Error(`Server error! Status: ${response.status}`);
+                }
+                
+                alert("Expense Head updated successfully!");
+                await reloadManageBalanceSheet(); // ✅ Reload content dynamically
+            } catch (error) {
+                console.error("🚨 Edit Error:", error);
+                alert("Failed to update expense head.");
+            }
+        });
+
+        // Hide Edit Expense Head View
+        cancelEditBtn.addEventListener("click", function () {
+            console.log("❌ Cancel Edit button clicked");
+            editExpenseHeadView.style.display = "none";
+            balanceSheetGrpTableView.style.display = "block";
+        });
+
+        // ✅ Delete Expense Head Functionality
+        document.querySelectorAll(".delete-expensehead").forEach((deleteBtn) => {
+            deleteBtn.addEventListener("click", async function (event) {
+                event.preventDefault(); // Prevent page reload
+                console.log("🗑️ Delete button clicked!");
+
+                const expenseHeadId = this.dataset.id;
+                if (!expenseHeadId) {
+                    console.error("🚨 Expense Head ID not found in dataset!");
+                    return;
+                }
+
+                if (!confirm("Are you sure you want to delete this expense head?")) return;
+
+                try {
+                    const response = await fetch(`/deleteexpensehead/${expenseHeadId}`, {
+                        method: "POST",
+                    });
+
+                    console.log("🗑️ Delete Response Status:", response.status);
+
+                    if (!response.ok) {
+                        throw new Error(`Server error! Status: ${response.status}`);
+                    }
+
+                    // ✅ Remove the deleted expense head's row from the table dynamically
+                    const rowToDelete = this.closest("tr");
+                    if (rowToDelete) {
+                        rowToDelete.remove();
+                        console.log(`✅ Expense Head ${expenseHeadId} removed from table.`);
+                    }
+                } catch (error) {
+                    console.error("🚨 Delete Error:", error);
+                    alert("Failed to delete expense head.");
+                }
+            });
+        });
+    }
+
+    // ✅ Function to Reload Manage Balance Sheet Page Without Refreshing
+    async function reloadManageBalanceSheet() {
+        console.log("🔄 Reloading Manage Balance Sheet...");
+        const contentDiv = document.getElementById("dynamic-content");
+
+        if (!contentDiv) {
+            console.error("🚨 Error: #dynamic-content not found!");
+            return;
+        }
+
+        const updatedContent = await fetch("/viewbalancesheet");
+        const html = await updatedContent.text();
+        contentDiv.innerHTML = html; // Replace only the content
+
+        bindManageBalanceSheetEvents(); // ✅ Rebind event listeners after reload
+    }
+
+    // Initial Binding of Events
+    bindManageBalanceSheetEvents();
+
+}, 500);
+
+</script>
+
+</body>
+</html>

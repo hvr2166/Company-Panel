@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Purchase Approvals</title>
+    <!-- Styles -->
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    <div id="dynamic-content">
+ <div  id="manageusers-page"  class="container-wrapper">
+
+        <!-- Main Content -->
+        <main class="content">
+            <div class="container">
+                <h2>Manage Purchase Approval</h2>
+                <!-- expense Table -->
+                <div id="paTableView" class="table-container">
+                    <div class="filter-container" style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                        <label for="accountFilter">Supplier</label>
+                        <select id="accountFilter" class="form-control">
+                            <option value="">Select Supplier</option>
+                            <% names.forEach(function(name) { %>
+                                <option value="<%= name.sup_name %>"><%=  name.sup_name %></option>
+                            <% }); %>
+                        </select>
+                           
+                        </select>
+                        <label for="dateFrom" style="font-weight: bold;">Date From</label>
+                        <input type="date" id="dateFrom" class="form-control" style="padding: 5px; border: 1px solid #ccc; border-radius: 4px;">
+                        
+                        <label for="dateUpto" style="font-weight: bold;">Date Upto</label>
+                        <input type="date" id="dateUpto" class="form-control" style="padding: 5px; border: 1px solid #ccc; border-radius: 4px;">
+                        
+                        <button id="searchBtn" class="btn btn-primary" style="background-color: #007bff; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer;">
+                            Search
+                        </button>
+                        
+                        <button id="resetBtn" class="btn btn-warning" style="background-color: #ffc107; color: black; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer;">
+                            Reset
+                        </button>
+                    </div>
+                
+                    <br>
+                
+                    <button id="addPaBtn" class="btn btn-primary">Add Purchase Approvals</button>
+                    <br><br>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Supplier</th>
+                                <th>Entry Date</th>
+                                <th>Nett Amount</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% users.forEach(user => { %>
+                                <tr>
+                                    <td class="supplier"><%= user.supplier_name %></td>
+                                    <td class="entry_date"><%= user.entry_date %></td>
+                                    <td class="nett_amount"><%= user.net_amount %></td>
+                                    <td class="status"><%= user.status %></td>
+                                    <td>
+                                        <div class="actions">
+                                            <!-- Edit Button -->
+                                            <button type="button" class="btn btn-warning edit-purchaseapproval" data-id="<%= user.nid %>">
+                                                <i class="fa-regular fa-pen-to-square"></i>
+                                            </button>
+                                            <!-- Return Button -->
+                                            <button type="button" class="btn btn-warning return-purchase" data-id="<%= user.nid %>">
+                                                <i class="fa-solid fa-arrow-rotate-left"></i>
+                                            </button>
+                                            <!-- Print Button -->
+                                            <button type="button" class="btn btn-warning print-purchase" data-id="<%= user.nid %>">
+                                                <i class="fa-solid fa-print"></i>
+                                            </button>
+                                            <!-- Details Button -->
+                                            <button type="button" class="btn btn-warning details-purchase" data-id="<%= user.nid %>">
+                                                <i class="fa-solid fa-magnifying-glass"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <% }); %>
+                        </tbody>
+                    </table>
+                    <div id="pagination" class="pagination">
+                        <button id="prevPage" class="btn btn-secondary">Previous</button>
+                        <span id="pageInfo"></span>
+                        <button id="nextPage" class="btn btn-secondary">Next</button>
+                    </div>
+                </div>
+                
+
+               
+               <!-- Add puchase approval  Form -->
+               <div id="addpaView" style="display: none;"  >
+                <h3 style="margin-bottom: 20px; font-size: 20px; font-weight: bold;">Manage Purchase Approvals</h3>
+                <form action="/addpurchaseapproval" method="POST">
+                    <input type="hidden" name="nid" id="editNid" value="">
+
+
+                    <!-- Supplier Selection -->
+                    <div class="form-group" style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+                        <label style="width: 120px;">Supplier</label>
+                        <select name="supplier" class="form-control" required style="flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+                            <option value="">Select Supplier</option>
+                            <% names.forEach(function(name) { %>
+                                <option value="<%= name.sup_name %>"><%=  name.sup_name %></option>
+                            <% }); %>
+                        </select>
+                        <button type="button" id="addsupplier" style="padding: 8px 15px; background: #6c5ce7; color: white; border: none; border-radius: 5px; cursor: pointer;">Add</button>
+                    </div>
+            
+                   <!-- Item Details Container -->
+                    <div id="itemDetailsContainer" style="border: 1px solid #ddd; padding: 15px; border-radius: 5px; margin-bottom: 15px;">
+                        <label style="font-weight: bold;">Item Details</label>
+                        <div class="item-details" style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
+                            <div class="form-group" style="flex: 1;">
+                                <label>Lot No</label>
+                                <select name="item[0][lot_no]" class="form-control" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+                                    <option value="">Select Lot No</option>
+                                    <% lots.forEach(function(lot) { %>
+                                        <option value="<%= lot.lot %>"><%= lot.lot %></option>
+                                    <% }); %>
+                                </select>
+                            </div>
+                            <div class="form-group" style="flex: 2;">
+                                <label>Description</label>
+                                <input type="text" name="item[0][description]" class="form-control" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+                            </div>
+                            <div class="form-group" style="flex: 1;">
+                                <label>Weight Unit</label>
+                                <input 
+                                    type="text" 
+                                    name="item[0][weight_unit]" 
+                                    class="form-control" 
+                                    value="carat" 
+                                    readonly 
+                                    style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;"
+                                >
+                            </div>
+                            <div class="form-group" style="flex: 1;">
+                                <label>Weight</label>
+                                <input type="text" name="item[0][weight]" class="form-control" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+                            </div>
+                            <div class="form-group" style="flex: 1;">
+                                <label>Pieces</label>
+                                <input type="number" name="item[0][pcs]" class="form-control" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;" oninput="calculateNetAmount(this)">
+                            </div>
+                            <div class="form-group" style="flex: 1;">
+                                <label>Price</label>
+                                <input type="number" name="item[0][price]" class="form-control" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;" oninput="calculateNetAmount(this)">
+                            </div>
+                            <div class="form-group" style="flex: 1;">
+                                <label>Nett Amount</label>
+                                <input type="number" name="item[0][net_amount]" class="form-control" readonly style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+                            </div>
+                        </div>
+                    </div>
+            
+                    <!-- Add More Button -->
+                    <button type="button" id="addMoreBtn" style="margin-bottom: 15px; padding: 8px 12px; background: #ccc; border: none; border-radius: 5px; cursor: pointer;">+ Add More</button>
+            
+                    <!-- Sales Person Dropdown -->
+                    <div class="form-group" style="margin-bottom: 15px;">
+                        <label>Sales Person</label>
+                        <select name="sales_person" class="form-control" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+                            <option value="">Select Sales Person</option>
+                            <% snames.forEach(function(sname) { %>
+                                <option value="<%= sname.sale_per_name %>"><%=  sname.sale_per_name %></option>
+                            <% }); %>
+                        </select>
+                    </div>
+            
+<!-- Buttons -->
+<div class="button-group" style="display: flex; gap: 10px;">
+    <button type="submit" id="addApprovalBtn"
+        style="padding: 10px 15px; background: #2ecc71; color: white; border: none; border-radius: 5px; cursor: pointer;">
+        Add Approval
+    </button>
+    <button type="submit" id="saveChangesBtn"
+        style="display: none; padding: 10px 15px; background: #3498db; color: white; border: none; border-radius: 5px; cursor: pointer;">
+        Save Changes
+    </button>
+    <button type="button" id="cancelBtn" class="btn btn-warning"
+        style="padding: 10px 15px; background: #f39c12; color: white; border: none; border-radius: 5px; cursor: pointer;">
+        Back
+    </button>
+</div>
+
+                </form>
+            </div>
+
+            <!-- Approval View -->
+            <div id="approvalView" style="display: none;">
+                <form action="/purchaseapproval" method="POST">
+                    <input type="hidden" name="nid" id="nid" value=""> 
+                    <!-- Supplier Selection -->
+                    <div class="form-group" style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+                        <label style="width: 120px;">Supplier</label>
+                        <select name="Suppliers" class="form-control" required style="flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 5px;" readonly>
+                            <option value="">Select Supplier</option>
+                            <% names.forEach(function(name) { %>
+                                <option value="<%= name.sup_name %>"><%= name.sup_name %></option>
+                            <% }); %>
+                        </select>
+                    </div>
+            
+                    <!-- Item Details Container -->
+                    <div id="itemDetailsContainer" style="border: 1px solid #ddd; padding: 15px; border-radius: 5px; margin-bottom: 15px;">
+                        <label style="font-weight: bold;">Item Details</label>
+                        <div class="item-details" style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
+                            <div class="form-group" style="flex: 1;">
+                                <label>Lot No</label>
+                                <select name="item[0][approval_lot_no]" class="form-control" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;" readonly>
+                                    <option value="">Select Lot No</option>
+                                    <% lots.forEach(function(lot) { %>
+                                        <option value="<%= lot.lot %>"><%= lot.lot %></option>
+                                    <% }); %>
+                                </select>
+                            </div>
+                            <div class="form-group" style="flex: 2;">
+                                <label>Description</label>
+                                <input type="text" name="item[0][approval_description]" class="form-control" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;" readonly>
+                            </div>
+                            <div class="form-group" style="flex: 1;">
+                                <label>Weight Unit</label>
+                                <input 
+                                    type="text" 
+                                    name="item[0][approval_weight_unit]" 
+                                    class="form-control" 
+                                    value="carat" 
+                                    readonly 
+                                    style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;"
+                                >
+                            </div>
+                            <div class="form-group" style="flex: 1;">
+                                <label>Weight</label>
+                                <input type="text" name="item[0][approval_weight]" class="form-control" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;" readonly>
+                            </div>
+                            <div class="form-group" style="flex: 1;">
+                                <label>Pieces</label>
+                                <input type="number" name="item[0][approval_pcs]" class="form-control" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;"readonly>
+                            </div>
+                            <div class="form-group" style="flex: 1;">
+                                <label>Price</label>
+                                <input type="number" name="item[0][approval_price]" class="form-control" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;" readonly>
+                            </div>
+                            <div class="form-group" style="flex: 1;">
+                                <label>Nett Amount</label>
+                                <input type="number" name="item[0][approval_net_amount]" class="form-control" readonly style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group" style="border: 1px solid #ccc; padding: 10px; border-radius: 5px; display: inline-block;">
+                        <label>Status</label>
+                        <div style="display: flex; align-items: center; gap: 15px;">
+        
+                            <div style="display: flex; align-items: center; gap: 5px;">
+                                <input type="radio" id="status_approved" name="status" value="Approved" required>
+                                <label for="status_approved" style="font-size: 14px; color: #333;">Approved</label>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 5px;">
+                                <input type="radio" id="status_returned" name="status" value="Returned" required>
+                                <label for="status_returned" style="font-size: 14px; color: #333;">Returned</label>
+                            </div>
+                        </div>
+                    </div>
+            
+                    <!-- Sales Person Dropdown -->
+                    <div class="form-group" style="margin-bottom: 15px;">
+                        <label>Sales Person</label>
+                        <select name="Sales_person" class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;" readonly>
+                            <option value="">Select Sales Person</option>
+                            <% snames.forEach(function(sname) { %>
+                                <option value="<%= sname.sale_per_name %>"><%= sname.sale_per_name %></option>
+                            <% }); %>
+                        </select>
+                    </div>
+            
+                    <!-- Buttons -->
+                    <div class="button-group" style="display: flex; gap: 10px;">
+                        <button type="submit" style="padding: 10px 15px; background: #2ecc71; color: white; border: none; border-radius: 5px; cursor: pointer;">Save Approval</button>
+                        <button type="button" id="approvalcancelBtn" class="btn btn-warning" style="padding: 10px 15px; background: #f39c12; color: white; border: none; border-radius: 5px; cursor: pointer;">Back</button>
+                    </div>
+                </form>
+            </div>
+            
+
+            <!-- Add Supplier Modal -->
+<div id="addSupplierview" class="modal" style="display: none;">
+    <div class="modal-content">
+        <span class="close" id="closeModal">&times;</span>
+        <h3>Add Supplier</h3>
+        <form id="addSupplierForm" action="/addsupplier" method="POST">
+            <div class="form-group">
+                <label>Supplier Name</label>
+                <input type="text" name="sup_name" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label>Company Name</label>
+                <input type="text" name="sup_comp_name" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" name="sup_email" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label>Mobile</label>
+                <input type="text" name="sup_mobile" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label>Address</label>
+                <input type="text" name="sup_address" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label>Tax Id</label>
+                <input type="text" name="sup_tax_id" class="form-control" required>
+            </div>
+            <div class="form-group" style="border: 1px solid #ccc; padding: 10px; border-radius: 5px; display: inline-block;">
+                <label>Status</label>
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <div style="display: flex; align-items: center; gap: 5px;">
+                        <input type="radio" id="status_active" name="status" value="Active" required>
+                        <label for="status_active" style="font-size: 14px; color: #333;">Active</label>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 5px;">
+                        <input type="radio" id="status_inactive" name="status" value="Inactive" required>
+                        <label for="status_inactive" style="font-size: 14px; color: #333;">Inactive</label>
+                    </div>
+                </div>
+            </div>
+            <div class="button-group">
+                <button type="submit" class="btn btn-success" id="submitBtn">Add</button>
+                <button type="button" id="modalcancelBtn" class="btn btn-secondary">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+            
+            
+        </div>
+    </main>
+</div>
+</div>
+<script>
+    console.log("🛠️ Manage Purchase Approvals script loaded!");
+
+    function calculateNetAmount(element) {
+    const itemDetails = element.closest('.item-details');
+    const pieces = itemDetails.querySelector('input[name*="[pcs]"]').value;
+    const price = itemDetails.querySelector('input[name*="[price]"]').value;
+    const netAmountField = itemDetails.querySelector('input[name*="[net_amount]"]');
+
+    const netAmount = (pieces * price) || 0; // Calculate net amount
+    netAmountField.value = netAmount.toFixed(2); // Update net amount field
+}
+
+    function checkStatusAndUpdateButtons() {
+    try {
+        const rows = document.querySelectorAll("#paTableView tbody tr");
+        if (rows.length === 0) {
+            console.warn("⚠️ No rows found in the table.");
+            return;
+        }
+
+        rows.forEach(row => {
+            const statusCell = row.querySelector(".status");
+            const actionsDiv = row.querySelector(".actions");
+
+            if (!statusCell || !actionsDiv) {
+                console.error("❌ Missing status cell or actions div in row:", row);
+                return;
+            }
+
+            const status = statusCell.textContent.trim().toLowerCase(); // Ensure case-insensitive comparison
+            console.log("📝 Row status:", status);
+
+            actionsDiv.querySelectorAll('button').forEach(button => {
+                if (
+                    button.classList.contains('edit-purchaseapproval') ||
+                    button.classList.contains('delete-purchaseapproval') ||
+                    button.classList.contains('return-purchase')
+                ) {
+                    button.style.display = (status === "approved" || status === "returned") ? 'none' : 'inline-block';
+                    console.log("🔄 Button updated:", button);
+                }
+            });
+        });
+    } catch (error) {
+        console.error("🚨 Error in checkStatusAndUpdateButtons:", error);
+    }
+}
+
+    // Delay execution slightly to ensure elements are available
+    setTimeout(() => {
+        console.log("⏳ Checking for elements...");
+
+        function bindManagePurchaseApprovalEvents() {
+            const addPaBtn = document.getElementById("addPaBtn"); // Updated to addPaBtn
+            const cancelBtn = document.getElementById("cancelBtn");
+            const addPaView = document.getElementById("addpaView"); // Updated to addpaView
+            const paTableView = document.getElementById("paTableView"); // Updated to paTableView
+            const approvalView = document.getElementById("approvalView");
+            const addApprovalForm = document.querySelector("#addpaView form"); // Updated to addpaView
+            const purchaseApprovalForm = document.querySelector("#approvalView form");
+            const approvalTableBody = document.querySelector("#paTableView tbody"); // Updated to paTableView
+            const addSupplierBtn = document.getElementById("addsupplier"); // Button to open the modal
+            const addSupplierview = document.getElementById("addSupplierview");
+            const closeModal = document.getElementById("closeModal");
+            const modelcancelBtn = document.getElementById("modalcancelBtn");
+            const addSupplierForm = document.getElementById("addSupplierForm");
+
+                    // Open the modal
+            addSupplierBtn.addEventListener("click", function() {
+                addSupplierview.style.display = "block";
+            });
+
+            // Close the modal
+            closeModal.addEventListener("click", function() {
+                addSupplierview.style.display = "none";
+            });
+
+            modelcancelBtn.addEventListener("click", function() {
+                addSupplierview.style.display = "none";
+            });
+
+              // Handle form submission
+    addSupplierForm.addEventListener("submit", async (event) => {
+        event.preventDefault(); // Prevent default form submission
+        const formData = new FormData(addSupplierForm);
+        const urlEncodedData = new URLSearchParams(formData);
+
+        try {
+            const response = await fetch("/addsupplier", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: urlEncodedData.toString()
+            });
+
+            if (!response.ok) {
+                const errorMessage = await response.text();
+                alert(`Error: ${errorMessage}`);
+                return;
+            }
+
+            alert("Supplier added successfully!");
+            addSupplierview.style.display = "none"; // Close the modal
+            await reloadManagePurchaseApprovals(); // Reload the table or content
+        } catch (error) {
+            console.error("Error:", error);
+            alert("Something went wrong.");
+        }
+    });
+
+            // Filter Elements
+            const accountFilter = document.getElementById("accountFilter");
+            const dateFrom = document.getElementById("dateFrom");
+            const dateUpto = document.getElementById("dateUpto");
+            const searchBtn = document.getElementById("searchBtn");
+            const resetBtn = document.getElementById("resetBtn");
+
+            console.log("✅ Manage Purchase Approval elements found, adding event listeners...");
+
+            checkStatusAndUpdateButtons(); // ✅ Check and update buttons on page load
+
+            // Show Add Purchase Approval Form and Hide Approval Table
+            addPaBtn.addEventListener("click", function () {
+                console.log("➕ Add Purchase Approval button clicked");
+                paTableView.style.display = "none";
+                addPaView.style.display = "block";
+            });
+
+            // Hide Add Purchase Approval Form and Show Approval Table
+            cancelBtn.addEventListener("click", function () {
+                console.log("❌ Cancel button clicked");
+                addPaView.style.display = "none";
+                paTableView.style.display = "block";
+            });
+
+            approvalcancelBtn.addEventListener("click", function () {
+                console.log("❌ Cancel button clicked");
+                approvalView.style.display = "none"; // Hide the add purchase approval view
+                paTableView.style.display = "block"; // Show the purchase approval table
+            });
+
+            // Add event listener for each "Return" button in the table
+            document.querySelectorAll(".return-purchase").forEach(returnButton => {
+                returnButton.addEventListener("click", async function () {
+                    console.log("🔙 Return button clicked for purchase approval ID:", this.dataset.id);
+                    paTableView.style.display = "none"; // Hide the purchase approval table
+                    const approvalView = document.getElementById("approvalView");
+                    approvalView.style.display = "block"; // Show the approval view
+
+                    // Fetch the purchase approval data
+                    const approvalId = this.dataset.id;
+                    const response = await fetch(`/getPurchaseApproval/${approvalId}`);
+
+                    // Check if the response is OK
+                    if (!response.ok) {
+                        console.error("Failed to fetch purchase approval data:", response.statusText);
+                        return;
+                    }
+
+                    const approvalDataArray = await response.json();
+                    console.log("📦 Purchase Approval Data:", approvalDataArray);
+
+                    // Check if the array has data
+                    if (approvalDataArray.length > 0) {
+                        const approvalData = approvalDataArray[0]; // Access the first element of the array
+                        console.log("Lot No:", approvalData.lot_no); // Debugging line
+
+                        // Populate the form fields
+                        document.getElementById("nid").value = approvalData.nid || ''; // Use empty string if undefined
+                        document.querySelector(`select[name="Suppliers"]`).value = approvalData.supplier_name || '';
+                        document.querySelector(`select[name="item[0][approval_lot_no]"]`).value = approvalData.lot_no || ''; // Ensure this is correct
+                        document.querySelector(`input[name="item[0][approval_description]"]`).value = approvalData.description || '';
+                        document.querySelector(`input[name="item[0][approval_weight]"]`).value = approvalData.weight || '';
+                        document.querySelector(`input[name="item[0][approval_pcs]"]`).value = approvalData.pcs || ''; // Handle the pieces field
+                        document.querySelector(`input[name="item[0][approval_net_amount]"]`).value = approvalData.net_amount || ''; // Handle the net amount field
+                        // Handle the price field
+                        const priceValue = approvalData.price;
+                        document.querySelector(`input[name="item[0][approval_price]"]`).value = (priceValue !== undefined && priceValue !== null) ? priceValue : ''; // Set to empty string if undefined or null
+
+                        document.querySelector(`select[name="Sales_person"]`).value = approvalData.sales_person || '';
+
+                        // Set the status radio button based on the received status
+                    } else {
+                        console.error("No purchase approval data found for the given ID.");
+                    }
+                });
+            });
+
+          
+
+            function hideActionButtons(nid) {
+                const row = document.querySelector(`tr[data-id="${nid}"]`);
+                if (row) {
+                    const actionsDiv = row.querySelector(".actions");
+                    if (actionsDiv) {
+                        actionsDiv.querySelectorAll('button').forEach(button => {
+                            if (!button.classList.contains('details-purchase') && !button.classList.contains('print-purchase')) {
+                                button.style.display = 'none'; // Hide all buttons except details and print
+                            }
+                        });
+                    }
+                }
+            }
+
+            // Update the form submission event listener
+            purchaseApprovalForm.addEventListener("submit", async (event) => {
+                event.preventDefault(); // Prevent default form submission
+                console.log("🚀 Purchase Approval Form submitted!");
+
+                const formData = new FormData(event.target);
+                const urlEncodedData = new URLSearchParams(formData);
+
+                try {
+                    const response = await fetch("/purchaseapproval", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                        body: urlEncodedData.toString()
+                    });
+
+                    const result = await response.json(); // Parse the JSON response
+                    console.log("✅ Response Status:", response.status);
+                    console.log("📦 Response Data:", result);
+
+                    if (!response.ok) {
+                        throw new Error(`Server error! Status: ${response.status}`);
+                    }
+
+                    alert(result.message); // Show the success message
+                    const status = result.status; // Get the status from the response
+
+                    // Update the UI based on the status
+                    if (status === 'Approved' || status === 'Returned') {
+                        hideActionButtons(document.getElementById("nid").value); // Hide buttons based on status
+                    }
+
+                    document.getElementById("approvalView").style.display = "none"; // Hide the approval view
+                    document.getElementById("paTableView").style.display = "block"; // Show the purchase approval table
+                    await reloadManagePurchaseApprovals(); // Reload content dynamically
+                } catch (error) {
+                    console.error("🚨 Fetch Error:", error);
+                    alert("Something went wrong.");
+                }
+            });
+
+            document.querySelectorAll(".edit-purchaseapproval").forEach(editBtn => {
+    editBtn.addEventListener("click", async function () {
+        const id = this.dataset.id;
+
+        const response = await fetch(`/getPurchaseApproval/${id}`);
+        const data = await response.json();
+        const approval = data[0];
+
+        // Show the form
+        document.getElementById("paTableView").style.display = "none";
+        document.getElementById("addpaView").style.display = "block";
+
+        // Set edit mode
+        document.getElementById("editNid").value = approval.nid;
+
+        // Prefill form
+        document.querySelector("select[name='supplier']").value = approval.supplier_name;
+        document.querySelector("select[name='item[0][lot_no]']").value = approval.lot_no;
+        document.querySelector("input[name='item[0][description]']").value = approval.description;
+        document.querySelector("input[name='item[0][weight_unit]']").value = approval.weight_unit || 'carat';
+        document.querySelector("input[name='item[0][weight]']").value = approval.weight;
+        document.querySelector("input[name='item[0][pcs]']").value = approval.pcs;
+        document.querySelector("input[name='item[0][price]']").value = approval.price;
+        document.querySelector("input[name='item[0][net_amount]']").value = approval.net_amount;
+        document.querySelector("select[name='sales_person']").value = approval.sales_person;
+
+        // Toggle buttons
+        document.getElementById("addApprovalBtn").style.display = "none";
+        document.getElementById("saveChangesBtn").style.display = "inline-block";
+    });
+});
+
+
+addApprovalForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    
+    const isEditMode = document.getElementById("editNid").value !== "";
+
+
+    const formData = new FormData(event.target);
+    const urlEncodedData = new URLSearchParams(formData);
+    
+
+    try {
+        const endpoint = isEditMode ? "/editpurchaseapproval" : "/addpurchaseapproval";
+        const response = await fetch(endpoint, {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: urlEncodedData.toString()
+        });
+
+        if (!response.ok) {
+            const errorMsg = await response.text();
+            alert(`Error: ${errorMsg}`);
+            return;
+        }
+
+        alert(isEditMode ? "Changes saved!" : "Purchase Approval added!");
+
+        // Reset form mode
+        document.getElementById("editNid").value = "";
+        document.getElementById("saveChangesBtn").style.display = "none";
+        document.getElementById("addApprovalBtn").style.display = "inline-block";
+
+        await reloadManagePurchaseApprovals(); // Refresh
+    } catch (error) {
+        console.error("Submit Error:", error);
+        alert("Something went wrong.");
+    }
+});
+
+document.querySelectorAll("input[type='date']").forEach((input) => {
+    if (!input.value) {
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
+        const dd = String(today.getDate()).padStart(2, '0');
+        input.value = `${yyyy}-${mm}-${dd}`;
+    }
+});
+
+
+            // ✅ Filter Approvals by Date Range
+            searchBtn.addEventListener("click", function () {
+                const fromDate = new Date(dateFrom.value);
+                const toDate = new Date(dateUpto.value);
+
+                if (!dateFrom.value || !dateUpto.value) {
+                    alert("Please select both 'Date From' and 'Date Upto'.");
+                    return;
+                }
+
+                if (fromDate > toDate) {
+                    alert("'Date From' cannot be greater than 'Date Upto'.");
+                    return;
+                }
+
+                const rows = approvalTableBody.querySelectorAll("tr");
+                rows.forEach(row => {
+                    const rowDate = new Date(row.querySelector(".entry_date").textContent);
+                    if (rowDate >= fromDate && rowDate <= toDate) {
+                        row.style.display = ""; // Show the row
+                    } else {
+                        row.style.display = "none"; // Hide the row
+                    }
+                });
+            });
+
+            // ✅ Reset Filter and Show All Approvals
+            resetBtn.addEventListener("click", function () {
+                dateFrom.value = "";
+                dateUpto.value = "";
+
+                const rows = approvalTableBody.querySelectorAll("tr");
+                rows.forEach(row => {
+                    row.style.display = ""; // Show all rows
+                });
+            });
+        }
+
+        let itemIndex = 1; // Start from 1 since 0 is already used
+
+// Function to bind events to dynamically added elements
+function bindDynamicEvents() {
+    const itemDetailsContainers = document.querySelectorAll('.item-details');
+
+    itemDetailsContainers.forEach(container => {
+        const piecesInput = container.querySelector('input[name*="[pcs]"]');
+        const priceInput = container.querySelector('input[name*="[price]"]');
+
+        if (piecesInput) {
+            piecesInput.addEventListener('input', function() {
+                calculateNetAmount(this);
+            });
+        }
+
+        if (priceInput) {
+            priceInput.addEventListener('input', function() {
+                calculateNetAmount(this);
+            });
+        }
+    });
+}
+
+// Call this function after adding new item details
+document.getElementById("addMoreBtn").addEventListener("click", function () {
+    let container = document.getElementById("itemDetailsContainer");
+
+    let newRow = document.createElement("div");
+    newRow.classList.add("item-details");
+    newRow.style.display = "flex";
+    newRow.style.flexWrap = "wrap";
+    newRow.style.gap = "10px";
+    newRow.style.alignItems = "center";
+    newRow.style.marginTop = "10px";
+
+    newRow.innerHTML = `
+        <div class="form-group" style="flex: 1;">
+            <label>Lot No</label>
+            <select name="item[${itemIndex}][lot_no]" class="form-control" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+                <option value="">Select Lot No</option>
+                <% lots.forEach(function(lot) { %>
+                    <option value="<%= lot.lot %>"><%= lot.lot %></option>
+                <% }); %>
+            </select>
+        </div>
+        <div class="form-group" style="flex: 2;">
+            <label>Description</label>
+            <input type="text" name="item[${itemIndex}][description]" class="form-control" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+        </div>
+        <div class="form-group" style="flex: 1;">
+                        <label>Weight Unit</label>
+                        <input 
+                            type="text" 
+                            name="item[${itemIndex}][weight_unit]" 
+                            class="form-control" 
+                            value="carat" 
+                            readonly 
+                            style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;"
+                        >
+                    </div>
+        <div class="form-group" style="flex: 1;">
+            <label>Weight</label>
+            <input type="text" name="item[${itemIndex}][weight]" class="form-control" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+        </div>
+        <div class="form-group" style="flex: 1;">
+            <label>Price</label>
+            <input type="number" name="item[${itemIndex}][price]" class="form-control" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;" oninput="calculateNetAmount(this)">
+        </div>
+        <div class="form-group" style="flex: 1;">
+            <label>Pieces</label>
+            <input type="number" name="item[${itemIndex}][pcs]" class="form-control" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;" oninput="calculateNetAmount(this)">
+        </div>
+        <div class="form-group" style="flex: 1;">
+            <label>Nett Amount</label>
+            <input type="number" name="item[${itemIndex}][net_amount]" class="form-control" readonly style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+        </div>
+    `;
+
+    container.appendChild(newRow);
+    itemIndex++; // Increment the index for the next item
+
+    // Bind events to the new inputs
+    bindDynamicEvents();
+});
+
+// Call this function after the initial load to bind events to existing elements
+bindDynamicEvents();
+
+        async function reloadManagePurchaseApprovals() {
+            console.log("🔄 Reloading Manage Purchase Approvals...");
+            const contentDiv = document.getElementById("dynamic-content");
+
+            if (!contentDiv) {
+                console.error("🚨 Error: #dynamic-content not found!");
+                return;
+            }
+
+            try {
+                const updatedContent = await fetch("/managepurchaseapprovals");
+                const html = await updatedContent.text();
+                contentDiv.innerHTML = html; // Replace only the content
+
+                bindManagePurchaseApprovalEvents(); // ✅ Rebind event listeners after reload
+                checkStatusAndUpdateButtons(); // ✅ Check and update buttons after reload
+            } catch (error) {
+                console.error("🚨 Fetch Error:", error);
+                alert("Something went wrong while reloading the table.");
+            }
+        }
+
+        bindManagePurchaseApprovalEvents(); // Initial binding of events
+    }, 100); // Delay of 100 milliseconds to ensure DOM is ready
+</script>
+
+
+</body>
+</html>

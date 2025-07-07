@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Sale Person</title>
+
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    <div id="dynamic-content">
+ <div  id="manageusers-page"  class="container-wrapper">
+
+
+
+   
+        <!-- Main Content -->
+        <main class="content">
+            <div class="container">
+                <h2>Manage Sale Person</h2>
+               
+
+                <!-- Sale person Table -->
+                <div id="salepersonTableView" class="table-container">
+                    <button id="addsalepersonBtn" class="btn btn-primary">Add Sale Person</button>
+                    <br><br>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Sales person Name</th>
+                                <th>Mobile</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% users.forEach(user => { %>
+                                <tr>
+                                    <td class="user-id"><%= user.nid %></td>
+                                    <td class="sale_per_name"><%= user.sale_per_name %></td>
+                                    <td class="sale_per_mob"><%= user.sale_per_mob %></td>
+                                    <td class="active_status"><%= user.active_status %></td>
+                                    <td>
+                                        <div class="actions">
+                                            <!-- Edit Button -->
+                                            
+                                            <button type="button" class="btn btn-warning edit-saleperson">
+                                                <i class="fa-regular fa-pen-to-square"></i>
+                                            </button>
+                                    
+                                            <!-- Delete Button inside inline form -->
+                                            <form action="/deletesaleperson/<%= user.nid %>" method="POST">
+                                                <button type="submit" class="btn btn-danger delete-saleperson" data-id="<%= user.nid %>">
+                                                    <i class="fa-regular fa-trash-can"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                    
+                                     
+                                    
+                                </tr>
+                            <% }); %>
+                        </tbody>
+                    </table>
+                    <div id="pagination" class="pagination">
+                        <button id="prevPage" class="btn btn-secondary">Previous</button>
+                        <span id="pageInfo"></span>
+                        <button id="nextPage" class="btn btn-secondary">Next</button>
+                    </div>
+                </div>
+
+               <!-- Add User Form -->
+               <div id="addsalepersonview" style="display: none;">
+                <h3>Add Sale Person</h3>
+                <form action="/addsaleperson" method="POST">
+                    <div class="form-group">
+                        <label>Sale person Name</label>
+                        <input type="text" name="sale_per_name" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Mobile</label>
+                        <input type="text" name="sale_per_mob" class="form-control" required>
+                    </div>
+                    <div class="form-group" style="border: 1px solid #ccc; padding: 10px; border-radius: 5px; display: inline-block;">
+                        <label >Status</label>
+                        
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                            <!-- Radio Button for Active -->
+                            <div style="display: flex; align-items: center; gap: 5px;">
+                                <input type="radio" id="status_active" name="status" value="Active" required>
+                                <label for="status_active" style="font-size: 14px; color: #333;">Active</label>
+                            </div>
+                    
+                            <!-- Radio Button for Inactive -->
+                            <div style="display: flex; align-items: center; gap: 5px;">
+                                <input type="radio" id="status_inactive" name="status" value="Inactive" required>
+                                <label for="status_inactive" style="font-size: 14px; color: #333;">Inactive</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="button-group">
+                        <button type="submit" class="btn btn-success" id="submitBtn">Add </button>
+                        <button type="button" id="cancelBtn" class="btn btn-secondary">Cancel</button>
+                    </div>
+                </form>
+                </div>
+                
+            </div>
+            <div id="editsalepersonView" style="display: none;">
+                <h3>Edit Sale person</h3>
+                <form id="editsalepersonForm" action="/editsaleperson" method="POST">
+                    <input type="hidden" name="nid" id="edit_nid"> <!-- Hidden field for user ID -->
+                    <div class="form-group">
+                        <label>Sale person name</label>
+                        <input type="text" name="sale_per_name" id="edit_sale_per_name" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Mobile</label>
+                        <input type="text" name="sale_per_mob" id="edit_sale_per_mob" class="form-control" required>
+                    </div>
+                    <div class="form-group" id="status" style="border: 1px solid #ccc; padding: 10px; border-radius: 5px; display: inline-block;">
+                        <label >Status</label>
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                            <!-- Radio Button for Active -->
+                             <div style="display: flex; align-items: center; gap: 5px;">
+                                <input type="radio" id="status_active" name="active_status" value="Active" required>
+                            <label for="status_active">Active</label>
+                             </div>
+                        
+                        <div  style="display: flex; align-items: center; gap: 5px;">
+                            <!-- Radio Button for Inactive -->
+                            <input type="radio" id="status_inactive" name="active_status" value="Inactive" required>
+                            <label for="status_inactive">Inactive</label>
+                        </div>
+                    </div>
+                        </div>
+                    <div class="button-group">
+                        <button type="submit" class="btn btn-success" id="saveEditBtn">Save Details</button>
+                        <button type="button" id="cancelEditBtn" class="btn btn-secondary">Cancel</button>
+                    </div>
+                </form>
+            </div>
+    </main>
+</div>
+</div>
+<script>
+    console.log("🛠️ Manage Sale Person script loaded!");
+    
+    // Delay execution slightly to ensure elements are available
+    setTimeout(() => {
+        console.log("⏳ Checking for elements...");
+    
+        function bindManageSalePersonEvents() {
+            const addSalePersonBtn = document.getElementById("addsalepersonBtn");
+            const cancelBtn = document.getElementById("cancelBtn");
+            const submitBtn = document.getElementById("submitBtn");
+            const addSalePersonView = document.getElementById("addsalepersonview");
+            const salePersonTableView = document.getElementById("salepersonTableView");
+            const addSalePersonForm = document.querySelector("#addsalepersonview form");
+            const salePersonTableBody = document.querySelector("#salepersonTableView tbody");
+    
+            // Edit Sale Person Elements
+            const editSalePersonView = document.getElementById("editsalepersonView");
+            const editSalePersonForm = document.querySelector("#editsalepersonView form");
+            const cancelEditBtn = document.getElementById("cancelEditBtn");
+    
+            if (!editSalePersonView) {
+                console.error("🚨 #editsalepersonView not found in the DOM!");
+            } else {
+                console.log("✅ #editsalepersonView found:", editSalePersonView);
+            }
+    
+            if (!addSalePersonBtn || !cancelBtn || !submitBtn || !addSalePersonView || !salePersonTableView || !addSalePersonForm || !salePersonTableBody || !editSalePersonView || !editSalePersonForm || !cancelEditBtn) {
+                console.error("❌ Some Manage Sale Person elements are missing! DOM might not be fully loaded.");
+                return;
+            }
+    
+            console.log("✅ Manage Sale Person elements found, adding event listeners...");
+    
+            // Show Add Sale Person Form and Hide Sale Person Table
+            addSalePersonBtn.addEventListener("click", function () {
+                console.log("➕ Add Sale Person button clicked");
+                salePersonTableView.style.display = "none";
+                addSalePersonView.style.display = "block";
+                editSalePersonView.style.display = "none"; // Hide edit form
+            });
+    
+            // Hide Add Sale Person Form and Show Sale Person Table
+            cancelBtn.addEventListener("click", function () {
+                console.log("❌ Cancel button clicked");
+                addSalePersonView.style.display = "none";
+                salePersonTableView.style.display = "block";
+            });
+    
+            // Submit Form via AJAX and Dynamically Update Table
+            addSalePersonForm.addEventListener("submit", async (event) => {
+                event.preventDefault(); // Prevent default form submission
+                console.log("🚀 Submit button clicked!");
+    
+                const formData = new FormData(event.target);
+                const urlEncodedData = new URLSearchParams(formData);
+    
+                try {
+                    const response = await fetch("/addsaleperson", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                        body: urlEncodedData.toString()
+                    });
+    
+                    console.log("✅ Response Status:", response.status);
+    
+                    if (!response.ok) {
+                        throw new Error(`Server error! Status: ${response.status}`);
+                    }
+                    
+                    alert("Sale Person added successfully!");
+                    await reloadManageSalePerson(); // ✅ Reload content dynamically
+                } catch (error) {
+                    console.error("🚨 Fetch Error:", error);
+                    alert("Something went wrong.");
+                }
+            });
+    
+            // ✅ Edit Sale Person Functionality
+            document.querySelectorAll(".edit-saleperson").forEach((editBtn) => {
+                editBtn.addEventListener("click", function () {
+                    console.log("✏️ Edit button clicked!");
+    
+                    const salePersonRow = this.closest("tr");
+                    if (!salePersonRow) {
+                        console.error("🚨 Error: Cannot find sale person row.");
+                        return;
+                    }
+    
+                    // Extract sale person data from table row
+                    const salePersonId = salePersonRow.querySelector(".user-id").textContent;
+                    const salePersonName = salePersonRow.querySelector(".sale_per_name").textContent;
+                    const salePersonMob = salePersonRow.querySelector(".sale_per_mob").textContent;
+                    const activeStatus = salePersonRow.querySelector(".active_status").textContent.trim().toLowerCase(); // Convert to lowercase
+    
+                    // Populate the edit form fields
+                    document.querySelector("#editsalepersonView input[name='nid']").value = salePersonId;
+                    document.querySelector("#editsalepersonView input[name='sale_per_name']").value = salePersonName;
+                    document.querySelector("#editsalepersonView input[name='sale_per_mob'] ").value = salePersonMob;
+    
+                    const activeRadio = document.querySelector("#editsalepersonView input[name='active_status'][value='Active']");
+                    const inactiveRadio = document.querySelector("#editsalepersonView input[name='active_status'][value='Inactive']");
+    
+                    // Set the correct radio button based on activeStatus
+                    if (activeStatus === "active") {
+                        activeRadio.checked = true;
+                    } else if (activeStatus === "inactive") {
+                        inactiveRadio.checked = true;
+                    } else {
+                        console.error("🚨 Invalid active status:", activeStatus);
+                    }
+    
+                    // Show Edit Sale Person View & Hide Others
+                    salePersonTableView.style.display = "none";
+                    addSalePersonView.style.display = "none";
+                    editSalePersonView.style.display = "block"; // Ensure this is set to "block"
+                });
+            });
+    
+            // ✅ Handle Edit Sale Person Form Submission
+            editSalePersonForm.addEventListener("submit", async (event) => {
+                event.preventDefault();
+                console.log("💾 Save Details button clicked!");
+    
+                const formData = new FormData(event.target);
+                const urlEncodedData = new URLSearchParams(formData);
+    
+                try {
+                    const response = await fetch("/editsaleperson", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                        body: urlEncodedData.toString()
+                    });
+    
+                    console.log("✅ Edit Response Status:", response.status);
+    
+                    if (!response.ok) {
+                        throw new Error(`Server error! Status: ${response.status}`);
+                    }
+                    
+                    alert("Sale Person updated successfully!");
+                    await reloadManageSalePerson(); // ✅ Reload content dynamically
+                } catch (error) {
+                    console.error("🚨 Edit Error:", error);
+                    alert("Failed to update sale person.");
+                }
+            });
+    
+            // Hide Edit Sale Person View
+            cancelEditBtn.addEventListener("click", function () {
+                console.log("❌ Cancel Edit button clicked");
+                editSalePersonView.style.display = "none";
+                salePersonTableView.style.display = "block";
+            });
+    
+            // ✅ Delete Sale Person Functionality
+            document.querySelectorAll(".delete-saleperson").forEach((deleteBtn) => {
+                deleteBtn.addEventListener("click", async function (event) {
+                    event.preventDefault(); // Prevent page reload
+                    console.log("🗑️ Delete button clicked!");
+    
+                    const salePersonId = this.dataset.id;
+                    if (!salePersonId) {
+                        console.error("🚨 Sale Person ID not found in dataset!");
+                        return;
+                    }
+    
+                    if (!confirm("Are you sure you want to delete this sale person?")) return;
+    
+                    try {
+                        const response = await fetch(`/deletesaleperson/${salePersonId}`, {
+                            method: "POST",
+                        });
+    
+                        console.log("🗑️ Delete Response Status:", response.status);
+    
+                        if (!response.ok) {
+                            throw new Error(`Server error! Status: ${response.status}`);
+                        }
+    
+                        // ✅ Remove the deleted sale person's row from the table dynamically
+                        const rowToDelete = this.closest("tr");
+                        if (rowToDelete) {
+                            rowToDelete.remove();
+                            console.log(`✅ Sale Person ${salePersonId} removed from table.`);
+                        }
+                    } catch (error) {
+                        console.error("🚨 Delete Error:", error);
+                        alert("Failed to delete sale person.");
+                    }
+                });
+            });
+        }
+    
+        // ✅ Function to Reload Manage Sale Person Page Without Refreshing
+        async function reloadManageSalePerson() {
+            console.log("🔄 Reloading Manage Sale Person...");
+            const contentDiv = document.getElementById("dynamic-content");
+    
+            if (!contentDiv) {
+                console.error("🚨 Error: #dynamic-content not found!");
+                return;
+            }
+    
+            const updatedContent = await fetch("/managesaleperson");
+            const html = await updatedContent.text();
+            contentDiv.innerHTML = html; // Replace only the content
+    
+            bindManageSalePersonEvents(); // ✅ Rebind event listeners after reload
+        }
+    
+        // Initial Binding of Events
+        bindManageSalePersonEvents();
+    
+    }, 500);
+    </script>
+
+</body>
+</html>

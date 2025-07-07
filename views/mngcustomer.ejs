@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Customers</title>
+
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    <div id="dynamic-content">
+ <div  id="manageusers-page"  class="container-wrapper">
+
+
+
+   
+        <!-- Main Content -->
+        <main class="content">
+            <div class="container">
+                <h2>Manage Customers</h2>
+               
+
+                <!-- Customers Table -->
+                <div id="CustomersTableView" class="table-container">
+                    <button id="addCustomersBtn" class="btn btn-primary">Add Customers</button>
+                    <br><br>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Mobile</th>
+                                <th>Email</th>
+                                <th>Firm Name</th>
+                                <th>Address</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% users.forEach(user => { %>
+                                <tr>
+                                    <td class="name"><%= user.cust_name %></td>
+                                    <td class="mobile"><%= user.cust_mobile %></td>
+                                    <td class="e-mail"><%= user.cust_email %></td>
+                                    <td class="firmname"><%= user.cust_firm_name %></td>
+                                    <td class="address"><%= user.cust_address %></td>
+                                    <td class="active_status"><%= user.active_status %></td>
+                                    <td>
+                                        <div class="actions">
+                                            <!-- Edit Button -->
+                                            
+                                            <button type="button" class="btn btn-warning edit-customer" data-id="<%= user.nid %>">
+                                                <i class="fa-regular fa-pen-to-square"></i>
+                                            </button>
+                                    
+                                            <!-- Delete Button inside inline form -->
+                                            <form action="/deletecustomer/<%= user.nid %>" method="POST">
+                                                <button type="submit" class="btn btn-danger delete-customer" data-id="<%= user.nid %>">
+                                                    <i class="fa-regular fa-trash-can"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                    
+                                    
+                                    
+                                </tr>
+                            <% }); %>
+                        </tbody>
+                    </table>
+                    <div id="pagination" class="pagination">
+                        <button id="prevPage" class="btn btn-secondary">Previous</button>
+                        <span id="pageInfo"></span>
+                        <button id="nextPage" class="btn btn-secondary">Next</button>
+                    </div>
+                </div>
+
+               <!-- Add User Form -->
+               <div id="addCustomersview" style="display: none;">
+                <h3>Add Customers</h3>
+                <form action="/addcustomers" method="POST">
+                    <div class="form-group">
+                        <label>Customers Name</label>
+                        <input type="text" name="cust_name" class="form-control" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Mobile</label>
+                        <input type="text" name="cust_mobile" class="form-control" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" name="cust_email" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Company Name</label>
+                        <input type="text" name="cust_firm_name" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Address</label>
+                        <input type="text" name="cust_address" class="form-control" required>
+                    </div>
+                    <div class="form-group" style="border: 1px solid #ccc; padding: 10px; border-radius: 5px; display: inline-block;">
+                        <label >Status</label>
+                        
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                            <!-- Radio Button for Active -->
+                            <div style="display: flex; align-items: center; gap: 5px;">
+                                <input type="radio" id="status_active" name="status" value="Active" required>
+                                <label for="status_active" style="font-size: 14px; color: #333;">Active</label>
+                            </div>
+                    
+                            <!-- Radio Button for Inactive -->
+                            <div style="display: flex; align-items: center; gap: 5px;">
+                                <input type="radio" id="status_inactive" name="status" value="Inactive" required>
+                                <label for="status_inactive" style="font-size: 14px; color: #333;">Inactive</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="button-group">
+                        <button type="submit" class="btn btn-success" id="submitBtn">Add </button>
+                        <button type="button" id="cancelBtn" class="btn btn-secondary">Cancel</button>
+                    </div>
+                </form>
+                </div>
+                
+            </div>
+            <div id="editCustomersView" style="display: none;">
+                <h3>Edit Customers</h3>
+                <form id="editCustomersForm" action="/editcustomers" method="POST">
+                    <input type="hidden" name="nid" id="edit_nid"> <!-- Hidden field for user ID -->
+                    <div class="form-group">
+                        <label>Customers name</label>
+                        <input type="text" name="cust_name" id="edit_cust_name" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Mobile</label>
+                        <input type="text" name="cust_mobile" id="edit_cust_mobile" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" name="cust_email" id="edit_cust_email" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Company Name</label>
+                        <input type="text" name="cust_firm_name" id="edit_cust_firm_name" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Address</label>
+                        <input type="text" name="cust_address" id="edit_cust_address" class="form-control" required>
+                    </div>
+                    <div class="form-group" style="border: 1px solid #ccc; padding: 10px; border-radius: 5px; display: inline-block;">
+                        <label >Status</label>
+                        
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                            <!-- Radio Button for Active -->
+                            <div style="display: flex; align-items: center; gap: 5px;">
+                                <input type="radio" id="status_active" name="active_status" value="Active" required>
+                                <label for="status_active" style="font-size: 14px; color: #333;">Active</label>
+                            </div>
+                    
+                            <!-- Radio Button for Inactive -->
+                            <div style="display: flex; align-items: center; gap: 5px;">
+                                <input type="radio" id="status_inactive" name="active_status" value="Inactive" required>
+                                <label for="status_inactive" style="font-size: 14px; color: #333;">Inactive</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="button-group">
+                        <button type="submit" class="btn btn-success" id="saveEditBtn">Save Details</button>
+                        <button type="button" id="cancelEditBtn" class="btn btn-secondary">Cancel</button>
+                    </div>
+                </form>
+            </div>
+    </main>
+</div>
+</div>
+<script>
+    console.log("🛠️ Manage Customers script loaded!");
+
+    // Delay execution slightly to ensure elements are available
+    setTimeout(() => {
+        console.log("⏳ Checking for elements...");
+
+        function bindManageCustomersEvents() {
+            const addCustomersBtn = document.getElementById("addCustomersBtn");
+            const cancelBtn = document.getElementById("cancelBtn");
+            const submitBtn = document.getElementById("submitBtn");
+            const addCustomersView = document.getElementById("addCustomersview");
+            const customersTableView = document.getElementById("CustomersTableView");
+            const addCustomerForm = document.querySelector("#addCustomersview form");
+            const customersTableBody = document.querySelector("#CustomersTableView tbody");
+
+            // Edit Customer Elements
+            const editCustomersView = document.getElementById("editCustomersView");
+            const editCustomerForm = document.querySelector("#editCustomersView form");
+            const cancelEditBtn = document.getElementById("cancelEditBtn");
+
+            // Check if all elements are present
+            if (!addCustomersBtn || !cancelBtn || !submitBtn || !addCustomersView || !customersTableView || !addCustomerForm || !customersTableBody || !editCustomersView || !editCustomerForm || !cancelEditBtn) {
+                console.error("❌ Some Manage Customers elements are missing! DOM might not be fully loaded.");
+                return;
+            }
+
+            console.log("✅ Manage Customers elements found, adding event listeners...");
+
+            // Show Add Customer Form and Hide Customer Table
+            addCustomersBtn.addEventListener("click", function () {
+                console.log("➕ Add Customer button clicked");
+                customersTableView.style.display = "none";
+                addCustomersView.style.display = "block";
+                editCustomersView.style.display = "none"; // Hide edit form
+            });
+
+            // Hide Add Customer Form and Show Customer Table
+            cancelBtn.addEventListener("click", function () {
+                console.log("❌ Cancel button clicked");
+                addCustomersView.style.display = "none";
+                customersTableView.style.display = "block";
+            });
+
+            // Submit Form via AJAX and Dynamically Update Table
+            addCustomerForm.addEventListener("submit", async (event) => {
+                event.preventDefault(); // Prevent default form submission
+                console.log("🚀 Submit button clicked!");
+
+                const formData = new FormData(event.target);
+                const urlEncodedData = new URLSearchParams(formData);
+
+                try {
+                    const response = await fetch("/addcustomers", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                        body: urlEncodedData.toString()
+                    });
+
+                    console.log("✅ Response Status:", response.status);
+
+                    if (!response.ok) {
+                        throw new Error(`Server error! Status: ${response.status}`);
+                    }
+
+                    alert("Customer added successfully!");
+                    await reloadManageCustomers(); // ✅ Reload content dynamically
+                } catch (error) {
+                    console.error("🚨 Fetch Error:", error);
+                    alert("Something went wrong.");
+                }
+            });
+
+            // ✅ Edit Customer Functionality
+            document.querySelectorAll(".edit-customer").forEach((editBtn) => {
+                editBtn.addEventListener("click", function () {
+                    console.log("✏️ Edit button clicked!");
+
+                    const customerRow = this.closest("tr");
+                    if (!customerRow) {
+                        console.error("🚨 Error: Cannot find customer row.");
+                        return;
+                    }
+
+                    // Extract customer data from table row
+                    const userId = this.dataset.id;
+                    const name = customerRow.querySelector(".name").textContent;
+                    const mobile = customerRow.querySelector(".mobile").textContent;
+                    const email = customerRow.querySelector(".e-mail").textContent;
+                    const firmname = customerRow.querySelector(".firmname").textContent;
+                    const address = customerRow.querySelector(".address").textContent;
+                    const activeStatus = customerRow.querySelector(".active_status").textContent.trim().toLowerCase();
+
+                    // Populate the edit form fields
+                    document.querySelector("#editCustomersView input[name='nid']").value = userId;
+                    document.querySelector("#editCustomersView input[name='cust_name']").value = name;
+                    document.querySelector("#editCustomersView input[name='cust_mobile']").value = mobile;
+                    document.querySelector("#editCustomersView input[name='cust_email']").value = email;
+                    document.querySelector("#editCustomersView input[name='cust_firm_name']").value = firmname; 
+                    document.querySelector("#editCustomersView input[name='cust_address']").value = address; 
+
+                    if (activeStatus === "active") {
+                        document.querySelector("#editCustomersView input[name='active_status'][value='Active']").checked = true;
+                    } else if (activeStatus === "inactive") {
+                        document.querySelector("#editCustomersView input[name='active_status'][value='Inactive']").checked = true;
+                    } else {
+                        console.error("🚨 Invalid active status:", activeStatus);
+                    }
+
+                    // Show Edit Customer View & Hide Others
+                    customersTableView.style.display = "none";
+                    addCustomersView.style.display = "none";
+                    editCustomersView.style.display = "block";
+                });
+            });
+
+            // ✅ Handle Edit Customer Form Submission
+            editCustomerForm.addEventListener("submit", async (event) => {
+                event.preventDefault();
+                console.log("💾 Save Details button clicked!");
+
+                const formData = new FormData(event.target);
+                const urlEncodedData = new URLSearchParams(formData);
+
+                try {
+                    const response = await fetch("/editcustomers", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                        body: urlEncodedData.toString()
+                    });
+
+                    console.log("✅ Edit Response Status:", response.status);
+
+                    if (!response.ok) {
+                        throw new Error(`Server error! Status: ${response.status}`);
+                    }
+
+                    alert("Customer updated successfully!");
+                    await reloadManageCustomers(); // ✅ Reload content dynamically
+                } catch (error) {
+                    console.error("🚨 Edit Error:", error);
+                    alert("Failed to update customer.");
+                }
+            });
+
+            // Hide Edit Customer View
+            cancelEditBtn.addEventListener("click", function () {
+                console.log("❌ Cancel Edit button clicked");
+                editCustomersView.style.display = "none";
+                customersTableView.style.display = "block";
+            });
+
+            // ✅ Delete Customer Functionality
+            document.querySelectorAll(".delete-customer").forEach((deleteBtn) => {
+                deleteBtn.addEventListener("click", async function (event) {
+                    event.preventDefault(); // Prevent page reload
+                    console.log("🗑️ Delete button clicked!");
+
+                    const customerId = this.dataset.id;
+                    if (!customerId) {
+                        console.error("🚨 Customer ID not found in dataset!");
+                        return;
+                    }
+
+                    if (!confirm("Are you sure you want to delete this customer?")) return;
+
+                    try {
+                        const response = await fetch(`/deletecustomer/${customerId}`, {
+                            method: "POST",
+                        });
+
+                        console.log("🗑️ Delete Response Status:", response.status);
+
+                        if (!response.ok) {
+                            throw new Error(`Server error! Status: ${response.status}`);
+                        }
+
+                        // ✅ Remove the deleted customer's row from the table dynamically
+                        const rowToDelete = this.closest("tr");
+                        if (rowToDelete) {
+                            rowToDelete.remove();
+                            console.log(`✅ Customer ${customerId} removed from table.`);
+                        }
+                    } catch (error) {
+                        console.error("🚨 Delete Error:", error);
+                        alert("Failed to delete customer.");
+                    }
+                });
+            });
+    }
+
+    // ✅ Function to Reload Manage Customers Page Without Refreshing
+    async function reloadManageCustomers() {
+        console.log("🔄 Reloading Manage Customers...");
+        const contentDiv = document.getElementById("dynamic-content");
+
+        if (!contentDiv) {
+            console.error("🚨 Error: #dynamic-content not found!");
+            return;
+        }
+
+        const updatedContent = await fetch("/managecustomers");
+        const html = await updatedContent.text();
+        contentDiv.innerHTML = html; // Replace only the content
+
+        bindManageCustomersEvents(); // ✅ Rebind event listeners after reload
+    }
+
+    // Initial Binding of Events
+    bindManageCustomersEvents();
+
+}, 500);
+</script>
+</body>
+</html>

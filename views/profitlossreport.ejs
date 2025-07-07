@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>profit and loss report</title>
+<style>
+    @media print {
+        body * {
+            visibility: hidden;
+        }
+        #print-section, #print-section * {
+            visibility: visible;
+        }
+        #print-section {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+        }
+    }
+</style>
+</head>
+<body>
+
+  
+    
+    <div class="container">
+        <h2>Profit Loss Report</h2>
+
+        <div class="filter-section" style="display: flex; justify-content: flex-start; align-items: center; gap: 10px; margin-bottom: 20px;">
+            <label for="year">Select Year</label>
+            <select id="year" style="padding: 5px; border: 1px solid #ccc; border-radius: 4px;">
+                <option value="">Select Year</option>
+                <% report.uniqueYears.forEach(year => { %>
+                    <option value="<%= year %>"><%= year %></option>
+                <% }) %>
+            </select>
+            <button class="btn search-btn" style="padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer; background-color: #007bff; color: white;" onclick="searchReport()">Search</button>
+            <button class="btn reset-btn" style="padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer; background-color: #ffc107; color: black;">Reset</button>
+            <button class="btn print-btn" style="padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer; background-color: #28a745; color: white;" onclick="window.print()">Print</button>
+            <button class="btn export-btn" style="padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer; background-color: #17a2b8; color: white;" onclick="exportToExcel()">Export to Excel</button>
+
+        </div>
+
+        <div id="print-section">
+        <div class="report-container" style="display: flex; justify-content: space-between; gap: 20px;">
+            <div class="table-container" style="width: 48%; display: inline-block; vertical-align: top;">
+                <h3 style="text-align: center;">Profit and Loss Statement</h3>
+                <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+                    <thead>
+                        <tr>
+                            <th style="padding: 10px; text-align: left; border: 1px solid #ddd; background-color: #f2f2f2;">Sr No</th>
+                            <th style="padding: 10px; text-align: left; border: 1px solid #ddd; background-color: #f2f2f2;">Particulars</th>
+                            <th style="padding: 10px; text-align: left; border: 1px solid #ddd; background-color: #f2f2f2;">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% report.expenses.forEach((item, index) => { %>
+                            <tr>
+                                <td style="padding: 10px; border: 1px solid #ddd;"><%= index + 1 %></td>
+                                <td style="padding: 10px; border: 1px solid #ddd;"><%= item.particular %></td>
+                                <td style="padding: 10px; border: 1px solid #ddd;"><%= typeof item.amount === 'number' ? item.amount.toFixed(2) : '0.00' %></td>
+                            </tr>
+                        <% }) %>
+                        <tr class="total-row" style="font-weight: bold; background-color: #e9ecef;">
+                            <td colspan="2" style="padding: 10px; border: 1px solid #ddd;">Total</td>
+                            <td style="padding: 10px; border: 1px solid #ddd;"><%= typeof report.totalExpenses === 'number' ? report.totalExpenses.toFixed(2) : '0.00' %></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="table-container" style="width: 48%; display: inline-block; vertical-align: top;">
+                <h3 style="text-align: center;">Profit and Loss Statement</h3>
+                <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+                    <thead>
+                        <tr>
+                            <th style="padding: 10px; text-align: left; border: 1px solid #ddd; background-color: #f2f2f2;">Sr No</th>
+                            <th style="padding: 10px; text-align: left; border: 1px solid #ddd; background-color: #f2f2f2;">Particulars</th>
+                            <th style="padding: 10px; text-align: left; border: 1px solid #ddd; background-color: #f2f2f2;">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% report.income.forEach((item, index) => { %>
+                            <tr>
+                                <td style="padding: 10px; border: 1px solid #ddd;"><%= index + 1 %></td>
+                                <td style="padding: 10px; border: 1px solid #ddd;"><%= item.particular %></td>
+                                <td style="padding: 10px; border: 1px solid #ddd;"><%= typeof item.amount === 'number' ? item.amount.toFixed(2) : '0.00' %></td>
+                            </tr>
+                        <% }) %>
+                        <tr class="total-row" style="font-weight: bold; background-color: #e9ecef;">
+                            <td colspan="2" style="padding: 10px; border: 1px solid #ddd;">Total</td>
+                            <td style="padding: 10px; border: 1px solid #ddd;"><%= typeof report.totalIncome === 'number' ? report.totalIncome.toFixed(2) : '0.00' %></td>
+                        </tr>
+                        <tr class="difference-row" style="font-weight: bold; background-color: #d4edda;">
+                            <td colspan="2" style="padding: 10px; border: 1px solid #ddd;">Difference amount is</td>
+                            <td style="padding: 10px; border: 1px solid #ddd;"><%= typeof (report.totalIncome - report.totalExpenses) === 'number' ? (report.totalIncome - report.totalExpenses).toFixed(2) : '0.00' %></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    
+    <script>
+
+        function exportToExcel() {
+    const selectedYear = document.getElementById("year").value || '';
+    window.location.href = `/export-profitloss-excel?year=${selectedYear}`;
+}
+
+        document.addEventListener("DOMContentLoaded", async () => {
+            // Initial load of the profit loss report
+            await loadProfitLossReport();
+        });
+    
+        async function loadProfitLossReport() {
+            // Get the selected year from the dropdown
+            const selectedYear = document.getElementById("year").value;
+    
+            // Fetch the profit loss report, including the selected year as a query parameter
+            const response = await fetch(`/profitlossreport?year=${selectedYear}`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            });
+    
+            // Check if the response is OK
+            if (response.ok) {
+                const data = await response.json();
+    
+                // Update the total sales, purchases, and profit/loss values
+                document.getElementById("totalSales").textContent = data.totalIncome.toFixed(2); // Assuming totalIncome is what you want for sales
+                document.getElementById("totalPurchases").textContent = data.totalExpenses.toFixed(2); // Assuming totalExpenses is what you want for purchases
+                document.getElementById("profitLoss").textContent = (data.totalIncome - data.totalExpenses).toFixed(2);
+            } else {
+                console.error("Failed to fetch profit loss report:", response.statusText);
+            }
+        }
+    
+        function searchReport() {
+            const selectedYear = document.getElementById("year").value;
+            // Call the function to load the report dynamically
+            loadProfitLossReport();
+        }
+    
+        function resetReport() {
+            // Reset the year selection and reload the report
+            document.getElementById("year").value = "";
+            loadProfitLossReport(); // Call the function to load the report without filters
+        }
+    </script>
+
+</body>
+</html>

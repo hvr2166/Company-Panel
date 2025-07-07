@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cash flow report</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+</head>
+<body>
+    <div class="container" >
+                <h2 style="text-align: left; color: #333;">Cash Flow Report</h2>
+                
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+   <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+    <label style="font-weight: bold;">Select Month:</label>
+    <select id="monthSelect" name="month" style="border: 1px solid #ccc; border-radius: 4px; padding: 5px;">
+        <option value="">All</option>
+        <% 
+            const months = ["January", "February", "March", "April", "May", "June", 
+                            "July", "August", "September", "October", "November", "December"];
+            months.forEach((month, index) => {
+        %>
+            <option value="<%= index + 1 %>"><%= month %></option>
+        <% }) %>
+    </select>
+
+    <label style="font-weight: bold;">Select Year:</label>
+    <select id="yearSelect" name="year" style="border: 1px solid #ccc; border-radius: 4px; padding: 5px;">
+        <option value="">All</option>
+        <% 
+            const currentYear = new Date().getFullYear();
+            for (let y = currentYear; y >= currentYear - 10; y--) {
+        %>
+            <option value="<%= y %>"><%= y %></option>
+        <% } %>
+    </select>
+
+    <button id="searchBtn" style="padding: 6px 10px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">Search</button>
+    <button id="resetBtn" style="padding: 6px 10px; background-color: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer;">Reset</button>
+    <button id="printBtn" style="padding: 6px 10px; background-color: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer;">Print</button>
+    
+</div>
+                </div>
+
+
+                
+                <table border="1" style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="background-color: #007bff; color: white;">
+                            <th style="padding: 10px;">Payment Date</th>
+                            <th style="padding: 10px;">Cash In</th>
+                            <th style="padding: 10px;">Cash Out</th>
+                            <th style="padding: 10px;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if (cashFlowData && cashFlowData.length > 0) { %>
+                            <% cashFlowData.forEach(row => { %>
+                                <tr>
+                                    <td style="padding: 8px; border-bottom: 1px solid #ddd;"><%= row.paymentDate %></td>
+                                    <td style="padding: 8px; border-bottom: 1px solid #ddd; color: green;"><%= row.cashIn || 0 %></td>
+                                    <td style="padding: 8px; border-bottom: 1px solid #ddd; color: red;"><%= row.cashOut || 0 %></td>
+                                    <td style="text-align: center;">
+                                        <button class="details-btn" data-month="<%= row.month %>" style="padding: 6px 10px; background-color: #17a2b8; color: white; border: none; border-radius: 4px; cursor: pointer;">🔍 Details</button>
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        <% } else { %>
+                            <tr>
+                                <td colspan="4" style="text-align: center; padding: 10px;">No data available for the selected month.</td>
+                            </tr>
+                        <% } %>
+                    </tbody>
+                </table>
+
+                            
+                <!-- Cash Flow Summary -->
+                <div style="margin-top: 20px; text-align: left;">
+                    <h3>Cash Flow Summary</h3>
+                    <p><strong>Cash In:</strong> <span id="totalCashIn"><%= cashFlowData.reduce((acc, row) => acc + (row.cashIn || 0), 0) %></span></p>
+                    <p><strong>Cash Out:</strong> <span id="totalCashOut"><%= cashFlowData.reduce((acc, row) => acc + (row.cashOut || 0), 0) %></span></p>
+                    <p><strong>Total:</strong> <span id="totalAmount"><%= cashFlowData.reduce((acc, row) => acc + (row.cashIn || 0), 0) - cashFlowData.reduce((acc, row) => acc + (row.cashOut || 0), 0) %></span></p>
+                </div>
+                
+                <!-- Transaction Details Modal -->
+                <div id="detailsModal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border-radius: 8px; box-shadow: 0px 0px 10px rgba(0,0,0,0.1);">
+                    <h3 style="margin-bottom: 10px;">Transaction Details</h3>
+                    <table border="1" style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background-color: #007bff; color: white;">
+                                <th style="padding: 8px;">Date</th>
+                                <th style="padding: 8px;">Type</th>
+                                <th style="padding: 8px;">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody id="detailsTableBody">
+                        </tbody>
+                    </table>
+                    <button onclick="closeModal()" style="margin-top: 10px; padding: 8px 12px; background-color: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer;">Close</button>
+                </div>
+
+                <div style="margin-top: 20px; text-align: right;">
+    <form action="/export-cashflow" method="GET">
+        <input type="hidden" name="month" value="<%= selectedMonth %>">
+        <button type="submit" style="background-color: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">
+            Export to Excel
+        </button>
+    </form>
+</div>
+           
+        </div>
+    
+    
+    <script>
+console.log("📊 Cash Flow Report script loaded!");
+
+// Delay execution slightly to ensure elements are available
+setTimeout(() => {
+    console.log("⏳ Checking for elements...");
+
+    function bindCashFlowEvents() {
+        const searchBtn = document.getElementById("searchBtn");
+        const resetBtn = document.getElementById("resetBtn");
+        const printBtn = document.getElementById("printBtn");
+        const detailsModal = document.getElementById("detailsModal");
+        const detailsTableBody = document.getElementById("detailsTableBody");
+
+        if (!searchBtn || !resetBtn || !printBtn || !detailsModal || !detailsTableBody) {
+            console.error("❌ Some Cash Flow elements are missing! DOM might not be fully loaded.");
+            return;
+        }
+
+        console.log("✅ Cash Flow elements found, adding event listeners...");
+
+        // Handle Details Button Click (Use Correct Event Delegation)
+        $(document).on("click", ".details-btn", function () {
+            var selectedMonth = $(this).data("month");
+            console.log("🔍 Fetching details for month:", selectedMonth);
+
+            $.get("/getTransactions?month=" + selectedMonth, function (data) {
+                console.log("✅ Received data:", data);
+                detailsTableBody.innerHTML = "";
+
+                if (data.length > 0) {
+                    data.forEach(entry => {
+                        detailsTableBody.innerHTML += `
+                            <tr>
+                                <td>${entry.date}</td>
+                                <td>${entry.type}</td>
+                                <td>${entry.amount}</td>
+                            </tr>`;
+                    });
+                } else {
+                    detailsTableBody.innerHTML = '<tr><td colspan="3">No transactions available.</td></tr>';
+                }
+
+                detailsModal.style.display = "block";
+            }).fail(function (error) {
+                console.error("🚨 Error fetching transactions:", error);
+            });
+        });
+
+        // Close Modal Button
+        $(document).on("click", "#detailsModal button", function () {
+            $("#detailsModal").hide();
+        });
+
+        // Reload Data (if needed) after form actions
+        async function reloadCashFlowReport() {
+            console.log("🔄 Reloading Cash Flow Report...");
+            const contentDiv = document.getElementById("dynamic-content");
+
+            if (!contentDiv) {
+                console.error("🚨 Error: #dynamic-content not found!");
+                return;
+            }
+
+            const updatedContent = await fetch("/cashflowreport");
+            const html = await updatedContent.text();
+            contentDiv.innerHTML = html;
+
+            bindCashFlowEvents(); // ✅ Rebind event listeners after reload
+            updateCashFlowSummary(); // Update summary after reload
+        }
+
+        // Update Cash Flow Summary
+        function updateCashFlowSummary() {
+            let totalCashIn = 0;
+            let totalCashOut = 0;
+
+            // Iterate through each row in the table body
+            $("tbody tr").each(function() {
+                const cashIn = parseFloat($(this).find("td:nth-child(2)").text()) || 0; // Cash In column
+                const cashOut = parseFloat($(this).find("td:nth-child(3)").text()) || 0; // Cash Out column
+
+                totalCashIn += cashIn;
+                totalCashOut += cashOut;
+            });
+
+            // Update the summary section
+            $("#totalCashIn").text(totalCashIn.toFixed(2));
+            $("#totalCashOut").text(totalCashOut.toFixed(2));
+            $("#totalAmount").text((totalCashIn - totalCashOut).toFixed(2));
+        }
+
+        // Call this function after the initial load
+        updateCashFlowSummary();
+
+        // Call updateCashFlowSummary after search and reset button clicks
+        $(document).on("click", "#searchBtn, #resetBtn", function() {
+            setTimeout(updateCashFlowSummary, 500); // Delay to ensure the table is updated
+        });
+    }
+
+    // Initial Binding of Events
+    bindCashFlowEvents();
+
+}, 500);
+
+
+   </script>
+</body>
+</html>

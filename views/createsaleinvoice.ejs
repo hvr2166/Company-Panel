@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Sale Invoice</title>
+    <!-- Styles -->
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+
+    <div id="dynamic-content" >
+        <div  id="manageusers-page"  class="container-wrapper">
+
+        <!-- Main Content -->
+        <main class="content" >
+            <div class="container"  style="height: 100vh; overflow-y: auto; margin: 0; padding: 0;">
+                <h2>Create Sale Invoice </h2>
+               
+               <!-- Add puchase approval  Form -->
+               <div id="manageSalesView" style="width: 90%; margin: 20px auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);">
+                <h3 style="margin-bottom: 20px; font-size: 20px; font-weight: bold;">Add Sales Invoice</h3>
+                <form action="/addsale" method="POST">
+                    
+                    <!-- Customer Selection & Sale Date -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <div class="form-group" style="flex: 2; display: flex; align-items: center; gap: 10px;">
+                            <label >Customer</label>
+                            <select name="customer" class="form-control" required style="flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+                                <option value="">Select Customer</option>
+                                <!-- Add dynamic options here -->
+                            </select>
+                            <button type="button" style="padding: 8px 15px; background: #6c5ce7; color: white; border: none; border-radius: 5px; cursor: pointer;">Add</button>
+                        </div>
+            
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <label for="sale-date" >Sale Date</label>
+                            <input type="date" id="sale-date" style="padding: 8px; border-radius: 5px; border: 1px solid #ccc; width: 150px;">
+                        </div>
+                        
+                        
+                    </div>
+            
+                    <!-- Item Details Table -->
+                    <div id="itemDetailsContainer" style="border: 1px solid #ddd; padding: 15px; border-radius: 5px; margin-bottom: 15px; max-height: 200px; overflow-y: auto;">
+                        <label style="font-weight: bold;">Item Details</label>
+                        <div class="item-details" style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
+                            
+                            <div class="form-group" style="flex: 1;">
+                                <label>Lot No</label>
+                                <select name="lot_no[]" class="form-control" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+                                    <option value="">Select Lot No</option>
+                                    <!-- Add dynamic options here -->
+                                </select>
+                            </div>
+            
+                            <div class="form-group" style="flex: 2;">
+                                <label>Description</label>
+                                <input type="text" name="description[]" class="form-control" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+                            </div>
+            
+                            <div class="form-group" style="flex: 1;">
+                                <label>Weight</label>
+                                <input type="text" name="weight[]" class="form-control" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px; background: #f8f9fa;">
+                            </div>
+            
+                            <div class="form-group" style="flex: 1;">
+                                <label>Price</label>
+                                <input type="number" name="price[]" class="form-control" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px; background: #f8f9fa;">
+                            </div>
+            
+                            <div class="form-group" style="flex: 1;">
+                                <label>Nett Amount</label>
+                                <input type="text" name="nett_amount[]" class="form-control" readonly value="0" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px; background: #eee;">
+                            </div>
+            
+                        </div>
+                    </div>
+            
+                    <!-- Add More Button -->
+                    <button type="button" id="addMoreBtn" style="margin-bottom: 15px; padding: 8px 12px; background: #ccc; border: none; border-radius: 5px; cursor: pointer;">+ Add More</button>
+            
+                    <!-- Customer Address and Additional Fields -->
+                    <div style="margin-bottom: 15px;">
+                        <label>Customer Address:</label>
+                        <input type="text" name="customer_address" class="form-control" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+                    </div>
+            
+                    <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                        <div class="form-group" style="flex: 1;">
+                            <label>Header1</label>
+                            <input type="text" name="header1" class="form-control" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+                        </div>
+            
+                        <div class="form-group" style="flex: 1;">
+                            <label>Freight</label>
+                            <input type="text" name="freight" class="form-control" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+                        </div>
+            
+                        <div class="form-group" style="flex: 1;">
+                            <label>Total Header</label>
+                            <input type="text" name="total_header" class="form-control" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+                        </div>
+                    </div>
+            
+                    <!-- Buttons -->
+                    <div class="button-group" style="display: flex; gap: 10px;">
+                        <button type="submit" style="padding: 10px 15px; background: #2ecc71; color: white; border: none; border-radius: 5px; cursor: pointer;">Save Sale</button>
+                        <button type="button" style="padding: 10px 15px; background: #6c5ce7; color: white; border: none; border-radius: 5px; cursor: pointer;">Save And Print</button>
+                    </div>
+            
+                </form>
+            </div>
+            
+            
+        </div>
+    </main>
+</div>
+</div>
+<script>
+    console.log("🛠️ Manage Purchase Approvals script loaded!");
+
+    // Delay execution slightly to ensure elements are available
+    setTimeout(() => {
+       
+
+        document.getElementById("addMoreBtn").addEventListener("click", function () {
+    let container = document.getElementById("itemDetailsContainer");
+
+    let newRow = document.createElement("div");
+    newRow.classList.add("item-details");
+    newRow.style.display = "flex";
+    newRow.style.flexWrap = "wrap";
+    newRow.style.gap = "10px";
+    newRow.style.alignItems = "center";
+    newRow.style.marginTop = "10px";
+
+    newRow.innerHTML = `
+        <div class="form-group" style="flex: 1;">
+            <label>Lot No</label>
+            <select name="lot_no[]" class="form-control" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+                <option value="">Select Lot No</option>
+            </select>
+        </div>
+
+        <div class="form-group" style="flex: 2;">
+            <label>Description</label>
+            <input type="text" name="description[]" class="form-control" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+        </div>
+
+        <div class="form-group" style="flex: 1;">
+            <label>Weight</label>
+            <input type="text" name="weight[]" class="form-control weight-input" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px; background: #f8f9fa;">
+        </div>
+
+        <div class="form-group" style="flex: 1;">
+            <label>Price</label>
+            <input type="number" name="price[]" class="form-control price-input" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px; background: #f8f9fa;">
+        </div>
+
+        <div class="form-group" style="flex: 1;">
+            <label>Nett Amount</label>
+            <input type="text" name="nett_amount[]" class="form-control nett-amount" readonly value="0" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px; background: #eee;">
+        </div>
+    `;
+
+    container.appendChild(newRow);
+});
+
+document.querySelectorAll("input[type='date']").forEach((input) => {
+    if (!input.value) {
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
+        const dd = String(today.getDate()).padStart(2, '0');
+        input.value = `${yyyy}-${mm}-${dd}`;
+    }
+});
+    }, 100); // Delay of 100 milliseconds to ensure DOM is ready
+</script>
+
+</body>
+</html>
